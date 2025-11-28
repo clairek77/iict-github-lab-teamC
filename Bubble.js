@@ -10,7 +10,7 @@ class Bubble {
         this.alpha = 200;
 
         // 버블 색상 (파스텔 톤)
-        this.hue = random(180, 220); // 파랑-청록 계열
+        this.hue = random(180, 220); // 파랑-청록 계열, 윤지 수정
     }
 
     update() {
