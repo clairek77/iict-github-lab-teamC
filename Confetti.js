@@ -10,7 +10,7 @@ class Confetti {
         this.rotation = random(TWO_PI);
         this.rotationSpeed = random(-0.2, 0.2);
 
-        // 밝은 색상들
+        // 밝은 색상들 민식
         let colors = [
             color(255, 87, 87),   // 빨강
             color(255, 195, 0),   // 노랑
