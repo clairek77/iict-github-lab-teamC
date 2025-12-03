@@ -1,69 +1,291 @@
 {
-  "categories": {
-    "건강": {
+  "topics": {
+    "마음": {
       "flow": [
         {
-          "id": "health_flow_1",
-          "title": "건강 관련 최신 흐름",
-          "summary": "건강을 둘러싼 화두가 ‘몸의 병’에서 ‘마음의 병’으로 바뀌고 있습니다. 정신건강 문제로 응급실을 찾는 청년층이 5년 사이 두 배 가까이 늘었어요. 특히 우울·불안 증상이 젊은 세대의 대표적인 건강 이슈로 자리 잡고 있습니다."
+          "id": "health_flow_마음",
+          "title": "정신과에 버럭 김부장…현실은 청년층 정신건강이 더 심각하다 [세상&]",
+          "summary": "건강을 둘러싼 화두가 ‘몸의 병’에서 ‘마음의 병’으로 바뀌고 있습니다. 정신건강 문제로 응급실을 찾는 청년층이 5년 사이 두 배 가까이 늘었어요. 특히 우울·불안 증상이 젊은 세대의 대표적인 건강 이슈로 자리 잡고 있습니다.",
+          "link": "https://biz.heraldcorp.com/article/10621597?ref=naver"
         }
       ],
       "advice": [
         {
-          "id": "health_policy_1",
-          "title": "건강 관련 정책 조언",
-          "policy": "청년 1인가구 무료 건강검진, 청년마음건강지원사업"
+          "id": "health_policy_마음",
+          "title": "마음 건강 관련 정책 조언",
+          "policy": "'청년마음건강지원사업'을 통해 서울시에서 제공하는 맞춤 진단 및 심리 상담을 받아보세요.",
+          "link": "https://youth.seoul.go.kr/infoData/plcyInfo/view.do?key=2309150002&plcyBizId=20250519005400210855"
         }
       ]
     },
-
-    "금전": {
+    "신체": {
       "flow": [
         {
-          "id": "money_flow_1",
-          "title": "금전/자산 흐름 요약",
-          "summary": "20대는 대출 규모는 적지만 연체율은 가장 높은 세대로 나타나고 있습니다. 연체로 인해 고금리·불법 금융으로 밀려나는 사례도 꾸준히 늘고 있어요. 경제난 속 청년층이 구조적 위험에 취약해지는 흐름입니다."
+          "id": "health_flow_신체",
+          "title": "당뇨환자 10년 새 73% 늘어…2030 증가율 80% 육박",
+          "summary": "국내 당뇨병 환자가 최근 10년간 크게 증가했으며, 특히 20·30대 젊은 층의 증가율이 가장 높게 나타났습니다. 불규칙한 식습관, 운동 부족, 스트레스와 음주 등으로 인한 비만이 청년 당뇨의 주요 원인으로 지목되고 있어요. 하지만 많은 청년들이 초기 증상을 인지하지 못해 진단과 관리를 놓치면서 더 큰 합병증 위험에 노출되고 있습니다.",
+          "link": "https://www.kookje.co.kr/news2011/asp/newsbody.asp?code=0700&key=20251118.22014005487"
         }
       ],
       "advice": [
         {
-          "id": "money_policy_1",
-          "title": "금전 관련 정책",
-          "policy": "청년 금융 컨설팅 센터에서 제공하는 다양한 강좌 기회 등"
+          "id": "health_policy_신체",
+          "title": "신체 건강 관련 정책 조언",
+          "policy": "'서울대학교 보건진료소 학생건강검진'을 통해 체계적인 건강검진을 매년 무료로 받아보세요.",
+          "link": "https://health4u.snu.ac.kr/checkup/checkupGuide/_/view.do"
         }
       ]
     },
-
-    "연애": {
+    "운동": {
       "flow": [
         {
-          "id": "love_flow_1",
-          "title": "연애 흐름 요약",
-          "summary": "연애가 콘텐츠로는 크게 소비되지만, 현실에서는 연애의 우선순위가 낮아지고 있습니다. 젊은 세대는 감정 소모보다 개인 성장과 일정 효율을 우선시한다고 해요. 최근 들어 사랑을 바라보는 관점이 점점 더 실용적으로 변하고 있어요."
+          "id": "health_flow_운동",
+          "title": "당뇨환자 10년 새 73% 늘어…2030 증가율 80% 육박",
+          "summary": "국내 당뇨병 환자가 최근 10년간 크게 증가했으며, 특히 20·30대 젊은 층의 증가율이 가장 높게 나타났습니다. 불규칙한 식습관, 운동 부족, 스트레스와 음주 등으로 인한 비만이 청년 당뇨의 주요 원인으로 지목되고 있어요. 하지만 많은 청년들이 초기 증상을 인지하지 못해 진단과 관리를 놓치면서 더 큰 합병증 위험에 노출되고 있습니다.",
+          "link": "https://www.kookje.co.kr/news2011/asp/newsbody.asp?code=0700&key=20251118.22014005487"
         }
       ],
       "advice": [
         {
-          "id": "love_policy_1",
-          "title": "연애 관련 정책",
-          "policy": "교제커플 미래준비교실, 서울시문화포털, 관악구 청년청 등"
+          "id": "health_policy_운동",
+          "title": "운동 관련 정책 조언",
+          "policy": "'거주지 인근 보건진료소'에 방문하면 누구나 무료로 상세한 인바디 검사를 받을 수 있습니다. 꾸준한 운동의 효과를 직접 확인하면 더욱 도움이 될 거예요.",
+          "link": "https://health4u.snu.ac.kr/checkup/checkupGuide/_/view.do"
         }
       ]
     },
-
-    "진로": {
+    "식습관": {
       "flow": [
         {
-          "id": "career_flow_1",
-          "title": "진로 흐름 요약",
-          "summary": "20~30대의 새 일자리가 역대 최저 수준으로 떨어지고 있습니다. 대졸 첫 취업과 맞물린 신규 채용 감소가 두드러지고, 비정규직은 오히려 늘고 있어요. 이로 인해 청년층의 고용 불안과 ‘쉬었음’ 인구 증가가 이어지는 흐름입니다."
+          "id": "health_flow_식습관",
+          "title": "당뇨환자 10년 새 73% 늘어…2030 증가율 80% 육박",
+          "summary": "국내 당뇨병 환자가 최근 10년간 크게 증가했으며, 특히 20·30대 젊은 층의 증가율이 가장 높게 나타났습니다. 불규칙한 식습관, 운동 부족, 스트레스와 음주 등으로 인한 비만이 청년 당뇨의 주요 원인으로 지목되고 있어요. 하지만 많은 청년들이 초기 증상을 인지하지 못해 진단과 관리를 놓치면서 더 큰 합병증 위험에 노출되고 있습니다.",
+          "link": "https://www.kookje.co.kr/news2011/asp/newsbody.asp?code=0700&key=20251118.22014005487"
         }
       ],
       "advice": [
         {
-          "id": "career_policy_1",
-          "title": "진로 관련 정책",
-          "policy": "서울대학교 경력개발센터의 다양한 행사 및 서비스, 서울시 1:1 취업 컨설팅"
+          "id": "health_policy_식습관",
+          "title": "식습관 관련 정책 조언",
+          "policy": "청년 1인가구 소셜다이닝: '건강한 밥상'을 통해 올바른 식습관을 형성하고 다양한 테마의 요리에 직접 도전해보세요.",
+          "link": "https://youth.seoul.go.kr/infoData/plcyInfo/view.do?sprtInfoId=&plcyBizId=V202500005&key=2309150002&sc_detailAt=&pageIndex=1&orderBy=regYmd+desc&blueWorksYn=N&tabKind=001&sw=%EA%B1%B4%EA%B0%95"
+        }
+      ]
+    },
+    "취업": {
+      "flow": [
+        {
+          "id": "career_flow_취업",
+          "title": "2030 ‘바늘구멍’ 뚫어도 3명 중 1명 비정규직",
+          "summary": "20~30대의 새 일자리가 역대 최저 수준으로 떨어지고 있습니다. 대졸 첫 취업과 맞물린 신규 채용 감소가 두드러지고, 비정규직은 오히려 늘고 있어요. 이로 인해 청년층의 고용 불안과 ‘쉬었음’ 인구 증가가 이어지는 흐름입니다.",
+          "link": "https://www.seoul.co.kr/news/economy/2025/11/24/20251124018002?wlog_tag3=naver"
+        }
+      ],
+      "advice": [
+        {
+          "id": "career_policy_취업",
+          "title": "취업 관련 정책 조언",
+          "policy": "'서울시 1:1 취업 컨설팅' 프로그램을 통해 스스로의 강점과 약점을 파악하고 성공적인 취업에 필요한 전략을 세울 수 있습니다.",
+          "link": "https://youth.seoul.go.kr/infoData/sprtInfo/view.do?sprtInfoId=66032&key=2309130006&pageIndex=1&orderBy=regYmd+desc&recordCountPerPage=8&sc_ctgry=PDS_10_YC&sw=&viewType=on&sc_aplyPrdEndYmdUseYn=&cntrLa=37.566761128870546&cntrLo=126.97862963872868&neLat=37.566761128870546&neLng=126.97862963872868&swLat=37.566761128870546&swLng=126.97862963872868&mapLvl=6&sarea="
+        }
+      ]
+    },
+    "학점": {
+      "flow": [
+        {
+          "id": "career_flow_학점",
+          "title": "AI 안쓰면 바보될판…교육부, 대학가 번지는 부정행위에 칼 빼들었다",
+          "summary": "대학가에서 AI를 활용한 시험·과제 부정행위가 빠르게 늘자, 교육부는 이를 관리하기 위한 대학생용 AI 윤리 가이드라인 개발에 착수했습니다. 온라인 강의 확대와 AI 도구 보편화로 부정행위 위험이 커진 만큼, 표절 기준과 책임 있는 사용 원칙을 명확히 해야 한다는 요구가 커지고 있어요. 전문가들은 단순한 규제뿐 아니라 AI를 활용한 학습 효율 향상까지 포괄하는 현실적 기준 설정이 필요하다고 강조합니다.",
+          "link": "https://www.mk.co.kr/news/society/11479088"
+        }
+      ],
+      "advice": [
+        {
+          "id": "career_policy_학점",
+          "title": "학점 관련 정책 조언",
+          "policy": "“서울대학교 학부대학”의 일대일 학습상담이나 학습클리닉에 신청하면 나의 상황에 맞게 학업적 도움을 받을 수 있습니다.",
+          "link": "https://snuc.snu.ac.kr/%ed%95%99%eb%b6%80%ec%83%9d-%ed%94%84%eb%a1%9c%ea%b7%b8%eb%9e%a8/"
+        }
+      ]
+    },
+    "적성": {
+      "flow": [
+        {
+          "id": "career_flow_적성",
+          "title": "“적성과 진로 찾기는 원래 혼란스러운 것…서두르지 마세요”",
+          "summary": "적성과 진로는 빠르게 결정할 필요가 없으며, 긴 생애주기를 고려하면 여러 번 탐색과 고민을 거치는 것이 자연스럽다는 시각이 강조되고 있습니다. AI 시대의 변화와 정보 과부하 속에서 청년들이 적성을 찾는 과정은 더 길어질 수밖에 없지만, 부모의 조급한 개입은 오히려 청소년의 불안과 혼란을 키울 수 있어요. 전문가들은 진로 선택은 평생 이어지는 여정이며, 다양한 경험과 학습을 통해 서서히 방향을 찾아가야 한다고 조언합니다.",
+          "link": "https://www.hani.co.kr/arti/society/schooling/1229702.html"
+        }
+      ],
+      "advice": [
+        {
+          "id": "career_policy_적성",
+          "title": "적성 관련 정책 조언",
+          "policy": "'서울대학교 경력개발센터'에서 제공하는 온라인 무료 진로 검사(성격유형검사와 진로흥미검사)를 통해 나의 성향과 적성을 찾아보세요.",
+          "link": "https://career.snu.ac.kr/student/program/exam"
+        }
+      ]
+    },
+    "전공": {
+      "flow": [
+        {
+          "id": "career_flow_전공",
+          "title": "'사람 안 뽑아요'…기업들이 모셔가던 대학 인기학과 '발칵'",
+          "summary": "생성형 AI 확산으로 대학 전공의 인기 구도가 빠르게 바뀌며, IT·소프트웨어 계열의 경쟁률이 하락하는 반면 반도체 계약학과는 높은 수요로 인기가 급상승하고 있습니다. AI가 단순 코딩 업무를 대체하고 글로벌 빅테크의 개발자 감원이 이어지면서 컴퓨터공학계열 진학을 불안하게 보는 흐름이 강해졌어요. 반대로 반도체·데이터 분석 수요 증가로 반도체 계약학과와 문헌정보학과 등 새로운 전공들이 최상위권 학생들의 선택지로 부상하고 있습니다.",
+          "link": "https://www.hankyung.com/article/2025112676171"
+        }
+      ],
+      "advice": [
+        {
+          "id": "career_policy_전공",
+          "title": "전공 관련 정책 조언",
+          "policy": "'서울대학교 전공설계지원센터'를 통해 전공 선택에 대한 상담부터 다양한 지원 프로그램까지 폭넓게 만나보세요.",
+          "link": "https://advising.snu.ac.kr/"
+        }
+      ]
+    },
+    "투자": {
+      "flow": [
+        {
+          "id": "money_flow_투자",
+          "title": "청년들 고환율 비명… 쓰디쓴 달고나 세대",
+          "summary": "최근 고환율이 지속되면서 해외 결제·여행·해외 주식 투자에 익숙한 20·30대 청년들은 소비 지출 증가와 투자 손실 위험을 크게 체감하고 있습니다. 특히 해외 직구, 외화 결제, 미국 주식 투자 비중이 높은 청년층은 ‘달고나(달러에 고통받는 나)’ 세대로 불릴 만큼 생활비·여행비·구독료 부담이 급증했어요. 전문가들은 청년층 특성을 고려한 투자 환경 개선과 환율 안정 정책의 필요성을 강조하고 있습니다.",
+          "link": "https://www.donga.com/news/Economy/article/all/20251128/132867138/2"
+        }
+      ],
+      "advice": [
+        {
+          "id": "money_policy_투자",
+          "title": "투자 관련 정책 조언",
+          "policy": "“청년금융 컨설팅” 또는 “서울 영테크”를 통해 투자에 대한 강좌를 수강하거나 전문가와의 재무상담을 받아보세요.",
+          "link1": "https://ylaccount.kinfa.or.kr/cst/step1",
+          "link2": "https://youth.seoul.go.kr/youngtech/"
+        }
+      ]
+    },
+    "소비": {
+      "flow": [
+        {
+          "id": "money_flow_소비",
+          "title": "2030세대는 '新자린고비' 열풍...'하루 지출 0원인 날도'",
+          "summary": "2030 청년층 사이에서 물가 상승과 경제적 불안정 속에 생활비를 극도로 줄이는 ‘저소비 생활’ 문화가 빠르게 확산하고 있습니다. 이는 생존을 위한 현실적 전략이자 미니멀·지속가능성 가치관과도 맞닿아 있어요. 이러한 흐름은 한국뿐 아니라 글로벌 MZ세대 전반에서 나타나고 있습니다.",
+          "link": "https://www.chosun.com/economy/weeklybiz/2025/11/06/GGI26WRMGVD3BIORRMDO55OHGQ/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news"
+        }
+      ],
+      "advice": [
+        {
+          "id": "money_policy_소비",
+          "title": "소비 관련 정책 조언",
+          "policy": "“서민금융진흥원”에서 제공하는 다양한 강좌를 통해 경제 생활에 대한 풍부한 지식을 얻을 수 있습니다.",
+          "link": "https://edu.kinfa.or.kr/edu/online/onlineEduList.do?ref1=YOUTH"
+        }
+      ]
+    },
+    "수입": {
+      "flow": [
+        {
+          "id": "money_flow_수입",
+          "title": "청년들 고환율 비명… 쓰디쓴 달고나 세대",
+          "summary": "최근 고환율이 지속되면서 해외 결제·여행·해외 주식 투자에 익숙한 20·30대 청년들은 소비 지출 증가와 투자 손실 위험을 크게 체감하고 있습니다. 특히 해외 직구, 외화 결제, 미국 주식 투자 비중이 높은 청년층은 ‘달고나(달러에 고통받는 나)’ 세대로 불릴 만큼 생활비·여행비·구독료 부담이 급증했어요. 전문가들은 청년층 특성을 고려한 투자 환경 개선과 환율 안정 정책의 필요성을 강조하고 있습니다.",
+          "link": "https://www.donga.com/news/Economy/article/all/20251128/132867138/2"
+        }
+      ],
+      "advice": [
+        {
+          "id": "money_policy_수입",
+          "title": "수입 관련 정책 조언",
+          "policy": "“서민금융진흥원”에서 제공하는 다양한 강좌를 통해 경제 생활에 대한 풍부한 지식을 얻을 수 있습니다.",
+          "link": "https://edu.kinfa.or.kr/edu/online/onlineEduList.do?ref1=YOUTH"
+        }
+      ]
+    },
+    "저축": {
+      "flow": [
+        {
+          "id": "money_flow_저축",
+          "title": "연체율 가장 높은 '빈곤 20대'…캄보디아 유혹에 더 흔들렸다",
+          "summary": "20대는 대출 규모는 적지만 연체율은 가장 높은 세대로 나타나고 있습니다. 연체로 인해 고금리·불법 금융으로 밀려나는 사례도 꾸준히 늘고 있어요. 경제난 속 청년층이 구조적 위험에 취약해지는 흐름입니다.",
+          "link": "https://www.joongang.co.kr/article/25374759"
+        }
+      ],
+      "advice": [
+        {
+          "id": "money_policy_저축",
+          "title": "저축 관련 정책 조언",
+          "policy": "“서민금융진흥원”에서 제공하는 다양한 강좌를 통해 경제 생활에 대한 풍부한 지식을 얻을 수 있습니다.",
+          "link": "https://edu.kinfa.or.kr/edu/online/onlineEduList.do?ref1=YOUTH"
+        }
+      ]
+    },
+    "솔로": {
+      "flow": [
+        {
+          "id": "love_flow_솔로",
+          "title": "낭만보다 성장과 효율 중시하는 젊은 세대의 연애",
+          "summary": "연애가 콘텐츠로는 크게 소비되지만, 현실에서는 연애의 우선순위가 낮아지고 있습니다. 젊은 세대는 감정 소모보다 개인 성장과 일정 효율을 우선시한다고 해요. 최근 들어 사랑을 바라보는 관점이 점점 더 실용적으로 변하고 있어요.",
+          "link": "https://www.donga.com/news/Economy/article/all/20250812/132174477/2"
+        }
+      ],
+      "advice": [
+        {
+          "id": "love_policy_솔로",
+          "title": "연애 관련 정책 조언",
+          "policy": "“관악구 청년청”의 다양한 커뮤니티 프로그램에 신청하여 나만의 취미를 발견하거나 새로운 사람들을 만나보세요.",
+          "link": "https://www.checkin-gwanak.or.kr/core/?cid=29&role=programview&pSeq=1096&tab="
+        }
+      ]
+    },
+    "썸": {
+      "flow": [
+        {
+          "id": "love_flow_썸",
+          "title": "낭만보다 성장과 효율 중시하는 젊은 세대의 연애",
+          "summary": "연애가 콘텐츠로는 크게 소비되지만, 현실에서는 연애의 우선순위가 낮아지고 있습니다. 젊은 세대는 감정 소모보다 개인 성장과 일정 효율을 우선시한다고 해요. 최근 들어 사랑을 바라보는 관점이 점점 더 실용적으로 변하고 있어요.",
+          "link": "https://www.donga.com/news/Economy/article/all/20250812/132174477/2"
+        }
+      ],
+      "advice": [
+        {
+          "id": "love_policy_썸",
+          "title": "솔로 관련 정책 조언",
+          "policy": "“서울시문화포털”에 접속하여 서울 시내의 여러 매력적인 장소 및 행사에 대한 정보를 얻을 수 있습니다. 데이트 계획을 세우는 데에 도움이 될 거예요.",
+          "link": "https://culture.seoul.go.kr/culture/main/main.do?sso=ok"
+        }
+      ]
+    },
+    "연애중": {
+      "flow": [
+        {
+          "id": "love_flow_연애중",
+          "title": "'서울시가 연애까지 교육?'…교제 커플 '관계이해' 프로그램 운영",
+          "summary": "지자체에서도 청년 커플을 대상으로 건강한 관계 형성과 갈등 예방을 돕는 ‘교제커플 미래준비교실’을 시범 운영할 예정이라고 해요. 다만 성별·세대별로 결혼 필요성에 대한 인식 차이가 큰 만큼, 연애 중인 청년들의 현실을 반영한 보다 유연하고 다양성 있는 접근이 요구되고 있습니다",
+          "link": "https://www.news1.kr/local/seoul/5983792"
+        }
+      ],
+      "advice": [
+        {
+          "id": "love_policy_연애중",
+          "title": "썸 관련 정책 조언",
+          "policy": "“서울대학교 대학생활문화원”에서 연애유형 테스트를 통해 나와 상대의 성향에 대해 더 자세히 알아보세요. 테스트 결과에 대한 대화를 바탕으로 더욱 깊은 관계를 다질 수 있을 거예요.",
+          "link": "https://snucounsel.snu.ac.kr/opensquare/questionTest.do?question=love"
+        }
+      ]
+    },
+    "이별": {
+      "flow": [
+        {
+          "id": "love_flow_이별",
+          "title": "이별을 찍다, 위로를 받다… 유튜브가 바꾼 이별의 풍경",
+          "summary": "이별과 이혼 경험을 유튜브 브이로그로 공유하는 문화가 확산하며, 개인적 상처가 대중적 콘텐츠로 탈바꿈하는 새로운 흐름이 나타나고 있습니다. 청년층은 타인의 이별 기록을 통해 공감과 위로를 얻고 자신의 경험을 ‘동일시’하면서 정서적 지지를 찾는 경향을 보이고 있어요.",
+          "link": "https://health.chosun.com/site/data/html_dir/2025/08/19/2025081902894.html"
+        }
+      ],
+      "advice": [
+        {
+          "id": "love_policy_이별",
+          "title": "이별 관련 정책 조언",
+          "policy": "“서울대학교 대학생활문화원”의 이별 후 성장 상담 프로그램을 통해 감정을 되돌아보고 상처를 회복하는 데에 도움을 받을 수 있습니다.",
+          "link": "https://extra.snu.ac.kr/ptfol/imng/icmpNsbjtPgm/findIcmpNsbjtPgmInfo.do?currentPageNo=&encSddpbSeq=d951a3c162d10251a8443e6d6ee7d706"
         }
       ]
     }

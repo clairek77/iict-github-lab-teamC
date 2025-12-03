@@ -7,7 +7,26 @@ const TOPICS_MAP = {
   "진로": ["취업", "학업", "적성", "전공"],
 };
 
-const KEYWORDS_LIST = ["기회", "행운", "불안", "변화"];
+// ==== 단어 목록 정의 수정 ====
+// 타로 카드 이미지 생성에 사용될 실제 키워드 (4개) - 캐릭터 이미지의 키로 사용됩니다.
+const ACTUAL_IMAGE_KEYWORDS = ["기회", "행운", "불안", "변화"]; 
+
+// 사용자가 화면에서 선택할 16개의 키워드 목록 (Gemini 프롬프트에 사용)
+const DUMMY_KEYWORDS_LIST = [
+  "도전", "성장", "시작", "발전", 
+  "긍정", "활력", "안정", "평화", 
+  "정체", "걱정", "갈등", "혼란", 
+  "선택", "균형", "전환", "결단"
+];
+// 기존의 KEYWORDS_LIST는 DUMMY_KEYWORDS_LIST로 대체하여 사용합니다.
+
+// 16개 키워드를 4개 이미지 키워드에 매핑하는 지도
+const KEYWORD_IMAGE_MAP = {
+    "도전": "기회", "성장": "기회", "시작": "기회", "발전": "기회", 
+    "긍정": "행운", "활력": "행운", "안정": "행운", "평화": "행운",
+    "정체": "불안", "걱정": "불안", "갈등": "불안", "혼란": "불안",
+    "선택": "변화", "균형": "변화", "전환": "변화", "결단": "변화",
+};
 
 // ===== state 관련 =====
 // start -> question -> topics -> keywords -> loading -> gemini -> flowCard -> adviceCard -> summary
@@ -16,7 +35,9 @@ let state = "start";
 
 let selectedCategory = null;  // "건강" / "금전" / "연애" / "진로"
 let selectedTopic = null;     // TOPICS_MAP 중 사용자가 클릭한 단어 1개
-let selectedKeyWord = null;      // KEYWORDS_LIST 중 사용자가 클릭한 단어 1개
+let selectedKeyWord = null;     // DUMMY_KEYWORDS_LIST 중 사용자가 클릭한 단어 1개 (Gemini 프롬프트용)
+let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이미지용)
+
 
 // 타로 결과 관련
 let tarotAdvice = "";         // Gemini가 생성한 조언 텍스트
@@ -41,12 +62,19 @@ const SYSTEM_PROMPT = `
 const btnWidth = 200;
 const btnHeight = 50;
 
-// 단어 카드 그리드 (topics, keywords 화면)
+// 단어 카드 그리드 (topics 화면)(1X4)
 const CARD_COLS = 4;
 const CARD_START_X = 490;
 const CARD_START_Y = 320;
 const CARD_CELL_W = 240;
 const CARD_CELL_H = 120;
+
+// 단어 카드 그리드 (keywords 화면)(4x4)
+const KWD_GRID_COLS = 4;
+const KWD_START_X = 500; // 490에서 살짝 옮김
+const KWD_START_Y = 200; // 훨씬 위로 올려 4줄 배치
+const KWD_CELL_W = 220;  // 셀 너비를 줄여 4개 배치
+const KWD_CELL_H = 180;  // 셀 높이를 확보
 
 // ==== 이미지 애셋 ====
 // 붉은 말 캐릭터
@@ -339,7 +367,7 @@ function drawKeywordsScreen() {
   rect(0, 0, width, height);
 
   // 고정된 키워드 목록
-  const keywords = KEYWORDS_LIST;
+  const keywords = DUMMY_KEYWORDS_LIST;
 
   fill(255);
   textAlign(CENTER, TOP);
@@ -349,12 +377,15 @@ function drawKeywordsScreen() {
   textSize(18);
   text("당신에게 가장 강하게 끌리는 기운의 단어 하나를 골라주세요.", width / 2, 130);
 
-  // 키워드 4개 그리기 (1 x 4 그리드)
-  textSize(22);
+  // 키워드 4개 그리기 (4 x 4 그리드)
+  textSize(20);
 
-  for (let i = 0; i < keywords.length; i++) {
-    let x = CARD_START_X + i * CARD_CELL_W;
-    let y = CARD_START_Y;
+for (let i = 0; i < keywords.length; i++) { // 4x4 그리드 위치 계산
+    const col = i % KWD_GRID_COLS; 
+    const row = floor(i / KWD_GRID_COLS); 
+
+    let x = KWD_START_X + col * KWD_CELL_W;
+    let y = KWD_START_Y + row * KWD_CELL_H;
 
     // 선택된 단어는 색을 다르게 (selectedKeyWord 사용)
     if (selectedKeyWord === keywords[i]) {
@@ -362,11 +393,11 @@ function drawKeywordsScreen() {
     } else {
       fill(40, 30, 70, 220);
     }
-    rect(x, y, CARD_CELL_W - 40, CARD_CELL_H - 40, 16);
+    rect(x, y, CARD_CELL_W - 20, CARD_CELL_H - 20, 16);
 
     fill(255);
     textAlign(CENTER, CENTER);
-    text(keywords[i], x + (CARD_CELL_W - 40) / 2, y + (CARD_CELL_H - 40) / 2);
+    text(keywords[i], x + (CARD_CELL_W - 20) / 2, y + (CARD_CELL_H - 20) / 2);
   }
 
   // 선택된 단어 표시 (selectedKeyWord 사용)
@@ -375,7 +406,7 @@ function drawKeywordsScreen() {
   textSize(20);
   if (selectedKeyWord) {
     text(
-      `선택된 키워드: "${selectedKeyWord}" (주제: ${selectedTopic})`,
+      `선택된 키워드: "${selectedKeyWord}" (이미지 키워드: ${actualImageKeyWord || '선택 대기'})`,
       width / 2,
       height - 220
     );
@@ -454,7 +485,7 @@ function drawGeminiScreen() {
   const cardY = 260;
 
   const bgKey = selectedCategory;
-  const charKey = selectedKeyWord;
+  const charKey = actualImageKeyWord;
   const itemKey = selectedTopic;
 
   fill(40, 20, 80, 240);
@@ -890,17 +921,21 @@ function handleTopicsClick() {
 }
 
 function handleKeywordsClick() {
-  const keywords = KEYWORDS_LIST;
+  const keywords = DUMMY_KEYWORDS_LIST;
 
   // 1) 키워드 카드 클릭 체크
   for (let i = 0; i < keywords.length; i++) {
-    let x = CARD_START_X + i * CARD_CELL_W;
-    let y = CARD_START_Y;
-    let w = CARD_CELL_W - 40;
-    let h = CARD_CELL_H - 40;
+    const col = i % KWD_GRID_COLS; 
+    const row = floor(i / KWD_GRID_COLS); 
+    
+    let x = KWD_START_X + col * KWD_CELL_W;
+    let y = KWD_START_Y + row * KWD_CELL_H;
+    let w = KWD_CELL_W - 20;
+    let h = KWD_CELL_H - 20;
 
     if (isInside(mouseX, mouseY, x, y, w, h)) {
-      selectedKeyWord = keywords[i]; // selectedKeyWord에 저장
+      selectedKeyWord = keywords[i]; // (16개 중 선택) Gemini 프롬프트용
+      actualImageKeyWord = KEYWORD_IMAGE_MAP[keywords[i]]; // (4개 중 하나) 이미지용
       return;
     }
   }
@@ -924,27 +959,28 @@ function isInside(mx, my, x, y, w, h) {
   return mx > x && mx < x + w && my > y && my < y + h;
 }
 
-function pickCardsFor(category) {
+function loadCardsByTopic(topic) {
   flowCard = null;
   policyCard = null;
 
-  if (!cardsData || !cardsData.categories) return;
+  if (!cardsData || !cardsData.topics) return;
 
-  const catData = cardsData.categories[category];
-  if (!catData) return;
+  // Topic 이름을 키로 사용하여 데이터 접근
+  const topicData = cardsData.topics[topic]; 
+  if (!topicData) return;
 
-  // 카테고리마다 첫 번째 카드 하나씩만 사용
-  if (catData.flow && catData.flow.length > 0) {
-    flowCard = catData.flow[0];
+  // 카드를 flowCard와 policyCard에 저장
+  if (topicData.flow && topicData.flow.length > 0) {
+    flowCard = topicData.flow[0];
   }
 
-  if (catData.advice && catData.advice.length > 0) {
-    policyCard = catData.advice[0];
+  if (topicData.advice && topicData.advice.length > 0) {
+    policyCard = topicData.advice[0];
   }
 }
 
 // ========== Gemini 호출 로직 ==========
-function callGeminiTarot(category, topic, keyWord) { // 파라미터명 변경
+function callGeminiTarot(category, topic, keyWord) { //keyWord는 16개 중 선택된 단어
   if (!API_KEY || API_KEY === "%%%%") {
     console.error("API_KEY를 설정해주세요!");
     tarotAdvice = "API 키가 설정되지 않았습니다. 스케치를 수정해 주세요.";
@@ -996,7 +1032,7 @@ function callGeminiTarot(category, topic, keyWord) { // 파라미터명 변경
         data?.candidates?.[0]?.content?.parts?.[0]?.text ||
         "조언 텍스트를 불러오지 못했습니다.";
       tarotAdvice = text;
-      pickCardsFor(selectedCategory);
+      loadCardsByTopic(selectedTopic);
       state = "gemini";
     })
     .catch(err => {
