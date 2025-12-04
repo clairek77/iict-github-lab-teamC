@@ -773,9 +773,10 @@ function pickCardsFor(category) {
 }
 
 function callGeminiTarot(category, word) {
+  if (!API_KEY || API_KEY === "%%%%") {
     console.error("API_KEY를 설정해주세요!");
     tarotAdvice = "API 키가 설정되지 않았습니다. 스케치를 수정해 주세요.";
-    state = "result";
+    state = "summary";
     return;
   }
 
