@@ -152,11 +152,7 @@ function preload() {
   enterHover  = loadImage("enter_hover.png");
   titleLogo   = loadImage("title_logo.png");
 
-  //퇴장 버튼
-  exit = loadImage("button_exit.png");
-  exitHover = loadImage("button_exit_hover.png");
-
-  //1번 버튼(대주제)
+  // 버튼1. 대주제
   career = loadImage("button_1_career.png");
   careerHover = loadImage("button_1_career_hover.png");
   health = loadImage("button_1_health.png");
@@ -165,18 +161,8 @@ function preload() {
   loveHover=loadImage("button_1_love_hover.png");
   money =loadImage("button_1_money.png");
   moneyHover=loadImage("button_1_money_hover.png");
-  
-  //2번 버튼(소주제)
-  career1 = loadImage("");
-  career1Hover =loadImage("");
-  career2 = loadImage("");
-  career2Hover=loadImage("");
-  career3=loadImage("");
-  career3Hover=loadImage("");
-  career4=loadImage("");
-  career4Hover=loadImage("");
 
-  
+
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
 
@@ -395,9 +381,6 @@ function drawKeywordsScreen() {
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
-  // 고정된 키워드 목록
-  const keywords = DUMMY_KEYWORDS_LIST;
-
   fill(255);
   textAlign(CENTER, TOP);
   textSize(32);
@@ -406,42 +389,43 @@ function drawKeywordsScreen() {
   textSize(18);
   text("당신에게 가장 강하게 끌리는 기운의 단어 하나를 골라주세요.", width / 2, 130);
 
-  // 키워드 4개 그리기 (4 x 4 그리드)
-  textSize(20);
+  const TOPIC_IMG = {
+    "진로": { normal: career, hover: careerHover },
+    "건강": { normal: health, hover: healthHover },
+    "연애": { normal: love, hover: loveHover },
+    "금전": { normal: money, hover: moneyHover },
+  };
 
-for (let i = 0; i < keywords.length; i++) { // 4x4 그리드 위치 계산
-    const col = i % KWD_GRID_COLS; 
-    const row = floor(i / KWD_GRID_COLS); 
+  const topics = Object.keys(TOPIC_IMG);
 
-    let x = KWD_START_X + col * KWD_CELL_W;
-    let y = KWD_START_Y + row * KWD_CELL_H;
+  // ========== 이미지 4개 배치 ==========
+  for (let i = 0; i < topics.length; i++) {
+    let x = CARD_START_X + i * CARD_CELL_W;
+    let y = CARD_START_Y;
+    let topic = topics[i];
 
-    // 선택된 단어는 색을 다르게 (selectedKeyWord 사용)
-    if (selectedKeyWord === keywords[i]) {
-      fill(140, 110, 220, 240);
-    } else {
-      fill(40, 30, 70, 220);
-    }
-    rect(x, y, CARD_CELL_W - 20, CARD_CELL_H - 20, 16);
+    let isHover =
+      mouseX > x && mouseX < x + CARD_CELL_W &&
+      mouseY > y && mouseY < y + CARD_CELL_H;
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(keywords[i], x + (CARD_CELL_W - 20) / 2, y + (CARD_CELL_H - 20) / 2);
+    // hover / 선택 시 이미지 교체
+    let imgToDraw =
+      (selectedTopic === topic || isHover)
+        ? TOPIC_IMG[topic].hover
+        : TOPIC_IMG[topic].normal;
+
+    image(imgToDraw, x, y, CARD_CELL_W, CARD_CELL_H);
   }
 
-  // 선택된 단어 표시 (selectedKeyWord 사용)
+  // 선택된 텍스트 안내
   fill(255);
-  textAlign(CENTER, TOP);
   textSize(20);
-  if (selectedKeyWord) {
-    text(
-      `선택된 키워드: "${selectedKeyWord}" (이미지 키워드: ${actualImageKeyWord || '선택 대기'})`,
-      width / 2,
-      height - 220
-    );
+  if (selectedTopic) {
+    text(`선택된 키워드: "${selectedTopic}"`, width / 2, height - 220);
   } else {
-    text("카드를 눌러, 당신의 기운에 가장 맞는 키워드 하나를 골라주세요.", width / 2, height - 220);
+    text("키워드를 하나 선택하세요", width / 2, height - 220);
   }
+
 
   // 카드 생성하기 버튼
   drawButton(width / 2 - btnWidth / 2, height - 140, btnWidth, btnHeight, "카드 생성하기");
