@@ -336,26 +336,29 @@ function drawTopicsScreen() {
 
   
   // 주제 단어 4개 그리기 (1 x 4 그리드)
+// 이미지 목록 (순서 주의: 건강, 금전, 연애, 진로)
+let normalImages = [health, money, love, career];
+let hoverImages = [healthHover, moneyHover, loveHover, careerHover];
 
+let w = CARD_CELL_W - 40;
+let h = CARD_CELL_H - 40;
 
-  textSize(22);
+// hover 감지
+let isHover =
+  mouseX > x && mouseX < x + w &&
+  mouseY > y && mouseY < y + h;
 
-  for (let i = 0; i < topics.length; i++) {
-    let x = CARD_START_X + i * CARD_CELL_W;
-    let y = CARD_START_Y;
+// hover 또는 선택 이미지 적용
+if (selectedTopic === topics[i] || isHover) {
+  image(hoverImages[i], x, y, w, h);
+} else {
+  image(normalImages[i], x, y, w, h);
+}
 
-    // 선택된 단어는 색을 다르게
-    if (selectedTopic === topics[i]) {
-      fill(140, 110, 220, 240);
-    } else {
-      fill(40, 30, 70, 220);
-    }
-    rect(x, y, CARD_CELL_W - 40, CARD_CELL_H - 40, 16);
+if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+  selectedTopic = topics[i];
+}
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(topics[i], x + (CARD_CELL_W - 40) / 2, y + (CARD_CELL_H - 40) / 2);
-  }
 
   // 선택된 단어 표시
   fill(255);
