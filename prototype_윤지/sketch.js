@@ -150,7 +150,51 @@ function preload() {
   enterNormal = loadImage("enter_normal.png");
   enterHover  = loadImage("enter_hover.png");
   titleLogo   = loadImage("title_logo.png");
+
+
   
+  //버튼1 (대주제)
+  career = loadImage("button_1_career.png");
+  careerHover = loadImage("button_1_career_hover.png");
+  health = loadImage("button_1_health.png");
+  healthHover = loadImage("button_1_health_hover.png");
+  love = loadImage("button_1_love.png");
+  loveHover=loadImage("button_1_love_hover.png");
+  money =loadImage("button_1_money.png");
+  moneyHover=loadImage("button_1_money_hover.png");
+
+  //버튼2 (소주제)
+  career1 = loadImage("button_2_career1.png");
+  career1Hover =loadImage("button_2_career1_hover.png");
+  career2 = loadImage("button_2_career2.png");
+  career2Hover=loadImage("button_2_career2_hover.png");
+  career3=loadImage("button_2_career3.png");
+  career3Hover=loadImage("button_2_career3_hover.png");
+  career4=loadImage("button_2_career4.png");
+  career4Hover=loadImage("button_2_career4_hover.png");
+
+  //버튼3 (키워드)
+  //버튼3. 키워드
+  anxiety= loadImage("button_3_anxiety.png")
+  anxietyHover= loadImage("button_3_anxiety_hover.png")
+  luck=loadImage("button_3_luck.png")
+  luckHover=loadImage("button_3_luck_hover.png")
+  chance=loadImage("button_3_chance.png")
+  chanceHover=loadImage("button_3_chance_hover.png")
+  change=loadImage("button_3_change.png")
+  changeHover=loadImage("button_3_change_hover.png")
+
+  //기사 링크로 이동//
+  link=loadImage("button_link.png")
+  linkHover = loadImage("button_link_hover.png")
+  
+  //출력//
+  Print = loadImage("button_print.png")
+  printHover = loadImage("button_print_hover.png")
+  qr=loadImage("button_qr.png")
+  qrHover=loadImage("button_qr_hover.png")
+
+
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
 
@@ -162,6 +206,27 @@ function preload() {
     cardImages[key] = loadImage(fileName); // '건강', '기회', '마음' 등의 키로 이미지 객체 저장
   }
 }
+
+
+// 카테고리별 이미지 버튼 세트
+  const IMAGE_SET = {
+  "건강": {
+    normal: [health1, health2, health3, health4],
+    hover: [health1Hover, health2Hover, health3Hover, health4Hover]
+  },
+  "금전": {
+    normal: [money1, money2, money3, money4],
+    hover: [money1Hover, money2Hover, money3Hover, money4Hover]
+  },
+  "연애": {
+    normal: [love1, love2, love3, love4],
+    hover: [love1Hover, love2Hover, love3Hover, love4Hover]
+  },
+  "진로": {
+    normal: [career1, career2, career3, career4],
+    hover: [career1Hover, career2Hover, career3Hover, career4Hover]
+  }
+};
 
 function setup() {
   createCanvas(1920, 1080);
@@ -293,14 +358,41 @@ function drawQuestionScreen() {
   textSize(18);
   text("하나만 골라주시면, 그 주제에 맞는 구체적인 단어를 뽑아볼게요.", 650, 430);
 
-  // 선택지 버튼들
   const categories = ["건강", "금전", "연애", "진로"];
+  const normalImages = [health, money, love, career];
+  const hoverImages = [healthHover, moneyHover, loveHover, careerHover];
+
+  imageMode(CORNER);
+
+  // 선택지 버튼들
+  const startX = 700;     // 첫번째 버튼 X
+  const startY = 470;     // 첫번째 버튼 Y
+  const gapX = 300;       
+  const gapY = 120;      
+
   for (let i = 0; i < categories.length; i++) {
     const col = i % 2;
     const row = floor(i / 2);
-    const x = 750 + col * (btnWidth + 80);
-    const y = 520 + row * (btnHeight + 30);
-    drawButton(x, y, btnWidth, btnHeight, categories[i]);
+
+    const imgX = startX + col * gapX;
+    const imgY = startY + row * gapY;
+
+    const imgW = normalImages[i].width*0.8;
+    const imgH = normalImages[i].height*0.8;
+
+    const isHover =
+      mouseX > imgX && mouseX < imgX + imgW &&
+      mouseY > imgY && mouseY < imgY + imgH;
+
+    if (isHover || selectedCategory === categories[i]) {
+      image(hoverImages[i], imgX, imgY, imgW, imgH);
+    } else {
+      image(normalImages[i], imgX, imgY, imgW, imgH);
+    }
+
+    if (mouseIsPressed && isHover) {
+      selectedCategory = categories[i];
+    }
   }
 }
 
@@ -527,6 +619,8 @@ function drawGeminiScreen() {
     text("타로 카드 이미지 로드 준비 중", cardX + cardW / 2, cardY + cardH / 2);
   }
 
+
+
   // 붉은 말 캐릭터
   if (horseImages[2]) {
     imageMode(CENTER);
@@ -538,9 +632,18 @@ function drawGeminiScreen() {
   textSize(18);
   text("붉은 말: \"이제, 당신을 둘러싼 흐름 카드를 한번 뽑아볼까요?\"", width / 2, boxY + boxH + 10);
 
+
+imageMode(CORNER);
+
   // 버튼 텍스트: '흐름 카드 뽑기'
   drawButton(width / 2 - btnWidth / 2, boxY + boxH + 40, btnWidth, btnHeight, "흐름 카드 뽑기");
+
+
+
 }
+
+
+
 
 function handleGeminiClick() {
   const boxW = 800;
@@ -609,6 +712,23 @@ function drawFlowCardScreen() {
   textAlign(CENTER, CENTER);
   textSize(18);
   text("흐름 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
+
+// 기사 출력 버튼// 
+let linkBtnX = 1300;   // 버튼 왼쪽 X
+let linkBtnY = boxY + boxH + 40;   // 버튼 위쪽 Y
+let linkBtnW = 180;   // 버튼 넓이
+let linkBtnH = 60;    // 버튼 높이
+
+let isLinkHover =
+  mouseX > linkBtnX && mouseX < linkBtnX + linkBtnW &&
+  mouseY > linkBtnY && mouseY < linkBtnY + linkBtnH;
+
+if (isLinkHover) {
+  image(linkHover, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
+} else {
+  image(link, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
+}
+
   
   // 붉은 말 캐릭터
   if (horseImages[3]) {
