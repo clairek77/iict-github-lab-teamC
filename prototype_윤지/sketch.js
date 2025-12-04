@@ -764,14 +764,26 @@ const contentStartY = 350;
   }
 
   // 2. 캐릭터 이미지 (KeyWord)
-  if (charKey && cardImages[charKey]) {
-    image(cardImages[charKey], cardX, cardY, cardW, cardH); 
-  }
+  if (charKey && cardImages[charKey]) {
+    let img = cardImages[charKey];
+    if (img.width > 1) {
+        let newW = cardW * 0.85; 
+        let newH = img.height * (newW / img.width); 
+        imageMode(CENTER);
+        image(img, cardX + cardW / 2, cardY + cardH / 2, newW, newH);
+    }
+  }
 
   // 3. 아이템 이미지 (Topic)
   if (itemKey && cardImages[itemKey]) {
-    image(cardImages[itemKey], cardX, cardY, cardW, cardH);
-  }
+    let img = cardImages[itemKey];
+    if (img.width > 1) {
+        let newW = cardW * 0.3; 
+        let newH = img.height * (newW / img.width); 
+        imageMode(CENTER);
+        image(img, cardX + cardW / 2, cardY + cardH / 2 + 140, newW, newH);
+    }
+  }
 
   // 모든 이미지가 로드되지 않았거나, 키가 잘못되었을 경우 텍스트 표시
   if (!bgKey || !charKey || !itemKey) {
