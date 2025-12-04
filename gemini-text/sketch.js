@@ -17,7 +17,6 @@ let selectedWord = null;      // WORDS 중 사용자가 클릭한 단어 1개
 let tarotAdvice = "";         // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "####";   // 👈 여기에 본인 키!
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -774,7 +773,6 @@ function pickCardsFor(category) {
 }
 
 function callGeminiTarot(category, word) {
-  if (!API_KEY || API_KEY === "여기에_본인_API_키_넣기") {
     console.error("API_KEY를 설정해주세요!");
     tarotAdvice = "API 키가 설정되지 않았습니다. 스케치를 수정해 주세요.";
     state = "result";
