@@ -151,6 +151,31 @@ function preload() {
   enterNormal = loadImage("enter_normal.png");
   enterHover  = loadImage("enter_hover.png");
   titleLogo   = loadImage("title_logo.png");
+
+  //퇴장 버튼
+  exit = loadImage("button_exit.png");
+  exitHover = loadImage("button_exit_hover.png");
+
+  //1번 버튼(대주제)
+  career = loadImage("button_1_career.png");
+  careerHover = loadImage("button_1_career_hover.png");
+  health = loadImage("button_1_health.png");
+  healthHover = loadImage("button_1_health_hover.png");
+  love = loadImage("button_1_love.png");
+  loveHover=loadImage("button_1_love_hover.png");
+  money =loadImage("button_1_money.png");
+  moneyHover=loadImage("button_1_money_hover.png");
+  
+  //2번 버튼(소주제)
+  career1 = loadImage("");
+  career1Hover =loadImage("");
+  career2 = loadImage("");
+  career2Hover=loadImage("");
+  career3=loadImage("");
+  career3Hover=loadImage("");
+  career4=loadImage("");
+  career4Hover=loadImage("");
+
   
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
@@ -322,7 +347,11 @@ function drawTopicsScreen() {
   textSize(18);
   text("4가지 주제 중 가장 마음이 끌리는 단어 하나를 골라주세요.", width / 2, 130);
 
+
+  
   // 주제 단어 4개 그리기 (1 x 4 그리드)
+
+
   textSize(22);
 
   for (let i = 0; i < topics.length; i++) {
