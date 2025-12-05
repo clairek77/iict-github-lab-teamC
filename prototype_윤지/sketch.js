@@ -835,6 +835,55 @@ const contentStartY = 350;
     text("타로 카드 이미지 로드 준비 중", cardX + cardW / 2, cardY + cardH / 2);
   }
 
+// ==== 카드 하단 출력 / QR 버튼 ====
+const btnGap = 12;
+
+// 출력 버튼 (0.6배)
+const printW = Print.width * 0.6;
+const printH = Print.height * 0.6;
+
+const printBtnX = cardX + cardW / 2 - printW / 2 + 40;
+const printBtnY = cardY + cardH + 24;
+
+imageMode(CORNER);
+let isPrintHover =
+  mouseX >= printBtnX && mouseX <= printBtnX + printW &&
+  mouseY >= printBtnY && mouseY <= printBtnY + printH;
+
+image(
+  isPrintHover ? printHover : Print,
+  printBtnX, printBtnY,
+  printW, printH
+);
+
+if (isPrintHover && mouseIsPressed) {
+  window.print(); // ✅ 실제 출력
+}
+
+
+// QR 버튼 (0.6배)
+const qrW = qr.width * 0.6;
+const qrH = qr.height * 0.6;
+
+const qrBtnX = cardX + cardW / 2 - qrW / 2 + 40;
+const qrBtnY = printBtnY + printH + btnGap;
+
+let isQrHover =
+  mouseX >= qrBtnX && mouseX <= qrBtnX + qrW &&
+  mouseY >= qrBtnY && mouseY <= qrBtnY + qrH;
+
+image(
+  isQrHover ? qrHover : qr,
+  qrBtnX, qrBtnY,
+  qrW, qrH
+);
+
+if (isQrHover && mouseIsPressed) {
+  console.log("QR 버튼 클릭");
+}
+
+
+
 
 
   // 붉은 말 캐릭터
