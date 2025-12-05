@@ -43,7 +43,7 @@ let bgMusic = null;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "AIzaSyAI6k-pbmWdrqlrGVlONY2hFmtetYv6gvk";
+const API_KEY = "";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -235,6 +235,7 @@ let clickableButtons = [];
 // 공통: 이미지 버튼 그리기
 // =======================
 function drawImageButton(img, imgHover, x, y, callback) {
+  imageMode(CORNER);
   const w = img.width;
   const h = img.height;
 
@@ -826,7 +827,7 @@ function drawGeminiScreen() {
   const printW = Print.width * 0.6;
   const printH = Print.height * 0.6;
 
-  const printBtnX = cardX + cardW / 2 - printW / 2 + 40;
+  const printBtnX = cardX + cardW / 2 - printW / 2 ;
   const printBtnY = cardY + cardH + 24;
 
   imageMode(CORNER);
@@ -848,7 +849,7 @@ function drawGeminiScreen() {
   const qrW = qr.width * 0.6;
   const qrH = qr.height * 0.6;
 
-  const qrBtnX = cardX + cardW / 2 - qrW / 2 + 40;
+  const qrBtnX = cardX + cardW / 2 - qrW / 2 ;
   const qrBtnY = printBtnY + printH + btnGap;
 
   let isQrHover =
@@ -941,20 +942,31 @@ function drawFlowCardScreen() {
   text("흐름 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
 
   // 기사 링크 버튼
-  let linkBtnX = 1300;
-  let linkBtnY = boxY + boxH + 40;
-  let linkBtnW = 180;
-  let linkBtnH = 60;
 
-  let isLinkHover =
-    mouseX > linkBtnX && mouseX < linkBtnX + linkBtnW &&
-    mouseY > linkBtnY && mouseY < linkBtnY + linkBtnH;
+const linkW = link.width * 0.6;
+const linkH = link.height * 0.6;
 
-  if (isLinkHover) {
-    image(linkHover, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
-  } else {
-    image(link, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
-  }
+const linkBtnX = cardX + cardW / 2 - linkW / 2;
+const linkBtnY = boxY + boxH + 40; 
+
+// hover 판정
+let isLinkHover =
+  mouseX >= linkBtnX && mouseX <= linkBtnX + linkW &&
+  mouseY >= linkBtnY && mouseY <= linkBtnY + linkH;
+
+// hover 이미지 출력
+image(
+  isLinkHover ? linkHover : link,
+  linkBtnX, linkBtnY,
+  linkW, linkH
+);
+
+// 클릭 시 동작
+if (isLinkHover && mouseIsPressed) {
+  console.log("기사 링크 버튼 클릭");
+  // window.open("https://example.com", "_blank"); ← 이런 식으로 나중에 넣을 수 있음
+}
+
 
   if (horseImages[3]) {
     imageMode(CENTER);
@@ -1041,12 +1053,16 @@ function drawAdviceCardScreen() {
   text("붉은 말: \"지금까지 뽑은 것들, 한 번에 정리해서 볼까요?\"", width / 2, speechY);
 
   // 오늘 결과 한 번에 보기 버튼 (drawImageButton)
-  const resultBtnX = width / 2 - result.width / 2;
-  const resultBtnY = speechY + 60;
+  // 버튼 이미지가 아직 로드되지 않았다면 (width==0) 그냥 return
 
-  drawImageButton(result, resultHover, resultBtnX, resultBtnY, () => {
-    state = "summary";
-  });
+// 위치 계산
+const resultBtnX = width / 2 - result.width / 2;
+const resultBtnY = speechY + 60;
+
+// 정상 출력
+drawImageButton(result, resultHover, resultBtnX, resultBtnY, () => {
+  state = "summary";
+});
 }
 
 // ========== SUMMARY SCREEN ==========
