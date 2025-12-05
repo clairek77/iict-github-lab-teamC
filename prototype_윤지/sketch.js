@@ -298,12 +298,32 @@ function preload() {
   //출력//
   Print = loadImage("button_print.png")
   printHover = loadImage("button_print_hover.png")
+
+  //qr//
   qr=loadImage("button_qr.png")
   qrHover=loadImage("button_qr_hover.png")
+
+  //다음으로//
   next = loadImage("button_next.png")
   nextHover = loadImage("button_next_hover.png")
-  createcard = loadImage("button_createcard.png")
-  createcardHover = loadImage("button_createcard_hover.png")
+
+  //퇴장//
+  exit = loadImage("button_exit_normal.png")
+  exitHover = loadImage("button_exit_hover.png")
+
+  //흐름카드 뽑기//
+  flow = loadImage("button_flow.png")
+  flowHover = loadImage("button_flow_hover.png")
+
+  //조언카드 뽑기//
+  advice = loadImage("button_advice.png")
+  adviceHover = loadImage("button_advice_hover.png")
+
+  //결과 한번에 보기//
+  result = loadImage("button_result.png")
+  resultHover=loadImage("button_result_hover.png")
+
+  
 
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
