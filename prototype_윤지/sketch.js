@@ -42,7 +42,7 @@ let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이�
 let tarotAdvice = "";         // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "###";   // 👈 여기에 본인 키!
+const API_KEY = "AIzaSyAK8JbeRqdxtH-LZUMpYfz3_xnpeZECXEI";   // 👈 여기에 본인 키!
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -214,6 +214,26 @@ const ITEM_MAP = {
   "전공": "card_item_major.png",
 };
 
+//버튼 그리는 함수//
+
+function drawImageButton(img, imgHover, x, y, callback) {
+  const w = img.width;
+  const h = img.height;
+
+  // hover 체크
+  let isHover = mouseX >= x && mouseX <= x + w &&
+                mouseY >= y && mouseY <= y + h;
+
+  // hover 이미지 / 일반 이미지
+  image(isHover ? imgHover : img, x, y);
+
+  // 클릭 처리
+  if (isHover && mouseIsPressed) {
+    callback();
+  }
+}
+
+
 // ===== preload: 이미지/데이터 로드 =====
 function preload() {
   // 붉은 말 캐릭터 이미지 5종
@@ -361,6 +381,8 @@ function setup() {
   }
 };
 }
+
+
 
 function draw() {
   if (state === "start") {
@@ -831,9 +853,14 @@ const contentStartY = 350;
 imageMode(CORNER);
 
   // 버튼 텍스트: '흐름 카드 뽑기'
-  const buttonY = speechY + 60;
-  drawButton(width / 2 - btnWidth / 2, buttonY, btnWidth, btnHeight, "흐름 카드 뽑기");
+const flowBtnX = width / 2 - flow.width / 2;
+const flowBtnY = speechY + 60;
+
+drawImageButton(flow, flowHover, flowBtnX, flowBtnY, () => {
+  mode = "flow"; // 원하는 기능 넣기
+});
 }
+
 
 
 
@@ -939,9 +966,13 @@ if (isLinkHover) {
 imageMode(CORNER);
 
   // 버튼: 조언 카드 뽑기
-  // 👈 ❗ 수정: 버튼 Y 좌표를 800으로 올림 (740 + 60)
-  const buttonY = speechY + 60; // 740 + 60 = 800
-  drawButton(width / 2 - btnWidth / 2, buttonY, btnWidth, btnHeight, "조언 카드 뽑기");
+const adviceBtnX = width / 2 - advice.width / 2;
+const adviceBtnY = speechY + 60;
+
+drawImageButton(advice, adviceHover, adviceBtnX, adviceBtnY, () => {
+  mode = "advice";
+});
+
 }
 
 function handleFlowCardClick() {
@@ -1025,9 +1056,12 @@ function drawAdviceCardScreen() {
   text("붉은 말: \"지금까지 뽑은 것들, 한 번에 정리해서 볼까요?\"", width / 2, speechY);
 
   // 버튼: 오늘 결과 한 번에 보기
-  // 👈 ❗ 수정: 버튼 Y 좌표를 800으로 올림 (740 + 60)
-  const buttonY = speechY + 60; 
-  drawButton(width / 2 - btnWidth / 2, buttonY, btnWidth, btnHeight, "오늘 결과 한 번에 보기");
+const resultBtnX = width / 2 - result.width / 2;
+const resultBtnY = speechY + 60;
+
+drawImageButton(result, resultHover, resultBtnX, resultBtnY, () => {
+  mode = "result";
+});
 }
 
 function handleAdviceCardClick() {    
@@ -1099,9 +1133,12 @@ function drawSummaryScreen() {
   }
 
   // "다시 점치기" 버튼
-  const btnX = width / 2 - btnWidth / 2;
-  const btnY = boxY + boxH + 40;
-  drawButton(btnX, btnY, btnWidth, btnHeight, "퇴장하기");
+const exitBtnX = width / 2 - exit.width / 2;
+const exitBtnY = boxY + boxH + 40;
+
+drawImageButton(exit, exitHover, exitBtnX, exitBtnY, () => {
+  mode = "exit";
+});
 }
 
 function handleSummaryClick() {
