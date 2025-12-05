@@ -625,21 +625,16 @@ function drawTopicsScreen() {
   }
 
   // 다음 버튼
-if (next) { 
-    const imgW = next.width;
-    const imgH = next.height;
+if (next) {
+  const btnX = width / 2 - next.width / 2;
+  const btnY = height - 200;
 
-    const btnX = width / 2 - imgW / 2;
-    const btnY = height - 200; // 버튼 위치
+  drawImageButton(next, nextHover, btnX, btnY, () => {
+    if (!selectedTopic) return;   // ✅ 주제 안 고르면 못 넘어감
+    selectedKeyWord = null;
+    state = "keywords";           // ✅ 다음 페이지 이동
+  });
 
-    const isHover =
-      mouseX > btnX && mouseX < btnX + imgW &&
-      mouseY > btnY && mouseY < btnY + imgH;
-
-    imageMode(CORNER);
-    // 👈 이미지 변수 이름: next, nextHover
-    const imgToDraw = (isHover && nextHover) ? nextHover : next; 
-    image(imgToDraw, btnX, btnY);
   } else {
     // 이미지가 로드되지 않았을 경우, 기존 drawButton을 백업으로 사용
     drawButton(width / 2 - btnWidth / 2, height - 140, btnWidth, btnHeight, "다음 단계로");
@@ -907,30 +902,19 @@ if (isQrHover && mouseIsPressed) {
 
 imageMode(CORNER);
 
-  // 버튼 텍스트: '흐름 카드 뽑기'
+//흐름카드 뽑기 버튼
 const flowBtnX = width / 2 - flow.width / 2;
 const flowBtnY = speechY + 60;
 
 drawImageButton(flow, flowHover, flowBtnX, flowBtnY, () => {
-  mode = "flow"; // 원하는 기능 넣기
+  state = "flowCard";   
 });
+
 }
 
 
 
 
-function handleGeminiClick() {
-  const boxW = 800;
-  const boxH = 380;
-  const boxX = width / 2 - 40;
-  const boxY = 260;
-  const btnX = width / 2 - btnWidth / 2;
-  const btnY = 800;
-
-  if (isInside(mouseX, mouseY, btnX, btnY, btnWidth, btnHeight)) {
-    state = "flowCard";
-  }
-}
 
 function drawFlowCardScreen() {
   drawResultBackground();
@@ -1253,9 +1237,8 @@ function mousePressed() {
     handleKeywordsClick();
   } else if (state === "loading") {
     // 로딩 중에는 클릭 무시
-  } else if (state === "gemini") {
-    handleGeminiClick();
-  } else if (state === "flowCard") {
+  }
+   else if (state === "flowCard") {
     handleFlowCardClick();
   } else if (state === "adviceCard") {
     handleAdviceCardClick();
@@ -1357,30 +1340,7 @@ function handleTopicsClick() {
     }
   }
 
-  // 2) "다음" 버튼 클릭
-let btnX, btnY, btnW, btnH;
-
-  if (next) { // 👈 next 변수 사용
-    // 이미지 버튼의 크기와 위치 사용
-    btnW = next.width;
-    btnH = next.height;
-    btnX = width / 2 - btnW / 2;
-    btnY = height - 140;
-  } else {
-    // 백업 버튼의 크기와 위치 사용
-    btnW = btnWidth;
-    btnH = btnHeight;
-    btnX = width / 2 - btnW / 2;
-    btnY = height - 140;
-  }
- 
-  if (isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
-    if (!selectedTopic) {
-      return;
-    }
-    selectedKeyWord = null; 
-    state = "keywords";
-  }
+  
 }
 
 function handleKeywordsClick() {
