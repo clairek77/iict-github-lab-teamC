@@ -37,12 +37,14 @@ let selectedTopic = null;     // TOPICS_MAP 중 사용자가 클릭한 단어 1�
 let selectedKeyWord = null;     // DUMMY_KEYWORDS_LIST 중 사용자가 클릭한 단어 1개 (Gemini 프롬프트용)
 let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이미지용)
 
+//bgm
+let bgMusic = null;
 
 // 타로 결과 관련
 let tarotAdvice = "";         // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "AIzaSyAK8JbeRqdxtH-LZUMpYfz3_xnpeZECXEI";   // 👈 여기에 본인 키!
+const API_KEY = "###";   // 👈 여기에 본인 키!
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -346,7 +348,8 @@ function preload() {
   result = loadImage("button_result.png")
   resultHover=loadImage("button_result_hover.png")
 
-  
+  //bgm
+  bgMusic = loadSound("tarot_bgm.mp3")
 
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
@@ -1270,12 +1273,20 @@ function handleStartClick() {
 
     if (isInside(mouseX, mouseY, x, y, imgW, imgH)) {
       state = "question";
+      if (bgMusic && !bgMusic.isPlaying()) {
+        bgMusic.setVolume(0.5); 
+        bgMusic.loop();         
+      }
     }
   } else {
     const x = width / 2 - btnWidth / 2;
     const y = height / 2 + 260;
     if (isInside(mouseX, mouseY, x, y, btnWidth, btnHeight)) {
       state = "question";
+      if (bgMusic && !bgMusic.isPlaying()) {
+        bgMusic.setVolume(0.5);
+        bgMusic.loop();
+      }
     }
   }
 }
