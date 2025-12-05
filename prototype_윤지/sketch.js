@@ -17,14 +17,13 @@ const DUMMY_KEYWORDS_LIST = [
   "정체", "걱정", "갈등", "혼란", 
   "선택", "균형", "전환", "결단"
 ];
-// 기존의 KEYWORDS_LIST는 DUMMY_KEYWORDS_LIST로 대체하여 사용합니다.
 
 // 16개 키워드를 4개 이미지 키워드에 매핑하는 지도
 const KEYWORD_IMAGE_MAP = {
-    "도전": "기회", "성장": "기회", "시작": "기회", "발전": "기회", 
-    "긍정": "행운", "활력": "행운", "안정": "행운", "평화": "행운",
-    "정체": "불안", "걱정": "불안", "갈등": "불안", "혼란": "불안",
-    "선택": "변화", "균형": "변화", "전환": "변화", "결단": "변화",
+  "도전": "기회", "성장": "기회", "시작": "기회", "발전": "기회", 
+  "긍정": "행운", "활력": "행운", "안정": "행운", "평화": "행운",
+  "정체": "불안", "걱정": "불안", "갈등": "불안", "혼란": "불안",
+  "선택": "변화", "균형": "변화", "전환": "변화", "결단": "변화",
 };
 
 // ===== state 관련 =====
@@ -32,19 +31,19 @@ const KEYWORD_IMAGE_MAP = {
 
 let state = "start";
 
-let selectedCategory = null;  // "건강" / "금전" / "연애" / "진로"
-let selectedTopic = null;     // TOPICS_MAP 중 사용자가 클릭한 단어 1개
-let selectedKeyWord = null;     // DUMMY_KEYWORDS_LIST 중 사용자가 클릭한 단어 1개 (Gemini 프롬프트용)
+let selectedCategory = null;   // "건강" / "금전" / "연애" / "진로"
+let selectedTopic = null;      // TOPICS_MAP 중 사용자가 클릭한 단어 1개
+let selectedKeyWord = null;    // DUMMY_KEYWORDS_LIST 중 사용자가 클릭한 단어 1개 (Gemini 프롬프트용)
 let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이미지용)
 
-//bgm
+// bgm
 let bgMusic = null;
 
 // 타로 결과 관련
-let tarotAdvice = "";         // Gemini가 생성한 조언 텍스트
+let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "###";   // 👈 여기에 본인 키!
+const API_KEY = "AIzaSyAI6k-pbmWdrqlrGVlONY2hFmtetYv6gvk";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -67,18 +66,18 @@ const btnWidth = 200;
 const btnHeight = 50;
 
 // 단어 카드 그리드 (topics 화면) - 2x2
-const CARD_COLS = 2; // 👈 2x2 그리드
-const CARD_START_X = 590; // 👈 X 시작 위치 조정 (중앙 배치)
-const CARD_START_Y = 320; // 👈 Y 시작 위치 조정 (2줄이 되므로 아래로 내림)
-const CARD_CELL_W = 450; // 👈 셀 너비를 넓혀 2개씩 배치
-const CARD_CELL_H = 260; // 👈 셀 높이를 키워 시각적 여유 확보
+const CARD_COLS = 2;
+const CARD_START_X = 590;
+const CARD_START_Y = 320;
+const CARD_CELL_W = 450;
+const CARD_CELL_H = 260;
 
 // 단어 카드 그리드 (keywords 화면)(4x4)
 const KWD_GRID_COLS = 4;
-const KWD_START_X = 500; // 490에서 살짝 옮김
-const KWD_START_Y = 200; // 훨씬 위로 올려 4줄 배치
-const KWD_CELL_W = 220;  // 셀 너비를 줄여 4개 배치
-const KWD_CELL_H = 180;  // 셀 높이를 확보
+const KWD_START_X = 500;
+const KWD_START_Y = 200;
+const KWD_CELL_W = 220;
+const KWD_CELL_H = 180;
 
 // ==== 이미지 애셋 ====
 // 붉은 말 캐릭터
@@ -92,18 +91,18 @@ let enterNormal = null;
 let enterHover = null;
 let titleLogo = null;
 
-//버튼1 (대주제)
+// 버튼1 (대주제)
 let career = null;
 let careerHover = null;
 let health = null;
 let healthHover = null;
 let love = null;
-let loveHover=null;
+let loveHover = null;
 let money = null;
-let moneyHover=null;
+let moneyHover = null;
 
-//버튼2 (소주제)
-// ====== '진로' (career) 카테고리 주제 버튼 이미지 변수 ======
+// 버튼2 (소주제)
+// '진로' (career)
 let career1 = null;
 let career1Hover = null;
 let career2 = null;
@@ -113,7 +112,7 @@ let career3Hover = null;
 let career4 = null;
 let career4Hover = null;
 
-// ====== '건강' (health) 카테고리 주제 버튼 이미지 변수 ======
+// '건강' (health)
 let health1 = null;
 let health1Hover = null;
 let health2 = null;
@@ -123,7 +122,7 @@ let health3Hover = null;
 let health4 = null;
 let health4Hover = null;
 
-// ====== '금전' (money) 카테고리 주제 버튼 이미지 변수 ======
+// '금전' (money)
 let money1 = null;
 let money1Hover = null;
 let money2 = null;
@@ -133,7 +132,7 @@ let money3Hover = null;
 let money4 = null;
 let money4Hover = null;
 
-// ====== '연애' (love) 카테고리 주제 버튼 이미지 변수 ======
+// '연애' (love)
 let love1 = null;
 let love1Hover = null;
 let love2 = null;
@@ -143,30 +142,40 @@ let love3Hover = null;
 let love4 = null;
 let love4Hover = null;
 
-//버튼3 (키워드)
-//버튼3. 키워드
-let anxiety= null;
-let anxietyHover= null;
-let luck=null;
-let luckHover=null;
-let chance=null;
-let chanceHover=null;
-let change=null;
-let changeHover=null;
+// 버튼3 (키워드)
+let anxiety = null;
+let anxietyHover = null;
+let luck = null;
+let luckHover = null;
+let chance = null;
+let chanceHover = null;
+let change = null;
+let changeHover = null;
 
-  //기사 링크로 이동//
-let link=null
-let linkHover = null
-  
-  //출력//
-let Print = null
-let printHover = null
-let qr=null
-let qrHover=null
-let next = null
-let nextHover = null
-let createcard = null
-let createcardHover = null
+// 기사 링크로 이동
+let link = null;
+let linkHover = null;
+
+// 출력/QR
+let Print = null;
+let printHover = null;
+let qr = null;
+let qrHover = null;
+
+let next = null;
+let nextHover = null;
+let createcard = null;
+let createcardHover = null;
+
+// flow/advice/result/exit
+let flow = null;
+let flowHover = null;
+let advice = null;
+let adviceHover = null;
+let result = null;
+let resultHover = null;
+let exit = null;
+let exitHover = null;
 
 // ====== 카테고리별 버튼 세트 =======
 let TOPICS_IMAGE_MAP = {};
@@ -219,8 +228,12 @@ const ITEM_MAP = {
   "전공": "card_item_major.png",
 };
 
-//버튼 그리는 함수//
+// 🔹 클릭 가능한 이미지 버튼들을 모아두는 배열
+let clickableButtons = [];
 
+// =======================
+// 공통: 이미지 버튼 그리기
+// =======================
 function drawImageButton(img, imgHover, x, y, callback) {
   const w = img.width;
   const h = img.height;
@@ -232,12 +245,10 @@ function drawImageButton(img, imgHover, x, y, callback) {
   // hover 이미지 / 일반 이미지
   image(isHover ? imgHover : img, x, y);
 
-  // 클릭 처리
-  if (isHover && mouseIsPressed) {
-    callback();
-  }
+  // 🔥 여기서는 "클릭"을 수행하지 않는다.
+  // 대신 나중에 mouseReleased에서 처리할 수 있도록 정보만 저장한다.
+  clickableButtons.push({ x, y, w, h, callback });
 }
-
 
 // ===== preload: 이미지/데이터 로드 =====
 function preload() {
@@ -255,18 +266,17 @@ function preload() {
   enterHover  = loadImage("enter_hover.png");
   titleLogo   = loadImage("title_logo.png");
 
-  
-  //버튼1 (대주제)
+  // 버튼1 (대주제)
   career = loadImage("button_1_career.png");
   careerHover = loadImage("button_1_career_hover.png");
   health = loadImage("button_1_health.png");
   healthHover = loadImage("button_1_health_hover.png");
   love = loadImage("button_1_love.png");
-  loveHover=loadImage("button_1_love_hover.png");
-  money =loadImage("button_1_money.png");
-  moneyHover=loadImage("button_1_money_hover.png");
+  loveHover = loadImage("button_1_love_hover.png");
+  money = loadImage("button_1_money.png");
+  moneyHover = loadImage("button_1_money_hover.png");
 
-  // ====== '건강' (health) 카테고리 주제 버튼 이미지 로드 ======
+  // '건강' 소주제
   health1 = loadImage("button_2_health1.png");
   health1Hover = loadImage("button_2_health1_hover.png");
   health2 = loadImage("button_2_health2.png");
@@ -276,7 +286,7 @@ function preload() {
   health4 = loadImage("button_2_health4.png");
   health4Hover = loadImage("button_2_health4_hover.png");
 
-  // ====== '금전' (money) 카테고리 주제 버튼 이미지 로드 ======
+  // '금전' 소주제
   money1 = loadImage("button_2_money1.png");
   money1Hover = loadImage("button_2_money1_hover.png");
   money2 = loadImage("button_2_money2.png");
@@ -286,7 +296,7 @@ function preload() {
   money4 = loadImage("button_2_money4.png");
   money4Hover = loadImage("button_2_money4_hover.png");
 
-  // ====== '연애' (love) 카테고리 주제 버튼 이미지 로드 ======
+  // '연애' 소주제
   love1 = loadImage("button_2_love1.png");
   love1Hover = loadImage("button_2_love1_hover.png");
   love2 = loadImage("button_2_love2.png");
@@ -296,70 +306,69 @@ function preload() {
   love4 = loadImage("button_2_love4.png");
   love4Hover = loadImage("button_2_love4_hover.png");
 
-  // ====== '진로' (career) 카테고리 주제 버튼 이미지 로드 (사용자 코드) ======
+  // '진로' 소주제
   career1 = loadImage("button_2_career1.png");
-  career1Hover =loadImage("button_2_career1_hover.png");
+  career1Hover = loadImage("button_2_career1_hover.png");
   career2 = loadImage("button_2_career2.png");
-  career2Hover=loadImage("button_2_career2_hover.png");
-  career3=loadImage("button_2_career3.png");
-  career3Hover=loadImage("button_2_career3_hover.png");
-  career4=loadImage("button_2_career4.png");
-  career4Hover=loadImage("button_2_career4_hover.png");
+  career2Hover = loadImage("button_2_career2_hover.png");
+  career3 = loadImage("button_2_career3.png");
+  career3Hover = loadImage("button_2_career3_hover.png");
+  career4 = loadImage("button_2_career4.png");
+  career4Hover = loadImage("button_2_career4_hover.png");
 
-  //버튼3. 키워드 <======== 세은님 추가 필요해요!
-  anxiety= loadImage("button_3_anxiety.png")
-  anxietyHover= loadImage("button_3_anxiety_hover.png")
-  luck=loadImage("button_3_luck.png")
-  luckHover=loadImage("button_3_luck_hover.png")
-  chance=loadImage("button_3_chance.png")
-  chanceHover=loadImage("button_3_chance_hover.png")
-  change=loadImage("button_3_change.png")
-  changeHover=loadImage("button_3_change_hover.png")
+  // 버튼3. 키워드
+  anxiety = loadImage("button_3_anxiety.png");
+  anxietyHover = loadImage("button_3_anxiety_hover.png");
+  luck = loadImage("button_3_luck.png");
+  luckHover = loadImage("button_3_luck_hover.png");
+  chance = loadImage("button_3_chance.png");
+  chanceHover = loadImage("button_3_chance_hover.png");
+  change = loadImage("button_3_change.png");
+  changeHover = loadImage("button_3_change_hover.png");
 
-  //기사 링크로 이동//
-  link=loadImage("button_link.png")
-  linkHover = loadImage("button_link_hover.png")
+  // 기사 링크로 이동
+  link = loadImage("button_link.png");
+  linkHover = loadImage("button_link_hover.png");
   
-  //출력//
-  Print = loadImage("button_print.png")
-  printHover = loadImage("button_print_hover.png")
+  // 출력
+  Print = loadImage("button_print.png");
+  printHover = loadImage("button_print_hover.png");
 
-  //qr//
-  qr=loadImage("button_qr.png")
-  qrHover=loadImage("button_qr_hover.png")
+  // QR
+  qr = loadImage("button_qr.png");
+  qrHover = loadImage("button_qr_hover.png");
 
-  //다음으로//
-  next = loadImage("button_next.png")
-  nextHover = loadImage("button_next_hover.png")
+  // 다음으로
+  next = loadImage("button_next.png");
+  nextHover = loadImage("button_next_hover.png");
 
-  //퇴장//
-  exit = loadImage("button_exit_normal.png")
-  exitHover = loadImage("button_exit_hover.png")
+  // 퇴장
+  exit = loadImage("button_exit_normal.png");
+  exitHover = loadImage("button_exit_hover.png");
 
-  //흐름카드 뽑기//
-  flow = loadImage("button_flow.png")
-  flowHover = loadImage("button_flow_hover.png")
+  // 흐름카드 뽑기
+  flow = loadImage("button_flow.png");
+  flowHover = loadImage("button_flow_hover.png");
 
-  //조언카드 뽑기//
-  advice = loadImage("button_advice.png")
-  adviceHover = loadImage("button_advice_hover.png")
+  // 조언카드 뽑기
+  advice = loadImage("button_advice.png");
+  adviceHover = loadImage("button_advice_hover.png");
 
-  //결과 한번에 보기//
-  result = loadImage("button_result.png")
-  resultHover=loadImage("button_result_hover.png")
+  // 결과 한번에 보기
+  result = loadImage("button_result.png");
+  resultHover = loadImage("button_result_hover.png");
 
-  //bgm
-  bgMusic = loadSound("tarot_bgm.mp3")
+  // bgm
+  bgMusic = loadSound("tarot_bgm.mp3");
 
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
 
   // 타로 카드 레이어 이미지 로드
   const allImages = Object.assign({}, BACKGROUND_MAP, CHARACTER_MAP, ITEM_MAP);
-
   for (const key in allImages) {
     const fileName = allImages[key];
-    cardImages[key] = loadImage(fileName); // '건강', '기회', '마음' 등의 키로 이미지 객체 저장
+    cardImages[key] = loadImage(fileName);
   }
 }
 
@@ -369,28 +378,29 @@ function setup() {
 
   // 카테고리별 이미지 버튼 세트
   TOPICS_IMAGE_MAP = {
-  "건강": {
-    normal: [health1, health2, health3, health4],
-    hover: [health1Hover, health2Hover, health3Hover, health4Hover]
-  },
-  "금전": {
-    normal: [money1, money2, money3, money4],
-    hover: [money1Hover, money2Hover, money3Hover, money4Hover]
-  },
-  "연애": {
-    normal: [love1, love2, love3, love4],
-    hover: [love1Hover, love2Hover, love3Hover, love4Hover]
-  },
-  "진로": {
-    normal: [career1, career2, career3, career4],
-    hover: [career1Hover, career2Hover, career3Hover, career4Hover]
-  }
-};
+    "건강": {
+      normal: [health1, health2, health3, health4],
+      hover: [health1Hover, health2Hover, health3Hover, health4Hover]
+    },
+    "금전": {
+      normal: [money1, money2, money3, money4],
+      hover: [money1Hover, money2Hover, money3Hover, money4Hover]
+    },
+    "연애": {
+      normal: [love1, love2, love3, love4],
+      hover: [love1Hover, love2Hover, love3Hover, love4Hover]
+    },
+    "진로": {
+      normal: [career1, career2, career3, career4],
+      hover: [career1Hover, career2Hover, career3Hover, career4Hover]
+    }
+  };
 }
 
-
-
 function draw() {
+  // 🔹 매 프레임마다 버튼 리스트 초기화
+  clickableButtons = [];
+
   if (state === "start") {
     drawStartScreen();
   } else if (state === "question") {
@@ -504,7 +514,7 @@ function drawQuestionScreen() {
     ellipse(320, 650, 200, 200);
   }
 
-  // 말풍선 (임시 사각형)
+  // 말풍선
   fill(255);
   rect(620, 360, 900, 260, 30);
   fill(0);
@@ -521,11 +531,10 @@ function drawQuestionScreen() {
 
   imageMode(CORNER);
 
-  // 선택지 버튼들
-  const startX = 700;     // 첫번째 버튼 X
-  const startY = 470;     // 첫번째 버튼 Y
-  const gapX = 300;       
-  const gapY = 120;      
+  const startX = 700;
+  const startY = 470;
+  const gapX = 300;
+  const gapY = 120;
 
   for (let i = 0; i < categories.length; i++) {
     const col = i % 2;
@@ -534,8 +543,8 @@ function drawQuestionScreen() {
     const imgX = startX + col * gapX;
     const imgY = startY + row * gapY;
 
-    const imgW = normalImages[i].width*0.8;
-    const imgH = normalImages[i].height*0.8;
+    const imgW = normalImages[i].width * 0.8;
+    const imgH = normalImages[i].height * 0.8;
 
     const isHover =
       mouseX > imgX && mouseX < imgX + imgW &&
@@ -546,10 +555,6 @@ function drawQuestionScreen() {
     } else {
       image(normalImages[i], imgX, imgY, imgW, imgH);
     }
-
-    if (mouseIsPressed && isHover) {
-      selectedCategory = categories[i];
-    }
   }
 }
 
@@ -559,7 +564,6 @@ function drawTopicsScreen() {
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
-  // 선택된 카테고리에 맞는 주제 단어 목록
   const topics = TOPICS_MAP[selectedCategory] || [];
   const imageMap = TOPICS_IMAGE_MAP[selectedCategory];
 
@@ -571,83 +575,73 @@ function drawTopicsScreen() {
   textSize(18);
   text("4가지 주제 중 가장 마음이 끌리는 단어 하나를 골라주세요.", width / 2, 130);
 
-  imageMode(CORNER); // 이미지를 그리기 위해 모드 설정
-  
-  // 주제 단어 4개 그리기 (2x2 그리드 로직 적용)
-  for (let i = 0; i < topics.length; i++) {
-    // 👈 2x2 그리드 위치 계산 (기존 CARD 상수 사용)
-    const col = i % 2; 
-    const row = floor(i / 2); 
-    
-    let x = CARD_START_X + col * CARD_CELL_W;
-    let y = CARD_START_Y + row * CARD_CELL_H;
-    
-    // 👈 2. 이미지 변수와 크기 계산
-    // 이미지가 로드되지 않았거나 (imageMap이 없거나), 배열에 이미지가 없으면 기본 사각형을 그립니다.
+  imageMode(CORNER);
+
+  // 주제 단어 4개 (2x2)
+  for (let i = 0; i < topics.length; i++) {
+    const col = i % 2;
+    const row = floor(i / 2);
+
+    let x = CARD_START_X + col * CARD_CELL_W;
+    let y = CARD_START_Y + row * CARD_CELL_H;
+
     if (!imageMap || !imageMap.normal[i]) {
-        // 비상 상황: 이미지 로드 실패 시, 기존처럼 사각형을 그리고 텍스트를 출력합니다.
-        fill(40, 30, 70, 220);
-        rect(x, y, CARD_CELL_W - 40, CARD_CELL_H - 40, 16);
-        fill(255);
-        textAlign(CENTER, CENTER);
-        text(topics[i], x + (CARD_CELL_W - 40) / 2, y + (CARD_CELL_H - 40) / 2);
-        continue; // 다음 루프로 이동
+      fill(40, 30, 70, 220);
+      rect(x, y, CARD_CELL_W - 40, CARD_CELL_H - 40, 16);
+      fill(255);
+      textAlign(CENTER, CENTER);
+      text(topics[i], x + (CARD_CELL_W - 40) / 2, y + (CARD_CELL_H - 40) / 2);
+      continue;
     }
 
     const imgW = imageMap.normal[i].width;
     const imgH = imageMap.normal[i].height;
-    
-    // 3. Hover 체크
-    const isHover =
-      mouseX > x && mouseX < x + imgW &&
-      mouseY > y && mouseY < y + imgH;
 
-    // 4. 이미지 그리기
-    if (isHover || selectedTopic === topics[i]) {
-      image(imageMap.hover[i], x, y); // hover 이미지 그리기
-    } else {
-      image(imageMap.normal[i], x, y); // 일반 이미지 그리기
-    }
-  }
+    const isHover =
+      mouseX > x && mouseX < x + imgW &&
+      mouseY > y && mouseY < y + imgH;
+
+    if (isHover || selectedTopic === topics[i]) {
+      image(imageMap.hover[i], x, y);
+    } else {
+      image(imageMap.normal[i], x, y);
+    }
+  }
 
   // 선택된 단어 표시
   fill(255);
   textAlign(CENTER, TOP);
   textSize(20);
   if (selectedTopic) {
-    text(
-      `지금 선택된 주제: "${selectedTopic}"`,
-      width / 2,
-      height - 220
-    );
+    text(`지금 선택된 주제: "${selectedTopic}"`, width / 2, height - 220);
   } else {
     text("카드를 눌러, 오늘 가장 마음이 가는 주제 하나를 골라주세요.", width / 2, height - 220);
   }
 
   // 다음 버튼
-if (next) {
-  const btnX = width / 2 - next.width / 2;
-  const btnY = height - 200;
+  if (next) {
+    const btnX = width / 2 - next.width / 2;
+    const btnY = height - 200;
 
-  drawImageButton(next, nextHover, btnX, btnY, () => {
-    if (!selectedTopic) return;   // ✅ 주제 안 고르면 못 넘어감
-    selectedKeyWord = null;
-    state = "keywords";           // ✅ 다음 페이지 이동
-  });
-
+    drawImageButton(next, nextHover, btnX, btnY, () => {
+      if (!selectedTopic) return;
+      selectedKeyWord = null;
+      state = "keywords";
+    });
   } else {
-    // 이미지가 로드되지 않았을 경우, 기존 drawButton을 백업으로 사용
     drawButton(width / 2 - btnWidth / 2, height - 140, btnWidth, btnHeight, "다음 단계로");
-  };
+  }
+
+  // 카드 클릭 처리는 여전히 handleTopicsClick 사용
+  if (mouseIsPressed) handleTopicsClick();
 }
 
-// ========== KEYWORDS SCREEN (selectedKeyWord 사용) ==========
+// ========== KEYWORDS SCREEN ==========
 function drawKeywordsScreen() {
   drawShopBackground();
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
-  // 고정된 키워드 목록
   const keywords = DUMMY_KEYWORDS_LIST;
 
   fill(255);
@@ -658,20 +652,18 @@ function drawKeywordsScreen() {
   textSize(18);
   text("당신에게 가장 강하게 끌리는 기운의 단어 하나를 골라주세요.", width / 2, 130);
 
-  // 키워드 4개 그리기 (4 x 4 그리드)
   textSize(20);
 
-for (let i = 0; i < keywords.length; i++) { // 4x4 그리드 위치 계산
-    const col = i % KWD_GRID_COLS; 
-    const row = floor(i / KWD_GRID_COLS); 
+  for (let i = 0; i < keywords.length; i++) {
+    const col = i % KWD_GRID_COLS;
+    const row = floor(i / KWD_GRID_COLS);
 
     let x = KWD_START_X + col * KWD_CELL_W;
     let y = KWD_START_Y + row * KWD_CELL_H;
 
-    const cardW = KWD_CELL_W - 40; 
-    const cardH = KWD_CELL_H - 40;
+    const cardW = KWD_CELL_W - 40;
+    const cardH = KWD_CELL_H - 40;
 
-    // 선택된 단어는 색을 다르게 (selectedKeyWord 사용)
     if (selectedKeyWord === keywords[i]) {
       fill(140, 110, 220, 240);
     } else {
@@ -684,7 +676,7 @@ for (let i = 0; i < keywords.length; i++) { // 4x4 그리드 위치 계산
     text(keywords[i], x + cardW / 2, y + cardH / 2);
   }
 
-  // 선택된 단어 표시 (selectedKeyWord 사용)
+  // 선택된 단어 표시
   fill(255);
   textAlign(CENTER, TOP);
   textSize(20);
@@ -693,13 +685,14 @@ for (let i = 0; i < keywords.length; i++) { // 4x4 그리드 위치 계산
   } else {
     text("카드를 눌러, 당신의 기운에 가장 맞는 키워드 하나를 골라주세요.", width / 2, height - 220);
   }
+
   // 카드 생성하기 버튼
   if (createcard) {
     const imgW = createcard.width;
     const imgH = createcard.height;
 
     const btnX = width / 2 - imgW / 2;
-    const btnY = height - 200; // 기존 버튼 Y 위치와 동일하게 설정
+    const btnY = height - 200;
 
     const isHover =
       mouseX > btnX && mouseX < btnX + imgW &&
@@ -709,12 +702,14 @@ for (let i = 0; i < keywords.length; i++) { // 4x4 그리드 위치 계산
     const imgToDraw = (isHover && createcardHover) ? createcardHover : createcard;
     image(imgToDraw, btnX, btnY);
   } else {
-    // 이미지가 로드되지 않았을 경우, 기존 drawButton을 백업으로 사용
     drawButton(width / 2 - btnWidth / 2, height - 140, btnWidth, btnHeight, "카드 생성하기");
   }
+
+  // 키워드/생성 버튼 클릭
+  if (mouseIsPressed) handleKeywordsClick();
 }
 
-// ========== LOADING SCREEN (selectedKeyWord 사용) ==========
+// ========== LOADING SCREEN ==========
 function drawLoadingScreen() {
   drawResultBackground();
   fill(0, 0, 0, 160);
@@ -734,7 +729,6 @@ function drawLoadingScreen() {
     height / 2 + 10
   );
 
-  // 로딩 애니메이션
   push();
   translate(width / 2, height / 2 + 80);
   noFill();
@@ -746,370 +740,313 @@ function drawLoadingScreen() {
 }
 
 // ========== GEMINI SCREEN ==========
-
 function drawGeminiScreen() {
-  drawResultBackground();
-  fill(0, 0, 0, 180);
-  rect(0, 0, width, height);
+  drawResultBackground();
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, height);
 
-  // 제목 및 상단 주제/단어
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text("붉은 말 타로 마스터의 첫 조언", width / 2, 80);
+  fill(255);
+  textAlign(CENTER, TOP);
+  textSize(32);
+  text("붉은 말 타로 마스터의 첫 조언", width / 2, 80);
 
-  textSize(20);
-  text(
-    selectedCategory && selectedTopic && selectedKeyWord
-      ? `고민 주제: ${selectedCategory} > ${selectedTopic} / 선택한 키워드: "${selectedKeyWord}"`
-      : "",
-    width / 2,
-    140
-  );
+  textSize(20);
+  text(
+    selectedCategory && selectedTopic && selectedKeyWord
+      ? `고민 주제: ${selectedCategory} > ${selectedTopic} / 선택한 키워드: "${selectedKeyWord}"`
+      : "",
+    width / 2,
+    140
+  );
 
-  // ==== 왼쪽: Gemini 조언 텍스트 자리 ====
-const contentStartY = 350;
+  const contentStartY = 350;
+  const boxW = 800;
+  const boxH = 380;
+  const boxX = width / 2 - 520;
+  const boxY = contentStartY;
 
-  const boxW = 800;
-  const boxH = 380;
-  const boxX = width / 2 - 520;
-  const boxY = contentStartY;
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 20);
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 20);
+  fill(255);
+  textAlign(LEFT, TOP);
+  textSize(18);
+  const adviceText = tarotAdvice || "조언을 불러오는 중 문제가 발생했습니다.";
+  text(adviceText, boxX + 32, boxY + 32, boxW - 64, boxH - 64);
 
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(18);
-  const adviceText = tarotAdvice || "조언을 불러오는 중 문제가 발생했습니다.";
-  text(adviceText, boxX + 32, boxY + 32, boxW - 64, boxH - 64);
+  // 오른쪽 카드
+  const cardW = 260;
+  const cardH = 380;
+  const cardX = width / 2 + 300;
+  const cardY = contentStartY;
 
+  const bgKey = selectedCategory;
+  const charKey = actualImageKeyWord;
+  const itemKey = selectedTopic;
 
-  // ==== 오른쪽: 타로 카드 이미지 자리 ====
-  const cardW = 260;
-  const cardH = 380;
-  const cardX = width / 2 + 300;
-  const cardY = contentStartY;
+  imageMode(CORNER);
 
-  // 이미지 레이어 그리기
-  const bgKey = selectedCategory;
-  const charKey = actualImageKeyWord;
-  const itemKey = selectedTopic;
+  if (bgKey && cardImages[bgKey]) {
+    image(cardImages[bgKey], cardX, cardY, cardW, cardH);
+  } else {
+    fill(40, 20, 80, 240);
+    rect(cardX, cardY, cardW, cardH, 24);
+  }
 
-  imageMode(CORNER); 
-  
-  // 1. 배경 이미지 (Category)
-  if (bgKey && cardImages[bgKey]) {
-    image(cardImages[bgKey], cardX, cardY, cardW, cardH);
-  } else {
-    fill(40, 20, 80, 240);
-    rect(cardX, cardY, cardW, cardH, 24);
-  }
-
-  // 2. 캐릭터 이미지 (KeyWord)
   if (charKey && cardImages[charKey]) {
     let img = cardImages[charKey];
     if (img.width > 1) {
-        let newW = cardW * 0.85; 
-        let newH = img.height * (newW / img.width); 
-        imageMode(CENTER);
-        image(img, cardX + cardW / 2, cardY + cardH / 2, newW, newH);
+      let newW = cardW * 0.85;
+      let newH = img.height * (newW / img.width);
+      imageMode(CENTER);
+      image(img, cardX + cardW / 2, cardY + cardH / 2, newW, newH);
     }
   }
 
-  // 3. 아이템 이미지 (Topic)
-  if (itemKey && cardImages[itemKey]) {
+  if (itemKey && cardImages[itemKey]) {
     let img = cardImages[itemKey];
     if (img.width > 1) {
-        let newW = cardW * 0.3; 
-        let newH = img.height * (newW / img.width); 
-        imageMode(CENTER);
-        image(img, cardX + cardW / 2, cardY + cardH / 2 + 140, newW, newH);
+      let newW = cardW * 0.3;
+      let newH = img.height * (newW / img.width);
+      imageMode(CENTER);
+      image(img, cardX + cardW / 2, cardY + cardH / 2 + 140, newW, newH);
     }
   }
 
-  // 모든 이미지가 로드되지 않았거나, 키가 잘못되었을 경우 텍스트 표시
-  if (!bgKey || !charKey || !itemKey) {
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(18);
-    text("타로 카드 이미지 로드 준비 중", cardX + cardW / 2, cardY + cardH / 2);
-  }
+  if (!bgKey || !charKey || !itemKey) {
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(18);
+    text("타로 카드 이미지 로드 준비 중", cardX + cardW / 2, cardY + cardH / 2);
+  }
 
-// ==== 카드 하단 출력 / QR 버튼 ====
-const btnGap = 12;
+  // 출력 버튼
+  const btnGap = 12;
 
-// 출력 버튼 (0.6배)
-const printW = Print.width * 0.6;
-const printH = Print.height * 0.6;
+  const printW = Print.width * 0.6;
+  const printH = Print.height * 0.6;
 
-const printBtnX = cardX + cardW / 2 - printW / 2 + 40;
-const printBtnY = cardY + cardH + 24;
+  const printBtnX = cardX + cardW / 2 - printW / 2 + 40;
+  const printBtnY = cardY + cardH + 24;
 
-imageMode(CORNER);
-let isPrintHover =
-  mouseX >= printBtnX && mouseX <= printBtnX + printW &&
-  mouseY >= printBtnY && mouseY <= printBtnY + printH;
+  imageMode(CORNER);
+  let isPrintHover =
+    mouseX >= printBtnX && mouseX <= printBtnX + printW &&
+    mouseY >= printBtnY && mouseY <= printBtnY + printH;
 
-image(
-  isPrintHover ? printHover : Print,
-  printBtnX, printBtnY,
-  printW, printH
-);
+  image(
+    isPrintHover ? printHover : Print,
+    printBtnX, printBtnY,
+    printW, printH
+  );
 
-if (isPrintHover && mouseIsPressed) {
-  window.print(); // ✅ 실제 출력
-}
+  if (isPrintHover && mouseIsPressed) {
+    window.print();
+  }
 
+  // QR 버튼
+  const qrW = qr.width * 0.6;
+  const qrH = qr.height * 0.6;
 
-// QR 버튼 (0.6배)
-const qrW = qr.width * 0.6;
-const qrH = qr.height * 0.6;
+  const qrBtnX = cardX + cardW / 2 - qrW / 2 + 40;
+  const qrBtnY = printBtnY + printH + btnGap;
 
-const qrBtnX = cardX + cardW / 2 - qrW / 2 + 40;
-const qrBtnY = printBtnY + printH + btnGap;
+  let isQrHover =
+    mouseX >= qrBtnX && mouseX <= qrBtnX + qrW &&
+    mouseY >= qrBtnY && mouseY <= qrBtnY + qrH;
 
-let isQrHover =
-  mouseX >= qrBtnX && mouseX <= qrBtnX + qrW &&
-  mouseY >= qrBtnY && mouseY <= qrBtnY + qrH;
+  image(
+    isQrHover ? qrHover : qr,
+    qrBtnX, qrBtnY,
+    qrW, qrH
+  );
 
-image(
-  isQrHover ? qrHover : qr,
-  qrBtnX, qrBtnY,
-  qrW, qrH
-);
+  if (isQrHover && mouseIsPressed) {
+    console.log("QR 버튼 클릭");
+  }
 
-if (isQrHover && mouseIsPressed) {
-  console.log("QR 버튼 클릭");
-}
+  // 붉은 말 캐릭터
+  if (horseImages[2]) {
+    imageMode(CENTER);
+    image(horseImages[2], width / 2 - 600, 550, 250, 250);
+  }
 
-
-
-
-
-  // 붉은 말 캐릭터
-  if (horseImages[2]) {
-    imageMode(CENTER);
-    image(horseImages[2], width / 2 - 600, 550, 250, 250); 
-  }
-  
-  // 붉은 말 대사
-  textAlign(CENTER, TOP);
-  textSize(18);
+  textAlign(CENTER, TOP);
+  textSize(18);
   const speechY = contentStartY + boxH + 10;
-  text("붉은 말: \"이제, 당신을 둘러싼 흐름 카드를 한번 뽑아볼까요?\"", width / 2, speechY);
+  text("붉은 말: \"이제, 당신을 둘러싼 흐름 카드를 한번 뽑아볼까요?\"", width / 2, speechY);
 
+  imageMode(CORNER);
 
-imageMode(CORNER);
+  // 흐름카드 뽑기 버튼 (✨ 여기부터는 drawImageButton + mouseReleased)
+  const flowBtnX = width / 2 - flow.width / 2;
+  const flowBtnY = speechY + 60;
 
-//흐름카드 뽑기 버튼
-const flowBtnX = width / 2 - flow.width / 2;
-const flowBtnY = speechY + 60;
-
-drawImageButton(flow, flowHover, flowBtnX, flowBtnY, () => {
-  state = "flowCard";   
-});
-
+  drawImageButton(flow, flowHover, flowBtnX, flowBtnY, () => {
+    state = "flowCard";
+  });
 }
 
-
-
-
-
+// ========== FLOW CARD SCREEN ==========
 function drawFlowCardScreen() {
-  drawResultBackground();
-  fill(0, 0, 0, 180);
-  rect(0, 0, width, height);
+  drawResultBackground();
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, height);
 
-  // 제목 및 상단 주제/단어
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text("요즘, 당신을 둘러싼 흐름 카드", width / 2, 80);
+  fill(255);
+  textAlign(CENTER, TOP);
+  textSize(32);
+  text("요즘, 당신을 둘러싼 흐름 카드", width / 2, 80);
 
-  textSize(20);
-  text(
-    selectedCategory && selectedTopic
-      ? `고민 주제: ${selectedCategory} > ${selectedTopic}`
-      : "",
-    width / 2,
-    140
-  );
+  textSize(20);
+  text(
+    selectedCategory && selectedTopic
+      ? `고민 주제: ${selectedCategory} > ${selectedTopic}`
+      : "",
+    width / 2,
+    140
+  );
 
+  const contentStartY = 350;
 
-// ==== 왼쪽: 흐름 카드 텍스트 자리 ====
-  // 👈 ❗ 수정: 콘텐츠 시작 Y 좌표를 350으로 올림
-  const contentStartY = 350; 
-  
-  const boxW = 800;
-  const boxH = 380;
-  const boxX = width / 2 - 520;
-  const boxY = contentStartY; // 👈 ❗ 수정: 350으로 변경
+  const boxW = 800;
+  const boxH = 380;
+  const boxX = width / 2 - 520;
+  const boxY = contentStartY;
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 20);
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 20);
 
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(18);
+  fill(255);
+  textAlign(LEFT, TOP);
+  textSize(18);
 
-  if (flowCard) {
-    text(`[흐름] ${flowCard.title}`, boxX + 32, boxY + 32, boxW - 64, 40);
-    text(flowCard.summary, boxX + 32, boxY + 80, boxW - 64, boxH - 112);
-  } else {
-    text("이 카테고리에 등록된 흐름 카드가 없습니다.", boxX + 32, boxY + 32);
-  }
+  if (flowCard) {
+    text(`[흐름] ${flowCard.title}`, boxX + 32, boxY + 32, boxW - 64, 40);
+    text(flowCard.summary, boxX + 32, boxY + 80, boxW - 64, boxH - 112);
+  } else {
+    text("이 카테고리에 등록된 흐름 카드가 없습니다.", boxX + 32, boxY + 32);
+  }
 
+  const cardW = 260;
+  const cardH = 380;
+  const cardX = width / 2 + 300;
+  const cardY = contentStartY;
 
-  // ==== 오른쪽: 타로 카드 이미지 자리 ====
-  const cardW = 260;
-  const cardH = 380;
-  const cardX = width / 2 + 300;
-  const cardY = contentStartY; // 👈 ❗ 수정: 350으로 변경
+  fill(40, 20, 80, 240);
+  rect(cardX, cardY, cardW, cardH, 24);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(18);
+  text("흐름 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
 
-  fill(40, 20, 80, 240);
-  rect(cardX, cardY, cardW, cardH, 24);
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(18);
-  text("흐름 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
-// 기사 출력 버튼// 
-let linkBtnX = 1300;   // 버튼 왼쪽 X
-let linkBtnY = boxY + boxH + 40;   // 버튼 위쪽 Y
-let linkBtnW = 180;   // 버튼 넓이
-let linkBtnH = 60;    // 버튼 높이
+  // 기사 링크 버튼
+  let linkBtnX = 1300;
+  let linkBtnY = boxY + boxH + 40;
+  let linkBtnW = 180;
+  let linkBtnH = 60;
 
-let isLinkHover =
-  mouseX > linkBtnX && mouseX < linkBtnX + linkBtnW &&
-  mouseY > linkBtnY && mouseY < linkBtnY + linkBtnH;
+  let isLinkHover =
+    mouseX > linkBtnX && mouseX < linkBtnX + linkBtnW &&
+    mouseY > linkBtnY && mouseY < linkBtnY + linkBtnH;
 
-if (isLinkHover) {
-  image(linkHover, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
-} else {
-  image(link, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
+  if (isLinkHover) {
+    image(linkHover, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
+  } else {
+    image(link, linkBtnX, linkBtnY, linkBtnW, linkBtnH);
+  }
+
+  if (horseImages[3]) {
+    imageMode(CENTER);
+    image(horseImages[3], width / 2 - 600, 550, 250, 250);
+  }
+
+  textAlign(CENTER, TOP);
+  textSize(18);
+  const speechY = contentStartY + boxH + 10;
+  text("붉은 말: \"이번엔, 현실적인 조언 카드를 뽑아볼까요?\"", width / 2, speechY);
+
+  imageMode(CORNER);
+
+  // 조언 카드 뽑기 버튼 (drawImageButton)
+  const adviceBtnX = width / 2 - advice.width / 2;
+  const adviceBtnY = speechY + 60;
+
+  drawImageButton(advice, adviceHover, adviceBtnX, adviceBtnY, () => {
+    state = "adviceCard";
+  });
 }
 
-// 붉은 말 캐릭터
-  if (horseImages[3]) {
-    imageMode(CENTER);
-    image(horseImages[3], width / 2 - 600, 550, 250, 250); // 👈 Y 좌표 550으로 통일
-  }
-  
-  // 붉은 말 대사
-  textAlign(CENTER, TOP);
-  textSize(18);
-  // 👈 ❗ 수정: 대사 Y 좌표를 740으로 올림 (350 + 380 + 10)
-  const speechY = contentStartY + boxH + 10; // 350 + 380 + 10 = 740
-  text("붉은 말: \"이번엔, 현실적인 조언 카드를 뽑아볼까요?\"", width / 2, speechY);
-
-imageMode(CORNER);
-
-  // 버튼: 조언 카드 뽑기
-const adviceBtnX = width / 2 - advice.width / 2;
-const adviceBtnY = speechY + 60;
-
-drawImageButton(advice, adviceHover, adviceBtnX, adviceBtnY, () => {
-  mode = "advice";
-});
-
-}
-
-function handleFlowCardClick() {
-  const btnX = width / 2 - btnWidth / 2;
-  // 👈 ❗ 수정: 버튼 Y 좌표를 800으로 통일
-  const btnY = 800; 
-
-  if (isInside(mouseX, mouseY, btnX, btnY, btnWidth, btnHeight)) {
-    state = "adviceCard";   
-  }
-}
-
+// ========== ADVICE CARD SCREEN ==========
 function drawAdviceCardScreen() {
-  drawResultBackground();
-  fill(0, 0, 0, 180);
-  rect(0, 0, width, height);
+  drawResultBackground();
+  fill(0, 0, 0, 180);
+  rect(0, 0, width, height);
 
-  // 제목 및 상단 주제/단어
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text("당신을 위한 현실적인 조언 카드", width / 2, 80);
+  fill(255);
+  textAlign(CENTER, TOP);
+  textSize(32);
+  text("당신을 위한 현실적인 조언 카드", width / 2, 80);
 
-  textSize(20);
-  text(
-    selectedCategory && selectedTopic
-      ? `고민 주제: ${selectedCategory} > ${selectedTopic}`
-      : "",
-    width / 2,
-    140
-  );
+  textSize(20);
+  text(
+    selectedCategory && selectedTopic
+      ? `고민 주제: ${selectedCategory} > ${selectedTopic}`
+      : "",
+    width / 2,
+    140
+  );
 
+  const contentStartY = 350;
 
-  // ==== 메인 콘텐츠 시작 Y 좌표 설정 ====
-  const contentStartY = 350; // 👈 ❗ 수정: Y 좌표 350으로 통일
-  
-  // ==== 왼쪽: 정책 카드 텍스트 자리 ====
-  const boxW = 800;
-  const boxH = 380;
-  const boxX = width / 2 - 520; 
-  const boxY = contentStartY; // 👈 ❗ 수정: 350으로 변경
+  const boxW = 800;
+  const boxH = 380;
+  const boxX = width / 2 - 520;
+  const boxY = contentStartY;
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 20);
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 20);
 
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(18);
+  fill(255);
+  textAlign(LEFT, TOP);
+  textSize(18);
 
-  if (policyCard) {
-    text(`[정책] ${policyCard.title}`, boxX + 32, boxY + 32, boxW - 64, 40);
-    text(policyCard.policy, boxX + 32, boxY + 80, boxW - 64, boxH - 112);
-  } else {
-    text("이 카테고리에 등록된 조언 카드가 없습니다.", boxX + 32, boxY + 32);
-  }
+  if (policyCard) {
+    text(`[정책] ${policyCard.title}`, boxX + 32, boxY + 32, boxW - 64, 40);
+    text(policyCard.policy, boxX + 32, boxY + 80, boxW - 64, boxH - 112);
+  } else {
+    text("이 카테고리에 등록된 조언 카드가 없습니다.", boxX + 32, boxY + 32);
+  }
 
+  const cardW = 260;
+  const cardH = 380;
+  const cardX = width / 2 + 300;
+  const cardY = contentStartY;
 
-  // ==== 오른쪽: 타로 카드 이미지 자리 ====
-  const cardW = 260;
-  const cardH = 380;
-  const cardX = width / 2 + 300;
-  const cardY = contentStartY; // 👈 ❗ 수정: 350으로 변경
+  fill(40, 20, 80, 240);
+  rect(cardX, cardY, cardW, cardH, 24);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(18);
+  text("조언 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
 
-  fill(40, 20, 80, 240);
-  rect(cardX, cardY, cardW, cardH, 24);
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(18);
-  text("조언 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
-  
-  // 붉은 말 캐릭터
-  if (horseImages[4]) {
-    imageMode(CENTER);
-    image(horseImages[4], width / 2 - 600, 550, 250, 250); // 👈 Y 좌표 550으로 통일
-  }
-  
-  // 붉은 말 대사
-  textAlign(CENTER, TOP);
-  textSize(18);
-  const speechY = contentStartY + boxH + 10; // 350 + 380 + 10 = 740
-  text("붉은 말: \"지금까지 뽑은 것들, 한 번에 정리해서 볼까요?\"", width / 2, speechY);
+  if (horseImages[4]) {
+    imageMode(CENTER);
+    image(horseImages[4], width / 2 - 600, 550, 250, 250);
+  }
 
-  // 버튼: 오늘 결과 한 번에 보기
-const resultBtnX = width / 2 - result.width / 2;
-const resultBtnY = speechY + 60;
+  textAlign(CENTER, TOP);
+  textSize(18);
+  const speechY = contentStartY + boxH + 10;
+  text("붉은 말: \"지금까지 뽑은 것들, 한 번에 정리해서 볼까요?\"", width / 2, speechY);
 
-drawImageButton(result, resultHover, resultBtnX, resultBtnY, () => {
-  mode = "result";
-});
-}
+  // 오늘 결과 한 번에 보기 버튼 (drawImageButton)
+  const resultBtnX = width / 2 - result.width / 2;
+  const resultBtnY = speechY + 60;
 
-function handleAdviceCardClick() {    
-  const btnX = width / 2 - btnWidth / 2;
-  const btnY = 800; // 👈 ❗ 수정: 버튼 Y 좌표를 800으로 통일
-
-  if (isInside(mouseX, mouseY, btnX, btnY, btnWidth, btnHeight)) {
-    state = "summary";
-  }
+  drawImageButton(result, resultHover, resultBtnX, resultBtnY, () => {
+    state = "summary";
+  });
 }
 
 // ========== SUMMARY SCREEN ==========
@@ -1171,29 +1108,11 @@ function drawSummaryScreen() {
     text("이 카테고리에 등록된 조언 카드가 없습니다.", boxX + 24, boxY + 50);
   }
 
-  // "다시 점치기" 버튼
-const exitBtnX = width / 2 - exit.width / 2;
-const exitBtnY = boxY + boxH + 40;
+  // "다시 점치기" 버튼 (drawImageButton)
+  const exitBtnX = width / 2 - exit.width / 2;
+  const exitBtnY = boxY + boxH + 40;
 
-drawImageButton(exit, exitHover, exitBtnX, exitBtnY, () => {
-  mode = "exit";
-});
-}
-
-function handleSummaryClick() {
-  const boxW = 1100;
-  const boxH = 160;
-  const boxX = width / 2 - boxW / 2;
-  let boxY = 160;
-  const gap = 20;
-
-  boxY += boxH + gap;
-  boxY += boxH + gap;
-  const btnX = width / 2 - btnWidth / 2;
-  const btnY = boxY + boxH + 40;
-
-  if (isInside(mouseX, mouseY, btnX, btnY, btnWidth, btnHeight)) {
-    // ✅ 전체 상태 초기화 후 시작 화면으로
+  drawImageButton(exit, exitHover, exitBtnX, exitBtnY, () => {
     selectedCategory = null;
     selectedTopic = null;
     selectedKeyWord = null;
@@ -1201,7 +1120,7 @@ function handleSummaryClick() {
     flowCard = null;
     policyCard = null;
     state = "start";
-  }
+  });
 }
 
 // ========== 공통 버튼 ==========
@@ -1226,25 +1145,25 @@ function drawButton(x, y, w, h, label) {
 }
 
 // ========== 클릭 처리 ==========
+
+// 마우스를 누를 때: start/question 화면만 처리
 function mousePressed() {
   if (state === "start") {
     handleStartClick();
   } else if (state === "question") {
     handleQuestionClick();
-  } else if (state === "topics") {
-    handleTopicsClick();
-  } else if (state === "keywords") {
-    handleKeywordsClick();
-  } else if (state === "loading") {
-    // 로딩 중에는 클릭 무시
   }
-   else if (state === "flowCard") {
-    handleFlowCardClick();
-  } else if (state === "adviceCard") {
-    handleAdviceCardClick();
-  } else if (state === "summary") {
-    handleSummaryClick();
+}
+
+// 마우스를 뗄 때: drawImageButton으로 등록된 버튼만 처리
+function mouseReleased() {
+  for (const btn of clickableButtons) {
+    if (isInside(mouseX, mouseY, btn.x, btn.y, btn.w, btn.h)) {
+      btn.callback();
+      break;
+    }
   }
+  clickableButtons = [];
 }
 
 function handleStartClick() {
@@ -1257,8 +1176,8 @@ function handleStartClick() {
     if (isInside(mouseX, mouseY, x, y, imgW, imgH)) {
       state = "question";
       if (bgMusic && !bgMusic.isPlaying()) {
-        bgMusic.setVolume(0.5); 
-        bgMusic.loop();         
+        bgMusic.setVolume(0.5);
+        bgMusic.loop();
       }
     }
   } else {
@@ -1276,43 +1195,34 @@ function handleStartClick() {
 
 function handleQuestionClick() {
   const categories = ["건강", "금전", "연애", "진로"];
-  const normalImages = [health, money, love, career]; 
-  
-  const startX = 700;     // 첫번째 버튼 X
-  const startY = 470;     // 첫번째 버튼 Y
-  const gapX = 300;       
-  const gapY = 120;      
+  const normalImages = [health, money, love, career];
 
-  for (let i = 0; i < categories.length; i++) {
-    const col = i % 2;
-    const row = floor(i / 2);
+  const startX = 700;
+  const startY = 470;
+  const gapX = 300;
+  const gapY = 120;
 
-    const imgX = startX + col * gapX;
-    const imgY = startY + row * gapY;
+  for (let i = 0; i < categories.length; i++) {
+    const col = i % 2;
+    const row = floor(i / 2);
+
+    const imgX = startX + col * gapX;
+    const imgY = startY + row * gapY;
 
     if (!normalImages[i]) continue;
-    
-    // drawQuestionScreen에서 사용한 스케일링(0.8)을 동일하게 적용
-    const imgW = normalImages[i].width * 0.8; 
-    const imgH = normalImages[i].height * 0.8; 
 
-    if (isInside(mouseX, mouseY, imgX, imgY, imgW, imgH)) {
-      // 클릭이 발생한 경우 (mousePressed가 handleQuestionClick을 호출했으므로)
-      
-      // 1. 선택된 카테고리 업데이트
-      selectedCategory = categories[i];
-      
-      // 2. 다른 state 초기화
-      selectedTopic = null;
-      selectedKeyWord = null; 
-      tarotAdvice = "";
+    const imgW = normalImages[i].width * 0.8;
+    const imgH = normalImages[i].height * 0.8;
 
-      // 3. state 변경
-      state = "topics";
-      
-      return; // 카테고리 선택 후 함수 종료
-    }
-  }
+    if (isInside(mouseX, mouseY, imgX, imgY, imgW, imgH)) {
+      selectedCategory = categories[i];
+      selectedTopic = null;
+      selectedKeyWord = null;
+      tarotAdvice = "";
+      state = "topics";
+      return;
+    }
+  }
 }
 
 function handleTopicsClick() {
@@ -1320,27 +1230,22 @@ function handleTopicsClick() {
   const imageMap = TOPICS_IMAGE_MAP[selectedCategory];
 
   for (let i = 0; i < topics.length; i++) {
-    const col = i % 2; 
-    const row = floor(i / 2); 
+    const col = i % 2;
+    const row = floor(i / 2);
 
-    let x = CARD_START_X + col * CARD_CELL_W;
-    let y = CARD_START_Y + row * CARD_CELL_H;
+    let x = CARD_START_X + col * CARD_CELL_W;
+    let y = CARD_START_Y + row * CARD_CELL_H;
 
-    // 👈 이미지 크기 가져오기
-    // 이미지가 없으면 클릭 영역 체크를 하지 않습니다.
     if (!imageMap || !imageMap.normal[i]) continue;
-    
+
     let w = imageMap.normal[i].width;
     let h = imageMap.normal[i].height;
 
-    if (isInside(mouseX, mouseY, x, y, w, h)) {
-      // 클릭이 성공하면
-      selectedTopic = topics[i];
-      return; // 카드 선택 후 함수 종료
-    }
-  }
-
-  
+    if (isInside(mouseX, mouseY, x, y, w, h)) {
+      selectedTopic = topics[i];
+      return;
+    }
+  }
 }
 
 function handleKeywordsClick() {
@@ -1348,17 +1253,17 @@ function handleKeywordsClick() {
 
   // 1) 키워드 카드 클릭 체크
   for (let i = 0; i < keywords.length; i++) {
-    const col = i % KWD_GRID_COLS; 
-    const row = floor(i / KWD_GRID_COLS); 
-    
+    const col = i % KWD_GRID_COLS;
+    const row = floor(i / KWD_GRID_COLS);
+
     let x = KWD_START_X + col * KWD_CELL_W;
     let y = KWD_START_Y + row * KWD_CELL_H;
     let w = KWD_CELL_W - 40;
     let h = KWD_CELL_H - 40;
 
     if (isInside(mouseX, mouseY, x, y, w, h)) {
-      selectedKeyWord = keywords[i]; // (16개 중 선택) Gemini 프롬프트용
-      actualImageKeyWord = KEYWORD_IMAGE_MAP[keywords[i]]; // (4개 중 하나) 이미지용
+      selectedKeyWord = keywords[i];
+      actualImageKeyWord = KEYWORD_IMAGE_MAP[keywords[i]];
       return;
     }
   }
@@ -1367,28 +1272,25 @@ function handleKeywordsClick() {
   let btnX, btnY, btnW, btnH;
 
   if (createcard) {
-    // 이미지 버튼의 크기와 위치 사용
     btnW = createcard.width;
     btnH = createcard.height;
     btnX = width / 2 - btnW / 2;
     btnY = height - 140;
   } else {
-    // 백업 버튼의 크기와 위치 사용
     btnW = btnWidth;
     btnH = btnHeight;
     btnX = width / 2 - btnW / 2;
     btnY = height - 140;
   }
 
-  if (isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
-    if (!selectedCategory || !selectedTopic || !selectedKeyWord) { // selectedKeyWord 체크
-      return;
-    }
-    // Gemini 호출
-    state = "loading";
-    tarotAdvice = "";
-    callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
-  }
+  if (isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
+    if (!selectedCategory || !selectedTopic || !selectedKeyWord) {
+      return;
+    }
+    state = "loading";
+    tarotAdvice = "";
+    callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
+  }
 }
 
 // ========== 유틸 ==========
@@ -1402,11 +1304,9 @@ function loadCardsByTopic(topic) {
 
   if (!cardsData || !cardsData.topics) return;
 
-  // Topic 이름을 키로 사용하여 데이터 접근
-  const topicData = cardsData.topics[topic]; 
+  const topicData = cardsData.topics[topic];
   if (!topicData) return;
 
-  // 카드를 flowCard와 policyCard에 저장
   if (topicData.flow && topicData.flow.length > 0) {
     flowCard = topicData.flow[0];
   }
@@ -1417,7 +1317,7 @@ function loadCardsByTopic(topic) {
 }
 
 // ========== Gemini 호출 로직 ==========
-function callGeminiTarot(category, topic, keyWord) { //keyWord는 16개 중 선택된 단어
+function callGeminiTarot(category, topic, keyWord) {
   if (!API_KEY || API_KEY === "%%%%") {
     console.error("API_KEY를 설정해주세요!");
     tarotAdvice = "API 키가 설정되지 않았습니다. 스케치를 수정해 주세요.";
