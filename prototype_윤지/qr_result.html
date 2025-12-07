@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>타로 카드 결과</title>
+<style>
+  body {
+    background: #1d1530;
+    color: white;
+    font-family: Pretendard, sans-serif;
+    padding: 40px;
+    text-align: center;
+  }
+  .card-img {
+    width: 320px;
+    margin-bottom: 20px;
+  }
+  .box {
+    background: rgba(30,25,60,0.8);
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 16px;
+    width: 80%;
+    max-width: 600px;
+    text-align: left;
+    white-space: pre-line;
+  }
+</style>
+</head>
+<body>
+
+<h1>오늘의 타로 카드 결과</h1>
+
+<div id="image-container"></div>
+<div class="box" id="advice-box"></div>
+<div class="box" id="flow-box"></div>
+<div class="box" id="policy-box"></div>
+
+<script>
+// URL에서 데이터 읽기
+const urlParams = new URLSearchParams(window.location.search);
+const raw = urlParams.get("data");
+
+if (raw) {
+  const data = JSON.parse(decodeURIComponent(raw));
+
+  // -------- 이미지 렌더링 --------
+  const imgContainer = document.getElementById("image-container");
+
+  // 카드 이미지 구성 요소 (배경 + 캐릭터 + 아이템)
+  const bg = data.category;
+  const char = data.keyword;
+  const item = data.topic;
+
+  imgContainer.innerHTML = `
+    <img class="card-img" src="${bg ? 'card_bg_' + bg + '.png' : ''}">
+    <img class="card-img" src="${char ? 'card_char_' + char + '.png' : ''}">
+    <img class="card-img" src="${item ? 'card_item_' + item + '.png' : ''}">
+  `;
+
+  // -------- 텍스트 렌더링 --------
+  document.getElementById("advice-box").innerText =
+    "🔮 타로 마스터의 조언\n" + (data.tarotAdvice || "-");
+
+  document.getElementById("flow-box").innerText =
+    "🌙 오늘을 둘러싼 흐름\n" +
+    (data.flow ? `${data.flow.title}\n${data.flow.summary}` : "-");
+
+  document.getElementById("policy-box").innerText =
+    "📌 현실적인 조언\n" +
+    (data.policy ? `${data.policy.title}\n${data.policy.policy}` : "-");
+}
+</script>
+
+</body>
+</html>

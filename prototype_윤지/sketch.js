@@ -161,6 +161,9 @@ let Print = null;
 let printHover = null;
 let qr = null;
 let qrHover = null;
+let qrButton = null;
+
+
 
 let next = null;
 let nextHover = null;
@@ -800,6 +803,7 @@ function drawGeminiScreen() {
   }
 
   // 출력 버튼
+  
   const btnGap = 12;
 
   const printW = Print.width * 0.6;
@@ -808,41 +812,51 @@ function drawGeminiScreen() {
   const printBtnX = cardX + cardW / 2 - printW / 2 ;
   const printBtnY = cardY + cardH + 24;
 
-  imageMode(CORNER);
-  let isPrintHover =
-    mouseX >= printBtnX && mouseX <= printBtnX + printW &&
-    mouseY >= printBtnY && mouseY <= printBtnY + printH;
+  drawImageButtonScaled(
+  Print,
+  printHover,
+  printBtnX,
+  printBtnY,
+  printW,
+  printH,
+  () => window.print()
+);
 
-  image(
-    isPrintHover ? printHover : Print,
-    printBtnX, printBtnY,
-    printW, printH
-  );
-
-  if (isPrintHover && mouseIsPressed) {
-    window.print();
-  }
 
   // QR 버튼
   const qrW = qr.width * 0.6;
-  const qrH = qr.height * 0.6;
+const qrH = qr.height * 0.6;
 
-  const qrBtnX = cardX + cardW / 2 - qrW / 2 ;
-  const qrBtnY = printBtnY + printH + btnGap;
+const qrBtnX = cardX + cardW / 2 - qrW / 2;
+const qrBtnY = printBtnY + printH + btnGap;
 
-  let isQrHover =
-    mouseX >= qrBtnX && mouseX <= qrBtnX + qrW &&
-    mouseY >= qrBtnY && mouseY <= qrBtnY + qrH;
+  drawImageButtonScaled(
+  qr,
+  qrHover,
+  qrBtnX,
+  qrBtnY,
+  qrW,
+  qrH,
+  () => {
+    const data = {
+      category: selectedCategory,
+      topic: selectedTopic,
+      keyword: selectedKeyWord,
+      tarotAdvice: tarotAdvice,
+      flow: flowCard,
+      policy: policyCard
+    };
 
-  image(
-    isQrHover ? qrHover : qr,
-    qrBtnX, qrBtnY,
-    qrW, qrH
-  );
+    const encoded = encodeURIComponent(JSON.stringify(data));
+    const targetURL = `${window.location.origin}/qr_result.html?data=${encoded}`;
 
-  if (isQrHover && mouseIsPressed) {
-    console.log("QR 버튼 클릭");
+    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetURL)}`;
+
+    return qrURL; // drawImageButton 시스템이 처리함!
   }
+);
+
+
 
   // 붉은 말 캐릭터
   if (horseImages[2]) {
@@ -1160,6 +1174,7 @@ function drawImageButton(img, imgHover, x, y, callback) {
 // 공통: 크기를 조절한 이미지 버튼 그리기
 // =======================
 function drawImageButtonScaled(img, imgHover, x, y, w, h, callback) {
+  imageMode(CORNER);
   // hover 판정
   let isHover =
     mouseX >= x && mouseX <= x + w &&
@@ -1177,21 +1192,29 @@ function drawImageButtonScaled(img, imgHover, x, y, w, h, callback) {
 
 // 마우스를 누를 때: start/question 화면만 처리
 function mousePressed() {
+
   if (state === "start") {
     handleStartClick();
-  } else if (state === "question") {
+    return;
+  }
+
+  if (state === "question") {
     handleQuestionClick();
+    return;
   }
 }
 
 // 마우스를 뗄 때: drawImageButton으로 등록된 버튼만 처리
 function mouseReleased() {
   for (const btn of clickableButtons) {
-    if (isInside(mouseX, mouseY, btn.x, btn.y, btn.w, btn.h)) {
-      btn.callback();
-      break;
+  if (isInside(mouseX, mouseY, btn.x, btn.y, btn.w, btn.h)) {
+    const result = btn.callback();   // URL을 받을 수 있음
+    if (typeof result === "string") {
+      window.open(result, "_blank");  // ← 사용자 클릭 이벤트 안에서 실행됨
     }
+    break;
   }
+}
   clickableButtons = [];
 }
 
