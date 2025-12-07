@@ -43,7 +43,7 @@ let bgMusic = null;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "";
+const API_KEY = "AIzaSyCDr2tJrhICiT4ZxY_epMAE5L8JcFAPsbQ";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -228,28 +228,6 @@ const ITEM_MAP = {
   "전공": "card_item_major.png",
 };
 
-// 🔹 클릭 가능한 이미지 버튼들을 모아두는 배열
-let clickableButtons = [];
-
-// =======================
-// 공통: 이미지 버튼 그리기
-// =======================
-function drawImageButton(img, imgHover, x, y, callback) {
-  imageMode(CORNER);
-  const w = img.width;
-  const h = img.height;
-
-  // hover 체크
-  let isHover = mouseX >= x && mouseX <= x + w &&
-                mouseY >= y && mouseY <= y + h;
-
-  // hover 이미지 / 일반 이미지
-  image(isHover ? imgHover : img, x, y);
-
-  // 🔥 여기서는 "클릭"을 수행하지 않는다.
-  // 대신 나중에 mouseReleased에서 처리할 수 있도록 정보만 저장한다.
-  clickableButtons.push({ x, y, w, h, callback });
-}
 
 // ===== preload: 이미지/데이터 로드 =====
 function preload() {
@@ -942,30 +920,24 @@ function drawFlowCardScreen() {
   text("흐름 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
 
   // 기사 링크 버튼
+  const linkW = link.width * 0.6;
+  const linkH = link.height * 0.6;
+  const linkBtnX = cardX + cardW / 2 - linkW / 2;
+  const linkBtnY = boxY + boxH + 40;
 
-const linkW = link.width * 0.6;
-const linkH = link.height * 0.6;
-
-const linkBtnX = cardX + cardW / 2 - linkW / 2;
-const linkBtnY = boxY + boxH + 40; 
-
-// hover 판정
-let isLinkHover =
-  mouseX >= linkBtnX && mouseX <= linkBtnX + linkW &&
-  mouseY >= linkBtnY && mouseY <= linkBtnY + linkH;
-
-// hover 이미지 출력
-image(
-  isLinkHover ? linkHover : link,
-  linkBtnX, linkBtnY,
-  linkW, linkH
+drawImageButtonScaled(
+  link,
+  linkHover,
+  linkBtnX,
+  linkBtnY,
+  linkW,
+  linkH,
+  () => {
+    if (flowCard?.link) window.open(flowCard.link, "_blank");
+  }
 );
 
-// 클릭 시 동작
-if (isLinkHover && mouseIsPressed) {
-  console.log("기사 링크 버튼 클릭");
-  // window.open("https://example.com", "_blank"); ← 이런 식으로 나중에 넣을 수 있음
-}
+
 
 
   if (horseImages[3]) {
@@ -1139,7 +1111,7 @@ function drawSummaryScreen() {
   });
 }
 
-// ========== 공통 버튼 ==========
+// ========== 예비 버튼 (이미지 버튼이 출력 안될시)==========
 function drawButton(x, y, w, h, label) {
   let isHover =
     mouseX > x && mouseX < x + w &&
@@ -1159,6 +1131,47 @@ function drawButton(x, y, w, h, label) {
   textSize(20);
   text(label, x + w / 2, y + h / 2);
 }
+
+
+// 🔹 클릭 가능한 이미지 버튼들을 모아두는 배열
+let clickableButtons = [];
+
+// =======================
+// 공통: 이미지 버튼 그리기
+// =======================
+function drawImageButton(img, imgHover, x, y, callback) {
+  imageMode(CORNER);
+  const w = img.width;
+  const h = img.height;
+
+  // hover 체크
+  let isHover = mouseX >= x && mouseX <= x + w &&
+                mouseY >= y && mouseY <= y + h;
+
+  // hover 이미지 / 일반 이미지
+  image(isHover ? imgHover : img, x, y);
+
+  // 🔥 여기서는 "클릭"을 수행하지 않는다.
+  // 대신 나중에 mouseReleased에서 처리할 수 있도록 정보만 저장한다.
+  clickableButtons.push({ x, y, w, h, callback });
+}
+
+// =======================
+// 공통: 크기를 조절한 이미지 버튼 그리기
+// =======================
+function drawImageButtonScaled(img, imgHover, x, y, w, h, callback) {
+  // hover 판정
+  let isHover =
+    mouseX >= x && mouseX <= x + w &&
+    mouseY >= y && mouseY <= y + h;
+
+  // 이미지 출력
+  image(isHover ? imgHover : img, x, y, w, h);
+
+  // 클릭영역 등록
+  clickableButtons.push({ x, y, w, h, callback });
+}
+
 
 // ========== 클릭 처리 ==========
 
