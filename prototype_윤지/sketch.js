@@ -43,7 +43,7 @@ let bgMusic = null;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "###";
+const API_KEY = "AIzaSyCT-xDoxk-B6Vyj_EyG0iyOIpVl8R_0i2A";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -155,6 +155,8 @@ let changeHover = null;
 // 기사 링크로 이동
 let link = null;
 let linkHover = null;
+let advicelink = null;
+let advicelinkHover = null;
 
 // 출력/QR
 let Print = null;
@@ -311,6 +313,10 @@ function preload() {
   // 기사 링크로 이동
   link = loadImage("button_link.png");
   linkHover = loadImage("button_link_hover.png");
+  
+  //조언 링크로 이동
+  advicelink = loadImage("button_advicelink.png");
+  advicelinkHover = loadImage("button_advicelink_hover.png")
   
   // 출력
   Print = loadImage("button_print.png");
@@ -1057,6 +1063,26 @@ const resultBtnY = speechY + 60;
 drawImageButton(result, resultHover, resultBtnX, resultBtnY, () => {
   state = "summary";
 });
+
+  // 조언 링크 버튼
+  const advicelinkW = advicelink.width * 0.6;
+  const advicelinkH = advicelink.height * 0.6;
+  const advicelinkBtnX = cardX + cardW / 2 - advicelinkW / 2;
+  const advicelinkBtnY = boxY + boxH + 40;
+
+drawImageButtonScaled(
+  advicelink,
+  advicelinkHover,
+  advicelinkBtnX,
+  advicelinkBtnY,
+  advicelinkW,
+  advicelinkH,
+  () => {
+    if (policyCard?.link) window.open(policyCard.link, "_blank");
+    if (policyCard.link1) window.open(adviceCard.link1, "_blank");
+    if (policyCard.link2) window.open(adviceCard.link2, "_blank");
+  }
+);
 }
 
 // ========== SUMMARY SCREEN ==========
