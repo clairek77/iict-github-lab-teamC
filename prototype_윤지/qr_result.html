@@ -1,76 +1,100 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<title>타로 카드 결과</title>
-<style>
-  body {
-    background: #1d1530;
-    color: white;
-    font-family: Pretendard, sans-serif;
-    padding: 40px;
-    text-align: center;
-  }
-  .card-img {
-    width: 320px;
-    margin-bottom: 20px;
-  }
-  .box {
-    background: rgba(30,25,60,0.8);
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 16px;
-    width: 80%;
-    max-width: 600px;
-    text-align: left;
-    white-space: pre-line;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>타로 결과</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      background: #141021;
+      color: white;
+      font-family: "Pretendard", sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-top: 10px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .card-wrapper {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tarot-card {
+      position: relative;
+      width: 280px;
+      height: 420px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .tarot-layer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    #advice-box {
+      width: 90%;
+      max-width: 700px;
+      margin: 0 auto;
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      white-space: pre-line;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>오늘의 타로 카드 결과</h1>
+  <h1>오늘의 타로 결과</h1>
 
-<div id="image-container"></div>
-<div class="box" id="advice-box"></div>
-<div class="box" id="flow-box"></div>
-<div class="box" id="policy-box"></div>
+  <div class="card-wrapper">
+    <div class="tarot-card">
+      <img id="bg" class="tarot-layer" src="" />
+      <img id="char" class="tarot-layer" src="" />
+      <img id="item" class="tarot-layer" src="" />
+    </div>
+  </div>
 
-<script>
-// URL에서 데이터 읽기
-const urlParams = new URLSearchParams(window.location.search);
-const raw = urlParams.get("data");
+  <div id="advice-box"></div>
 
-if (raw) {
-  const data = JSON.parse(decodeURIComponent(raw));
+  <script>
+    // URL에서 key 가져오기
+    const key = new URLSearchParams(location.search).get("key");
 
-  // -------- 이미지 렌더링 --------
-  const imgContainer = document.getElementById("image-container");
+    // localStorage에서 해당 key로 저장한 데이터 불러오기
+    const data = JSON.parse(localStorage.getItem(key));
 
-  // 카드 이미지 구성 요소 (배경 + 캐릭터 + 아이템)
-  const bg = data.category;
-  const char = data.keyword;
-  const item = data.topic;
+    if (!data) {
+      document.body.innerHTML = "<p style='padding:40px;'>저장된 타로 데이터가 없습니다.<br>QR을 다시 스캔해주세요.</p>";
+    } else {
+      // 이미지 레이어 적용
+      document.getElementById("bg").src = data.bg;
+      document.getElementById("char").src = data.char;
+      document.getElementById("item").src = data.item;
 
-  imgContainer.innerHTML = `
-    <img class="card-img" src="${bg ? 'card_bg_' + bg + '.png' : ''}">
-    <img class="card-img" src="${char ? 'card_char_' + char + '.png' : ''}">
-    <img class="card-img" src="${item ? 'card_item_' + item + '.png' : ''}">
-  `;
-
-  // -------- 텍스트 렌더링 --------
-  document.getElementById("advice-box").innerText =
-    "🔮 타로 마스터의 조언\n" + (data.tarotAdvice || "-");
-
-  document.getElementById("flow-box").innerText =
-    "🌙 오늘을 둘러싼 흐름\n" +
-    (data.flow ? `${data.flow.title}\n${data.flow.summary}` : "-");
-
-  document.getElementById("policy-box").innerText =
-    "📌 현실적인 조언\n" +
-    (data.policy ? `${data.policy.title}\n${data.policy.policy}` : "-");
-}
-</script>
+      // 텍스트 적용
+      document.getElementById("advice-box").innerText = data.tarotAdvice;
+    }
+  </script>
 
 </body>
 </html>

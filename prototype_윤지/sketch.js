@@ -43,7 +43,7 @@ let bgMusic = null;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "AIzaSyCDr2tJrhICiT4ZxY_epMAE5L8JcFAPsbQ";
+const API_KEY = "###";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -823,14 +823,14 @@ function drawGeminiScreen() {
 );
 
 
-  // QR 버튼
-  const qrW = qr.width * 0.6;
+// QR 버튼
+const qrW = qr.width * 0.6;
 const qrH = qr.height * 0.6;
 
 const qrBtnX = cardX + cardW / 2 - qrW / 2;
 const qrBtnY = printBtnY + printH + btnGap;
 
-  drawImageButtonScaled(
+drawImageButtonScaled(
   qr,
   qrHover,
   qrBtnX,
@@ -838,23 +838,31 @@ const qrBtnY = printBtnY + printH + btnGap;
   qrW,
   qrH,
   () => {
-    const data = {
-      category: selectedCategory,
-      topic: selectedTopic,
-      keyword: selectedKeyWord,
+
+    const saveKey = "tarotShare";
+
+    // QR에서 최소 데이터만 넘기기 위해 localStorage에 저장
+    localStorage.setItem(saveKey, JSON.stringify({
       tarotAdvice: tarotAdvice,
-      flow: flowCard,
-      policy: policyCard
-    };
+      bg: BACKGROUND_MAP[selectedCategory],
+      char: CHARACTER_MAP[actualImageKeyWord],
+      item: ITEM_MAP[selectedTopic]
+    }));
 
-    const encoded = encodeURIComponent(JSON.stringify(data));
-    const targetURL = `${window.location.origin}/qr_result.html?data=${encoded}`;
+    // 1) GitHub Pages 주소 (⭐ 반드시 너의 URL로 바꿔야 함)
+    const BASE_URL = "https://clairek77.github.io/iict-github-lab-teamC";
 
-    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetURL)}`;
+    // 2) QR에 넣을 짧은 URL 생성
+    const targetURL = `${BASE_URL}/prototype_윤지/qr_result.html?key=${saveKey}`
 
-    return qrURL; // drawImageButton 시스템이 처리함!
+    // 3) QuickChart QR 생성
+    const qrURL = `https://quickchart.io/qr?text=${encodeURIComponent(targetURL)}&size=300`;
+
+    return qrURL;
   }
 );
+
+
 
 
 
