@@ -43,7 +43,7 @@ let bgMusic = null;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "AIzaSyCT-xDoxk-B6Vyj_EyG0iyOIpVl8R_0i2A";
+const API_KEY = "#####";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -773,33 +773,9 @@ function drawGeminiScreen() {
   const itemKey = selectedTopic;
 
   imageMode(CORNER);
-
-  if (bgKey && cardImages[bgKey]) {
-    image(cardImages[bgKey], cardX, cardY, cardW, cardH);
-  } else {
-    fill(40, 20, 80, 240);
-    rect(cardX, cardY, cardW, cardH, 24);
-  }
-
-  if (charKey && cardImages[charKey]) {
-    let img = cardImages[charKey];
-    if (img.width > 1) {
-      let newW = cardW * 0.85;
-      let newH = img.height * (newW / img.width);
-      imageMode(CENTER);
-      image(img, cardX + cardW / 2, cardY + cardH / 2, newW, newH);
-    }
-  }
-
-  if (itemKey && cardImages[itemKey]) {
-    let img = cardImages[itemKey];
-    if (img.width > 1) {
-      let newW = cardW * 0.3;
-      let newH = img.height * (newW / img.width);
-      imageMode(CENTER);
-      image(img, cardX + cardW / 2, cardY + cardH / 2 + 140, newW, newH);
-    }
-  }
+  image(cardImages[bgKey], cardX, cardY, cardW, cardH);
+  image(cardImages[charKey], cardX, cardY, cardW, cardH);
+  image(cardImages[itemKey], cardX, cardY, cardW, cardH);
 
   if (!bgKey || !charKey || !itemKey) {
     fill(255);
