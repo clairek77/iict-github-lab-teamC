@@ -43,7 +43,7 @@ let bgMusic = null;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "";
+const API_KEY = "###";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -830,26 +830,35 @@ function drawGeminiScreen() {
   const qrBtnX = printBtnX;
   const qrBtnY = printBtnY + printH + 12;
 
-  drawImageButtonScaled(
-    qr,
-    qrHover,
-    qrBtnX,
-    qrBtnY,
-    qrW,
-    qrH,
-    () => {
-      const saveKey = "tarotShare";
-      localStorage.setItem(saveKey, JSON.stringify({
-        tarotAdvice: tarotAdvice,
-        bg: BACKGROUND_MAP[selectedCategory],
-        char: CHARACTER_MAP[actualImageKeyWord],
-        item: ITEM_MAP[selectedTopic]
-      }));
+drawImageButtonScaled(
+  qr,
+  qrHover,
+  qrBtnX,
+  qrBtnY,
+  qrW,
+  qrH,
+  () => {
 
-      const baseURL = "https://clairek77.github.io/iict-github-lab-teamC";
-      return `https://quickchart.io/qr?text=${encodeURIComponent(baseURL + "/prototype_윤지/qr_result.html?key=" + saveKey)}&size=300`;
-    }
-  );
+    // advice는 너무 길어서 localStorage에 저장
+    const key = "tarotAdviceData";
+    localStorage.setItem(key, tarotAdvice);
+
+    // GitHub Pages의 qr_result.html
+const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+
+const url =
+  QRPage +
+  "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
+  "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
+  "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
+  "&advice=" + encodeURIComponent(tarotAdvice);
+
+return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+
+  }
+);
+
+
 
 
   // ===== 흐름 카드 버튼 =====
@@ -1188,10 +1197,13 @@ function drawSummaryScreen() {
         policyCard
       }));
 
-      const baseURL = "https://clairek77.github.io/iict-github-lab-teamC";
-      return `https://quickchart.io/qr?text=${encodeURIComponent(
-        baseURL + "/prototype_윤지/qr_result.html?key=" + saveKey
-      )}&size=300`;
+const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+
+return `https://quickchart.io/qr?text=${encodeURIComponent(
+  QRPage + "?key=" + saveKey
+)}&size=300`;
+
+
     }
   );
 

@@ -76,25 +76,29 @@
 
   <div id="advice-box"></div>
 
-  <script>
-    // URL에서 key 가져오기
-    const key = new URLSearchParams(location.search).get("key");
+<script>
+  const params = new URLSearchParams(location.search);
 
-    // localStorage에서 해당 key로 저장한 데이터 불러오기
-    const data = JSON.parse(localStorage.getItem(key));
+  const bg = params.get("bg");
+  const char = params.get("char");
+  const item = params.get("item");
+  const advice = params.get("advice");
 
-    if (!data) {
-      document.body.innerHTML = "<p style='padding:40px;'>저장된 타로 데이터가 없습니다.<br>QR을 다시 스캔해주세요.</p>";
-    } else {
-      // 이미지 레이어 적용
-      document.getElementById("bg").src = data.bg;
-      document.getElementById("char").src = data.char;
-      document.getElementById("item").src = data.item;
 
-      // 텍스트 적용
-      document.getElementById("advice-box").innerText = data.tarotAdvice;
-    }
-  </script>
+  if (!bg || !char || !item || !advice) {
+    document.body.innerHTML =
+      "<p style='padding:40px;'>전달된 카드 데이터가 없습니다.<br>QR을 다시 스캔해주세요.</p>";
+    throw new Error("Missing data");
+  }
+
+  document.getElementById("bg").src = bg;
+  document.getElementById("char").src = char;
+  document.getElementById("item").src = item;
+  document.getElementById("advice-box").innerText = advice;
+
+</script>
+
+
 
 </body>
 </html>
