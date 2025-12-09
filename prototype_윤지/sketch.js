@@ -839,12 +839,7 @@ drawImageButtonScaled(
   qrH,
   () => {
 
-    // advice는 너무 길어서 localStorage에 저장
-    const key = "tarotAdviceData";
-    localStorage.setItem(key, tarotAdvice);
-
-    // GitHub Pages의 qr_result.html
-const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+    const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
 
 const url =
   QRPage +
@@ -854,7 +849,6 @@ const url =
   "&advice=" + encodeURIComponent(tarotAdvice);
 
 return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-
   }
 );
 
@@ -1190,18 +1184,17 @@ function drawSummaryScreen() {
     qrW,
     qrH,
     () => {
-      const saveKey = "tarotSummary";
-      localStorage.setItem(saveKey, JSON.stringify({
-        tarotAdvice,
-        flowCard,
-        policyCard
-      }));
-
 const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
 
-return `https://quickchart.io/qr?text=${encodeURIComponent(
-  QRPage + "?key=" + saveKey
-)}&size=300`;
+const url =
+  QRPage +
+  "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
+  "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
+  "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
+  "&advice=" + encodeURIComponent(tarotAdvice);
+
+return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+
 
 
     }
