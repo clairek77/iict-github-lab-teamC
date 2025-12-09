@@ -93,6 +93,11 @@ let enterNormal = null;
 let enterHover = null;
 let titleLogo = null;
 
+//소제목
+let title1= null;
+let title2=null;
+let title3=null;
+
 // 버튼1 (대주제)
 let career = null;
 let careerHover = null;
@@ -259,6 +264,9 @@ function preload() {
   enterNormal = loadImage("enter_normal.png");
   enterHover  = loadImage("enter_hover.png");
   titleLogo   = loadImage("title_logo.png");
+  title1=loadImage("title_firstcard.png")
+  title2=loadImage("title_secondcard.png")
+  title3=loadImage("title_thirdcard.png")
 
   // 버튼1 (대주제)
   career = loadImage("button_1_career.png");
@@ -499,8 +507,11 @@ function drawStartScreen() {
 function drawQuestionScreen() {
   drawShopBackground();
 
+ 
+
   fill(0, 0, 0, 160);
   rect(0, 0, width, height);
+   drawStageTitle(title1);
 
   // ================================
   // 🔶 1) 4개 카테고리 버튼 (상단 중앙)
@@ -575,9 +586,11 @@ function drawQuestionScreen() {
 // ========== TOPICS SCREEN ==========
 function drawTopicsScreen() {
   drawShopBackground();
+  
 
   fill(0, 0, 0, 160);
   rect(0, 0, width, height);
+  drawStageTitle(title1);
 
   const topics = TOPICS_MAP[selectedCategory] || [];
   const imageMap = TOPICS_IMAGE_MAP[selectedCategory];
@@ -666,8 +679,10 @@ function drawTopicsScreen() {
 // ========== KEYWORDS SCREEN ==========
 function drawKeywordsScreen() {
   drawShopBackground();
+
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
+    drawStageTitle(title1);
 
   const keywords = DUMMY_KEYWORDS_LIST;
 
@@ -769,8 +784,10 @@ function drawLoadingScreen() {
 // ========== GEMINI SCREEN ==========
 function drawGeminiScreen() {
   drawResultBackground();
+ 
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
+   drawStageTitle(title1);
 
   // ===== 제목 =====
   fill(255);
@@ -882,8 +899,10 @@ drawFramedHorse(horseImages[2], horseX, horseY, horseSize);
 // ========== FLOW CARD SCREEN ==========
 function drawFlowCardScreen() {
   drawResultBackground();
+  
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
+  drawStageTitle(title2);
 
   // ===== 제목 =====
   fill(255);
@@ -982,8 +1001,10 @@ drawPrevNextButtons("gemini", "adviceCard", btnY);
 // ========== ADVICE CARD SCREEN ==========
 function drawAdviceCardScreen() {
   drawResultBackground();
+  
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
+  drawStageTitle(title3);
 
   // ===== 제목 =====
   fill(255);
@@ -1504,6 +1525,18 @@ function handleKeywordsClick() {
 }
 
 // ========== 유틸 ==========
+function drawStageTitle(img) {
+  if (!img) return;
+  
+  imageMode(CORNER);
+  const w = img.width *0.8
+  const h = img.height *0.8
+  const x = 40;                // 화면 좌측 여백
+  const y = 30;                // 화면 상단 여백
+
+  image(img, x, y, w, h);
+}
+
 function resetAll() {
   selectedCategory = null;
   selectedTopic = null;
