@@ -93,6 +93,9 @@ let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이�
 
 // bgm
 let bgMusic = null;
+let clickSound = null;
+let magicChargeSound = null;
+let magicRevealSound = null;
 
 //수정구슬
 let rubProgress = 0;
@@ -473,6 +476,9 @@ function preload() {
 
   // bgm
   bgMusic = loadSound("tarot_bgm.mp3");
+  clickSound = loadSound("click.mp3");
+  magicChargeSound = loadSound("magic_charge.mp3"); 
+  magicRevealSound = loadSound("magic_reveal.mp3");
 
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
@@ -1163,7 +1169,14 @@ function drawKeywordsScreen() {
 
   if (!isKeywordSelected) {
     if (keyIsDown(32)) { 
-      rubProgress += 1.0; // 게이지 속도
+      rubProgress += 0.6; // 게이지 속도
+
+      if (magicChargeSound && magicChargeSound.isLoaded()) {
+          // 이미 재생 중이 아닐 때만 재생 (소리 중첩 방지)
+          if (!magicChargeSound.isPlaying()) {
+              magicChargeSound.loop(); // 누르고 있는 동안 계속 나게 loo
+          }
+      }
       
       // 키워드 떠다니는 애니메이션
       if (typeof DUMMY_KEYWORDS_LIST !== 'undefined') {
@@ -1190,7 +1203,10 @@ function drawKeywordsScreen() {
       }
 
     } else {
-      rubProgress -= 2.0; 
+      rubProgress -= 1.0; 
+      if (magicChargeSound && magicChargeSound.isPlaying()) {
+          magicChargeSound.stop();
+      }
     }
     
     rubProgress = constrain(rubProgress, 0, 100);
@@ -1212,6 +1228,13 @@ function drawKeywordsScreen() {
     // 100% 달성 시
     if (rubProgress >= 100) {
       rubProgress = 100;
+
+      if (magicChargeSound && magicChargeSound.isPlaying()) 
+        magicChargeSound.stop();
+      if (magicRevealSound && magicRevealSound.isLoaded()) 
+        magicRevealSound.setVolume(1.0);
+        magicRevealSound.play();
+
       const r = floor(random(DUMMY_KEYWORDS_LIST.length));
       selectedKeyWord = DUMMY_KEYWORDS_LIST[r];
       actualImageKeyWord = KEYWORD_IMAGE_MAP[selectedKeyWord];
@@ -1262,6 +1285,7 @@ function drawKeywordsScreen() {
   if (before && before.width > 0) {
     const baseY = boxY + boxH / 2 - before.width / 2;
     drawImageButton(before, beforeHover, 200, baseY, () => {
+        if (magicChargeSound && magicChargeSound.isPlaying()) magicChargeSound.stop();
         state = "topics"; 
         isKeywordSelected = false; 
         rubProgress = 0;
@@ -2027,6 +2051,14 @@ function drawPrevNextButtons(prevState, nextState, baseY) {
 
 // 마우스를 누를 때: start/question 화면만 처리
 function mousePressed() {
+  for (const btn of clickableButtons) {
+    if (isInside(mouseX, mouseY, btn.x, btn.y, btn.w, btn.h)) {
+      if (clickSound && clickSound.isLoaded()) {
+        clickSound.play();
+      }
+      break;
+    }
+  }
   if (state === "start") {
     handleStartClick();
     return;
