@@ -101,6 +101,9 @@ let magicRevealSound = null;
 let rubProgress = 0;
 let isKeywordSelected = false;
 
+//카드 뒤집기
+let isCardFlipped = false;
+
 // 타로 결과 관련
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
@@ -1324,6 +1327,7 @@ function drawLoadingScreen() {
 }
 
 // ========== GEMINI SCREEN ==========
+// ========== GEMINI SCREEN (카드 뒤집기 기능 적용) ==========
 function drawGeminiScreen() {
   drawResultBackground();
   fill(0, 0, 0, 180);
@@ -1333,24 +1337,56 @@ function drawGeminiScreen() {
 
   const contentStartY = 400;
 
-  // ===== 왼쪽 카드 =====
+  // ===== 왼쪽 카드 영역 =====
   const cardW = 260;
   const cardH = 380;
   const cardX = width / 2 - 580;
   const cardY = contentStartY;
 
-  image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
-  image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
-  image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
+  noStroke();
+  fill(0, 0, 0, 80);
+  rect(cardX + 10, cardY + 10, cardW, cardH);
 
-  // === 카드 상단 텍스트 ===
-  const cardTitleY = cardY - 30; // 카드 상단에서 40px 위
+  imageMode(CORNER);
+
+  if (!isCardFlipped) {
+    if (back_card) {
+        image(back_card, cardX, cardY, cardW, cardH);
+    } else {
+        fill(50, 30, 80);
+        rect(cardX, cardY, cardW, cardH);
+    }
+
+    textAlign(CENTER, BOTTOM);
+    textSize(20);
+
+    let alpha = map(sin(frameCount * 0.1), -1, 1, 100, 255);
+    fill(255, 255, 255, alpha);
+    text("카드를 눌러 운명을 확인하세요!", cardX + cardW / 2, cardY - 20);
+
+  } else {
     
-  fill(255);
-  textAlign(CENTER, BOTTOM); // 중앙 정렬, 하단 맞춤
-  textSize(20);
-  text(`카드 뒷면을 클릭하여
-  뒤집어 보세요!`, cardX + cardW / 2, cardTitleY);
+    // (1) 배경 (Category)
+    if (cardImages[selectedCategory]) {
+        image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
+    }
+    
+    // (2) 캐릭터 (Keyword)
+    if (cardImages[actualImageKeyWord]) {
+        image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
+    }
+    
+    // (3) 아이템 (Topic)
+    if (cardImages[selectedTopic]) {
+        image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
+    }
+
+    // 앞면일 때 고정된 안내 문구
+    fill(255);
+    textAlign(CENTER, BOTTOM);
+    textSize(20);
+    text("당신만을 위한 2026년의 카드", cardX + cardW / 2, cardY - 20);
+  }
 
   // ===== 오른쪽 텍스트 박스 =====
   const boxW = 900;
@@ -1363,52 +1399,57 @@ function drawGeminiScreen() {
 
   // 🔹 말 이미지: 텍스트 박스 안 오른쪽
   const horseW = 120;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + boxW - horseW - 30;  
-  const horseY = boxY + boxH - horseH - 30;
+  if (horse_re2) {
+      const aspectRatio = horse_re2.width / horse_re2.height;
+      const horseH = horseW / aspectRatio; 
+      const horseX = boxX + boxW - horseW - 30;  
+      const horseY = boxY + boxH - horseH - 30;
+      drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH);
+  }
 
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
-
-
-  // 텍스트
-  const textX = boxX + 30
-  const textY = boxY + 30
-  const textW = boxW - horseW - 90
-  const textH = boxH - 60
+  // 텍스트 내용
+  const textX = boxX + 30;
+  const textY = boxY + 30;
+  const textW = boxW - horseW - 90;
+  const textH = boxH - 60;
 
   fill(255);
   textAlign(LEFT, TOP);
   textSize(20);
-  text(tarotAdvice, textX, textY, textW, textH);
+  
+  if (isCardFlipped) {
+      text(tarotAdvice, textX, textY, textW, textH);
+  } else {
+      textAlign(CENTER, CENTER);
+      text("카드를 뒤집으면 조언이 나타납니다.", boxX + boxW/2 - 50, boxY + boxH/2);
+  }
 
   // ===== QR 버튼 =====
-  const qrW = qr.width * 0.9;
-  const qrH = qr.height * 0.9;
-  const qrBtnX = width / 2 - qrW / 2;
-  const qrBtnY = cardY + cardH + 40;
+  if (isCardFlipped) {
+      const qrW = qr.width * 0.9;
+      const qrH = qr.height * 0.9;
+      const qrBtnX = width / 2 - qrW / 2;
+      const qrBtnY = cardY + cardH + 40;
 
-  drawImageButtonScaled(
-  qr,
-  qrHover,
-  qrBtnX,
-  qrBtnY,
-  qrW,
-  qrH,
-  () => {
+      drawImageButtonScaled(
+        qr,
+        qrHover,
+        qrBtnX,
+        qrBtnY,
+        qrW,
+        qrH,
+        () => {
+          const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+          const url = QRPage +
+          "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
+          "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
+          "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
+          "&advice=" + encodeURIComponent(tarotAdvice);
 
-  const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
-
-  const url =
-  QRPage 
-  "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
-  "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
-  "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
-  "&advice=" + encodeURIComponent(tarotAdvice);
-
-  return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-    }
-  );
+          return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+        }
+      );
+  }
 
   // 🔹 이전 / 다음 버튼 추가
   drawPrevNextButtons("keywords", "pre_flowCard", 795 - before.width / 2);
@@ -2073,6 +2114,19 @@ function mousePressed() {
     handleTopicsClick();     // 주제 선택 
     return;
   }
+
+  if (state === "gemini") {
+      let cardW = 350;
+      let cardH = 550;
+      let cardX = width / 2 - 450;
+      let cardY = height / 2 - 275;
+
+      if (!isCardFlipped && isInside(mouseX, mouseY, cardX, cardY, cardW, cardH)) {
+          isCardFlipped = true;
+          
+          if (clickSound && clickSound.isLoaded()) clickSound.play();
+      }
+  }
 }
 
 // 마우스를 뗄 때: drawImageButton으로 등록된 버튼만 처리
@@ -2255,6 +2309,8 @@ function resetAll() {
 
   isKeywordSelected = false; 
   rubProgress = 0;
+
+  isCardFlipped = false;
 }
 
 
