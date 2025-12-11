@@ -157,9 +157,8 @@
         {
           "id": "money_policy_투자",
           "title": "투자 관련 정책 조언",
-          "policy": "“청년금융 컨설팅” 또는 “서울 영테크”를 통해 투자에 대한 강좌를 수강하거나 전문가와의 재무상담을 받아보세요.",
-          "link1": "https://ylaccount.kinfa.or.kr/cst/step1",
-          "link2": "https://youth.seoul.go.kr/youngtech/"
+          "policy": "“청년금융 컨설팅” 을 통해 투자에 대한 강좌를 수강하거나 전문가와의 재무상담을 받아보세요.",
+          "link": "https://ylaccount.kinfa.or.kr/cst/step1"
         }
       ]
     },

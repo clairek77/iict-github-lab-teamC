@@ -48,7 +48,6 @@ const FLOW_TEXTS = {
   tutorial_fin: {
     text: `
 그럼 붉은 말의 해를 미리 엿볼 준비가 되셨나요?
-
 아래 버튼을 눌러 지금 확인해볼 수 있어요!
 `
   },
@@ -83,7 +82,7 @@ const KEYWORD_IMAGE_MAP = {
 };
 
 // ===== state 관련 =====
-// start -> intro_1 -> intro_2 -> intro_3 -> tutorial_0 -> tutorial_1 -> tutorial_2 -> tutorial_3 -> tutorial_fin -> question -> topics -> keywords -> loading -> gemini -> flowCard -> adviceCard -> summary
+// start -> intro_1 -> intro_2 -> intro_3 -> tutorial_0 -> tutorial_1 -> tutorial_2 -> tutorial_3 -> tutorial_fin -> question -> topics -> pre_keywords -> keywords -> loading -> gemini -> pre_flowCard -> flowCard -> pre_adviceCard -> adviceCard-> pre_summary-> summary
 
 let state = "start";
 
@@ -110,12 +109,12 @@ const SYSTEM_PROMPT = `
 
 - 카테고리와 주제, 키워드를 종합하여 타로카드 형식으로 조언에 맞는 아르카나 이름을 지을 것 "OO하는 XX"으로 
 - XX= '기회'는 탐험가, '행운'은 수호자, '불안'은 위로자, '변화'는 항해자
-- 한국어로 200~300자 정도 분량
+- 출력양식: 'OO하는 XX'을 가장 처음 줄에 출력. 한 줄 띄고 '2026년 당신을 나타내는 카드는 OO하는 XX입니다.'로 조언을 시작할 것.
+- 한국어로 250자 정도 분량. 절대 넘어서는 안됨.
 - 볼드체나 ** 와 같은 강조 표시 없이 출력
 - 겁주거나 공포를 조장하지 말 것
 - 너무 뻔한 일반론이 아니라, 사용자가 선택한 주제와 키워드를 적어도 한 번은 자연스럽게 등장시킬 것
 - 말투는 친절하고 약간 수상한 점집 느낌으로
-- 출력양식: '아르카나 이름(OO하는 XX)'을 가장 처음 줄에 출력. 그 다음 줄에 조언을 시작할 것.
 `;
 
 // ===== 카드/버튼 레이아웃 상수 =====
@@ -145,6 +144,10 @@ let horseFrame = null;
 // 새로운 말 그림
 let horse_re1 = null; 
 let horse_re2 = null;
+
+// 수정구슬 그림
+let crystalball = null;
+let crystalball_transparent = null;
 
 // 배경
 let tarotBg1 = null;  // 타로가게 배경
@@ -327,6 +330,7 @@ function preload() {
   //붉은 말 액자
   horseFrame = loadImage("horse_frame.png")
 
+  // 카드 뒷면, 조언 카드, 흐름 카드 
   back_card = loadImage("back_card.png");
   flow_card = loadImage("flow_card.png");
   advice_card = loadImage("advice_card.png");
@@ -335,6 +339,10 @@ function preload() {
   horse_re1 = loadImage("horse_re1.png");
   horse_re2 = loadImage("horse_re2.png");
   
+  // 수정구슬 이미지
+  crystalball_transparent = loadImage("crystalball_transparent.png")
+  crystalball = loadImage("crystalball.png")
+
   // 배경 이미지 2종
   tarotBg1 = loadImage("tarotback1.png");
   tarotBg2 = loadImage("tarotback2.png");
@@ -348,54 +356,54 @@ function preload() {
   title3=loadImage("title_thirdcard.png")
 
   // 버튼1 (대주제)
-  career = loadImage("button_1_career.png");
-  careerHover = loadImage("button_1_career_hover.png");
-  health = loadImage("button_1_health.png");
-  healthHover = loadImage("button_1_health_hover.png");
-  love = loadImage("button_1_love.png");
-  loveHover = loadImage("button_1_love_hover.png");
-  money = loadImage("button_1_money.png");
-  moneyHover = loadImage("button_1_money_hover.png");
+  career = loadImage("rebutton_1_career.png");
+  careerHover = loadImage("rebutton_1_career_hover.png");
+  health = loadImage("rebutton_1_health.png");
+  healthHover = loadImage("rebutton_1_health_hover.png");
+  love = loadImage("rebutton_1_love.png");
+  loveHover = loadImage("rebutton_1_love_hover.png");
+  money = loadImage("rebutton_1_money.png");
+  moneyHover = loadImage("rebutton_1_money_hover.png");
 
   // '건강' 소주제
-  health1 = loadImage("button_2_health1.png");
-  health1Hover = loadImage("button_2_health1_hover.png");
-  health2 = loadImage("button_2_health2.png");
-  health2Hover = loadImage("button_2_health2_hover.png");
-  health3 = loadImage("button_2_health3.png");
-  health3Hover = loadImage("button_2_health3_hover.png");
-  health4 = loadImage("button_2_health4.png");
-  health4Hover = loadImage("button_2_health4_hover.png");
+  health1 = loadImage("rebutton_2_health1.png");
+  health1Hover = loadImage("rebutton_2_health1_hover.png");
+  health2 = loadImage("rebutton_2_health2.png");
+  health2Hover = loadImage("rebutton_2_health2_hover.png");
+  health3 = loadImage("rebutton_2_health3.png");
+  health3Hover = loadImage("rebutton_2_health3_hover.png");
+  health4 = loadImage("rebutton_2_health4.png");
+  health4Hover = loadImage("rebutton_2_health4_hover.png");
 
   // '금전' 소주제
-  money1 = loadImage("button_2_money1.png");
-  money1Hover = loadImage("button_2_money1_hover.png");
-  money2 = loadImage("button_2_money2.png");
-  money2Hover = loadImage("button_2_money2_hover.png");
-  money3 = loadImage("button_2_money3.png");
-  money3Hover = loadImage("button_2_money3_hover.png");
-  money4 = loadImage("button_2_money4.png");
-  money4Hover = loadImage("button_2_money4_hover.png");
+  money1 = loadImage("rebutton_2_money1.png");
+  money1Hover = loadImage("rebutton_2_money1_hover.png");
+  money2 = loadImage("rebutton_2_money2.png");
+  money2Hover = loadImage("rebutton_2_money2_hover.png");
+  money3 = loadImage("rebutton_2_money3.png");
+  money3Hover = loadImage("rebutton_2_money3_hover.png");
+  money4 = loadImage("rebutton_2_money4.png");
+  money4Hover = loadImage("rebutton_2_money4_hover.png");
 
   // '연애' 소주제
-  love1 = loadImage("button_2_love1.png");
-  love1Hover = loadImage("button_2_love1_hover.png");
-  love2 = loadImage("button_2_love2.png");
-  love2Hover = loadImage("button_2_love2_hover.png");
-  love3 = loadImage("button_2_love3.png");
-  love3Hover = loadImage("button_2_love3_hover.png");
-  love4 = loadImage("button_2_love4.png");
-  love4Hover = loadImage("button_2_love4_hover.png");
+  love1 = loadImage("rebutton_2_love1.png");
+  love1Hover = loadImage("rebutton_2_love1_hover.png");
+  love2 = loadImage("rebutton_2_love2.png");
+  love2Hover = loadImage("rebutton_2_love2_hover.png");
+  love3 = loadImage("rebutton_2_love3.png");
+  love3Hover = loadImage("rebutton_2_love3_hover.png");
+  love4 = loadImage("rebutton_2_love4.png");
+  love4Hover = loadImage("rebutton_2_love4_hover.png");
 
   // '진로' 소주제
-  career1 = loadImage("button_2_career1.png");
-  career1Hover = loadImage("button_2_career1_hover.png");
-  career2 = loadImage("button_2_career2.png");
-  career2Hover = loadImage("button_2_career2_hover.png");
-  career3 = loadImage("button_2_career3.png");
-  career3Hover = loadImage("button_2_career3_hover.png");
-  career4 = loadImage("button_2_career4.png");
-  career4Hover = loadImage("button_2_career4_hover.png");
+  career1 = loadImage("rebutton_2_career1.png");
+  career1Hover = loadImage("rebutton_2_career1_hover.png");
+  career2 = loadImage("rebutton_2_career2.png");
+  career2Hover = loadImage("rebutton_2_career2_hover.png");
+  career3 = loadImage("rebutton_2_career3.png");
+  career3Hover = loadImage("rebutton_2_career3_hover.png");
+  career4 = loadImage("rebutton_2_career4.png");
+  career4Hover = loadImage("rebutton_2_career4_hover.png");
 
   // 버튼3. 키워드
   anxiety = loadImage("button_3_anxiety.png");
@@ -445,7 +453,7 @@ function preload() {
   advice = loadImage("button_advice.png");
   adviceHover = loadImage("button_advice_hover.png");
 
-  // 새로운 버튼
+  // 새로운 카드 뽑기 버튼
   generateCard1 = loadImage("button_generate_card1.png"); // 버튼 이미지 파일 이름은 확인 필요
   generateCard1Hover = loadImage("button_generate_card1_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
   generateCard2 = loadImage("button_generate_card2.png"); // 버튼 이미지 파일 이름은 확인 필요
@@ -522,16 +530,24 @@ function draw() {
     drawQuestionScreen();
   } else if (state === "topics") {
     drawTopicsScreen();
+  } else if (state === "pre_keywords"){
+    drawPre_keywordsScreen();
   } else if (state === "keywords") {
     drawKeywordsScreen();
   } else if (state === "loading") {
     drawLoadingScreen();
   } else if (state === "gemini") {
     drawGeminiScreen();
+  } else if (state === "pre_flowCard") {
+    drawPre_flowCardScreen();
   } else if (state === "flowCard") {
     drawFlowCardScreen();
+  } else if (state === "pre_adviceCard") {
+    drawPre_adviceCardScreen();
   } else if (state === "adviceCard") {
     drawAdviceCardScreen();
+  } else if (state === "pre_summary") {
+    drawPre_summaryScreen();
   } else if (state === "summary") {
     drawSummaryScreen();
   }
@@ -649,7 +665,7 @@ function drawIntroScreen(txtObj, prevState, nextState, showHorse) {
   text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
 
   // 이전/다음 버튼
-  const baseY = boxY + boxH + 40;
+  const baseY = boxY + boxH / 2 - before.width / 2
   drawPrevNextButtons(prevState, nextState, baseY);
 }
 
@@ -747,7 +763,7 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
     text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
 
     // 8. 이전/다음 버튼
-    const baseY = boxY + boxH + 40;
+    const baseY = boxY + boxH / 2 - before.width / 2;
     drawPrevNextButtons(prevState, nextState, baseY);
 }
 
@@ -759,7 +775,7 @@ function drawTutorialFinScreen() {
   const boxW = 1100;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
-  const boxY = 580;
+  const boxY = 680;
 
   // 말 그림 (intro 단계와 동일한 위치)
   if (horse_re1) {
@@ -789,7 +805,7 @@ function drawTutorialFinScreen() {
   text(FLOW_TEXTS.tutorial_fin.text, boxX + boxW / 2, boxY + boxH / 2);
   
   // 1) 이전 버튼
-  const baseY = boxY + boxH + 40;
+  const baseY = boxY + boxH / 2 - before.width / 2;
   const margin = 200;
   const prevW = before.width;
   const prevX = margin;
@@ -804,7 +820,7 @@ function drawTutorialFinScreen() {
     const btnW = generateCard1.width;
     const btnH = generateCard1.height;
     const btnX = width / 2 - btnW / 2;
-    const btnY = baseY; 
+    const btnY = boxY + boxH - 20; 
 
     drawImageButton(generateCard1, generateCard1Hover, btnX, btnY, () => {
       state = "question"; // 다음 단계는 question으로
@@ -824,35 +840,35 @@ function drawQuestionScreen() {
   // 🔶 1) 4개 카테고리 버튼 (상단 중앙)
   // ================================
   const categories = ["건강", "진로", "금전", "연애"];
-  const normalImages = [health, career, money, love];
-  const hoverImages = [healthHover, careerHover, moneyHover, loveHover];
+  const normalImages = [health, career, money, love];
+  const hoverImages = [healthHover, careerHover, moneyHover, loveHover];
 
-  const btnW = normalImages[0].width * 0.9;
-  const btnH = normalImages[0].height * 0.9;
+  const btnW = normalImages[0].width * 0.9;
+  const btnH = normalImages[0].height * 0.9;
 
-  const startX = width / 2 - (btnW * 1.2);
-  const startY = 240;  
-  const gapX = btnW + 80;
-  const gapY = btnH + 40;
+  const startX = width / 2 - (btnW * 1.2);
+  const startY = 240;
+  const gapX = btnW + 80;
+  const gapY = btnH + 40;
 
-  imageMode(CORNER);
+  imageMode(CORNER);
 
-  for (let i = 0; i < 4; i++) {
-    const col = i % 2;
-    const row = floor(i / 2);
+  for (let i = 0; i < 4; i++) {
+    const col = i % 2;
+    const row = floor(i / 2);
 
-    const x = startX + col * gapX;
-    const y = startY + row * gapY;
+    const x = startX + col * gapX;
+    const y = startY + row * gapY;
 
-    const isHover =
-      mouseX > x && mouseX < x + btnW &&
-      mouseY > y && mouseY < y + btnH;
+    const isHover =
+      mouseX > x && mouseX < x + btnW &&
+      mouseY > y && mouseY < y + btnH;
 
-    const img = (isHover || selectedCategory === categories[i])
-      ? hoverImages[i]
-      : normalImages[i];
+    const img = (isHover || selectedCategory === categories[i])
+      ? hoverImages[i]
+      : normalImages[i];
 
-    image(img, x, y, btnW, btnH);
+    image(img, x, y, btnW, btnH);
   }
 
   // ================================
@@ -861,31 +877,42 @@ function drawQuestionScreen() {
   const boxW = 1100;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
-  const boxY = 580;
-
+  const boxY = 680;
 
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 말 이미지 (얼굴만) — 왼쪽에 작게
-  const horseSize = 160;
-  const horseX = boxX + 40;
-  const horseY = boxY + boxH / 2 - horseSize / 2;
+  // 말 얼굴
+  const horseW = 140;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + + 40;  
+  const horseY = boxY + boxH / 2 - horseH /2;
 
-  drawFramedHorse(horseImages[1], horseX, horseY, horseSize);
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+
 
   // 텍스트
   fill(255);
-  textAlign(LEFT, TOP);
-  textSize(24);
-  text("먼저 위 4개 중 내년에 어떻게 될지 가장 궁금한 고민거리를 골라주세요.", 
-        horseX + horseSize + 50, 
-        boxY + 60);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  textLeading(35);
+  if (selectedCategory) {
+    text(`
+      음… ${selectedCategory}이(가) 궁금하시군요.
+      오른쪽 화살표를 눌러 따라오시죠.`,
+      width/2 + 80,
+      boxY + boxH / 2 - 20);
+  } else {
+    text(`먼저, 다가오는 2026년에 가장 궁금한 고민거리를 골라주세요.`, 
+        width/2 + 80, 
+        boxY + boxH / 2 - 20);
+  }
 
   // ================================
   // 🔶 3) 이전/다음 버튼 (기존 그대로)
   // ================================
-  const baseY = boxY + boxH + 40;
+  const baseY = boxY + boxH / 2 - before.width / 2;
   drawPrevNextButtons("tutorial_fin", selectedCategory ? "topics" : null, baseY);
 }
 
@@ -903,83 +930,148 @@ function drawTopicsScreen() {
   imageMode(CORNER);
 
   // ================================
-  // 🔶 1) 4개 topic 버튼 (더 위로 이동!)
+  // 🔶 1) 4개 topic 버튼
   // ================================
   const btnW = imageMap.normal[0].width * 0.9;
-  const btnH = imageMap.normal[0].height * 0.9;
+  const btnH = imageMap.normal[0].height * 0.9;
 
-  const startX = width / 2 - (btnW * 1.2);
+  const startX = width / 2 - (btnW * 1.2);
 
-  // 🔥 여기 위치 변경: 원래 240 → 160 (80px 위로)
-  const startY = 130;
+  const startY = 240;
 
-  const gapX = btnW + 80;
-  const gapY = btnH + 40;
+  const gapX = btnW + 80;
+  const gapY = btnH + 40;
 
-  for (let i = 0; i < topics.length; i++) {
-    const col = i % 2;
-    const row = floor(i / 2);
+  for (let i = 0; i < topics.length; i++) {
+    const col = i % 2;
+    const row = floor(i / 2);
 
-    const x = startX + col * gapX;
-    const y = startY + row * gapY;
+    const x = startX + col * gapX;
+    const y = startY + row * gapY;
 
-    const normal = imageMap.normal[i];
-    const hover = imageMap.hover[i];
+    const normal = imageMap.normal[i];
+    const hover = imageMap.hover[i];
 
-    const isHover =
-      mouseX > x && mouseX < x + btnW &&
-      mouseY > y && mouseY < y + btnH;
+    const isHover =
+      mouseX > x && mouseX < x + btnW &&
+      mouseY > y && mouseY < y + btnH;
 
-    const img = (isHover || selectedTopic === topics[i]) ? hover : normal;
+    const img = (isHover || selectedTopic === topics[i]) ? hover : normal;
 
-    image(img, x, y, btnW, btnH);
-  }
+    image(img, x, y, btnW, btnH);
+  }
 
   // ================================
-  // 🔶 2) 말 + 설명 박스 (question screen 동일)
+  // 🔶 2) 말 + 설명 박스
   // ================================
   const boxW = 1100;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
 
-  // 🔥 박스는 그대로 580 유지 (키워드만 위로 올렸기 때문에 더 안정적)
-  const boxY = 580;
+  const boxY = 680;
 
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  const horseSize = 160;
-  const horseX = boxX + 40;
-  const horseY = boxY + boxH / 2 - horseSize / 2;
+  // 말 얼굴
+  const horseW = 140;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + + 40;  
+  const horseY = boxY + boxH / 2 - horseH /2;
 
-  drawFramedHorse(horseImages[2], horseX, horseY, horseSize);
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
 
   fill(255);
-  textAlign(LEFT, TOP);
-  textSize(24);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  textLeading(35);
 
   if (selectedTopic) {
-    text(
-      `좋은 선택이에요! "${selectedTopic}"을(를) 고르셨군요.\n이제 아래의 다음 버튼을 눌러 계속 진행해 주세요.`,
-      horseX + horseSize + 50,
-      boxY + 60
-    );
+    text(`
+      좋아요! 고민을 들어봤으니 이제 당신에게서 느껴지는 기운을 살펴볼게요.
+      오른쪽 화살표를 눌러 계속해주세요.`,
+      width/2 + 80,
+      boxY + boxH / 2 - 20);
   } else {
-    text(
-      "위 네 가지 중 가장 고민되는 세부 주제를 선택해주세요.",
-      horseX + horseSize + 50,
-      boxY + 60
-    );
+    text(`
+      당신의 고민에 대해 조금 더 자세히 말씀해주세요…
+      구체적으로 무엇이 궁금하나요?`, 
+      width/2 + 80, 
+      boxY + boxH / 2 - 20);
   }
 
   // ================================
   // 🔶 3) 이전/다음 버튼
   // ================================
-  const baseY = boxY + boxH + 40;
-  drawPrevNextButtons("question", selectedTopic ? "keywords" : null, baseY);
+  const baseY = boxY + boxH / 2 - before.width / 2;
+  drawPrevNextButtons("question", selectedTopic ? "pre_keywords" : null, baseY);
 }
 
+// ========== Pre_keywords Screen ==========
+function drawPre_keywordsScreen(){
+  drawResultBackground();
 
+  fill(0, 0, 0, 160);
+  rect(0, 0, width, height);
+
+  // ================================
+  // 🔶 말 + 설명 박스
+  // ================================
+  const boxW = 1100;
+  const boxH = 230;
+  const boxX = width / 2 - boxW / 2;
+
+  const boxY = 680;
+
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 30);
+
+  const horseW = 140;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + + 40;  
+  const horseY = boxY + boxH / 2 - horseH /2;
+
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  textLeading(35);
+
+  text(`
+    이 수정구슬을 문지르면 그 속에 단어 하나가 비칠 거예요.
+    스페이스 바를 꾹 눌러서 수정구슬을 문지를 수 있답니다. 
+    수정구슬을 문지르려면 오른쪽 버튼을 누르세요.`,
+    width/2 + 80,
+    boxY + boxH / 2 - 20);
+
+  //================================
+  // 수정 구슬 이미지
+  //================================
+
+  if (crystalball_transparent) {
+    const crystalballSize = 550;
+
+  // 1. 비율 유지 계산
+    const aspectRatio = crystalball_transparent.width / crystalball_transparent.height;
+    let drawH = crystalballSize;
+    let drawW = crystalballSize * aspectRatio;
+
+    const crystalballX = width / 2 - drawW / 2;
+    const crystalballY =  boxY - drawH;
+    
+    imageMode(CORNER);
+    image(crystalball_transparent, crystalballX, crystalballY, drawW, drawH);
+  }
+
+  // ================================
+  // 🔶 이전/다음 버튼
+  // ================================
+  const baseY = boxY + boxH / 2 - before.width / 2;
+  drawPrevNextButtons("topics", selectedTopic ? "keywords" : null, baseY);
+}
 
 // ========== KEYWORDS SCREEN ==========
 function drawKeywordsScreen() {
@@ -1069,7 +1161,7 @@ function drawLoadingScreen() {
   textSize(20);
   text(
     selectedCategory && selectedTopic && selectedKeyWord
-      ? `주제: ${selectedCategory} / 구체적 주제: ${selectedTopic} / 키워드: "${selectedKeyWord}"`
+      ? `${selectedCategory} > ${selectedTopic} > ${selectedKeyWord}`
       : "",
     width / 2,
     height / 2 + 10
@@ -1093,7 +1185,7 @@ function drawGeminiScreen() {
   
   drawStageTitle(title1);
 
-  const contentStartY = 250;
+  const contentStartY = 400;
 
   // ===== 왼쪽 카드 =====
   const cardW = 260;
@@ -1105,35 +1197,52 @@ function drawGeminiScreen() {
   image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
   image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
 
+  // === 카드 상단 텍스트 ===
+  const cardTitleY = cardY - 30; // 카드 상단에서 40px 위
+    
+  fill(255);
+  textAlign(CENTER, BOTTOM); // 중앙 정렬, 하단 맞춤
+  textSize(20);
+  text(`카드 뒷면을 클릭하여
+  뒤집어 보세요!`, cardX + cardW / 2, cardTitleY);
+
   // ===== 오른쪽 텍스트 박스 =====
-  const boxW = 800;
+  const boxW = 900;
   const boxH = 380;
   const boxX = cardX + cardW + 30;
   const boxY = contentStartY;
-
+  
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 20);
 
+  // 🔹 말 이미지: 텍스트 박스 안 오른쪽
+  const horseW = 120;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + boxW - horseW - 30;  
+  const horseY = boxY + boxH - horseH - 30;
+
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+
+
+  // 텍스트
+  const textX = boxX + 30
+  const textY = boxY + 30
+  const textW = boxW - horseW - 90
+  const textH = boxH - 60
+
   fill(255);
   textAlign(LEFT, TOP);
-  textSize(18);
-  text(tarotAdvice, boxX + 32, boxY + 32, boxW - 64, boxH - 64);
-
-  // ===== 출력 버튼 =====
-  const printW = Print.width * 0.6;
-  const printH = Print.height * 0.6;
-  const printBtnX = cardX + cardW / 2 - printW / 2;
-  const printBtnY = cardY + cardH + 24;
-
-  drawImageButtonScaled(Print, printHover, printBtnX, printBtnY, printW, printH, () => window.print());
+  textSize(20);
+  text(tarotAdvice, textX, textY, textW, textH);
 
   // ===== QR 버튼 =====
-  const qrW = qr.width * 0.6;
-  const qrH = qr.height * 0.6;
-  const qrBtnX = printBtnX;
-  const qrBtnY = printBtnY + printH + 12;
+  const qrW = qr.width * 0.9;
+  const qrH = qr.height * 0.9;
+  const qrBtnX = width / 2 - qrW / 2;
+  const qrBtnY = cardY + cardH + 40;
 
-drawImageButtonScaled(
+  drawImageButtonScaled(
   qr,
   qrHover,
   qrBtnX,
@@ -1142,39 +1251,86 @@ drawImageButtonScaled(
   qrH,
   () => {
 
-    const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+  const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
 
-const url =
+  const url =
   QRPage +
   "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
   "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
   "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
   "&advice=" + encodeURIComponent(tarotAdvice);
 
-return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-  }
-);
-
-
-
-
-  // ===== 흐름 카드 버튼 =====
-    drawImageButton(flow, flowHover, width / 2 - flow.width / 2, boxY + boxH + 30 + 60, () => {
-    state = "flowCard";
-  });
+  return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+    }
+  );
 
   // 🔹 이전 / 다음 버튼 추가
-  drawPrevNextButtons("keywords", "flowCard", speechY + 60);
-
-
-    // 🔹 말 이미지: 제목 오른쪽 상단
-  const horseSize = 120;
-  const horseX = width / 2 - 380;  
-  const horseY = 50;
-  drawFramedHorse(horseImages[2], horseX, horseY, horseSize);
-
+  drawPrevNextButtons("keywords", "pre_flowCard", 795 - before.width / 2);
 }
 
+
+// ========== pre_flowCard Screen ==========
+function drawPre_flowCardScreen() {
+  drawStartTutorialBackground();
+
+  const boxW = 1100;
+  const boxH = 230;
+  const boxX = width / 2 - boxW / 2;
+  const boxY = 680;
+
+  // 말 그림 (intro 단계와 동일한 위치)
+  if (horse_re1) {
+    const horseSize = 500;
+    const horseX = boxX + boxW / 2 - horseSize / 2;
+    const horseY = boxY - horseSize + 100;
+
+  // 1. 비율 유지 계산
+    const aspectRatio = horse_re1.width / horse_re1.height;
+    let drawH = horseSize;
+    let drawW = horseSize * aspectRatio;
+
+    imageMode(CORNER);
+    image(horse_re1, horseX + (horseSize - drawW)/2, horseY, drawW, drawH);
+  }
+
+  // 설명 박스 (intro 단계와 동일한 위치)
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 30);
+
+  // 텍스트 (FLOW_TEXTS 사용)
+  fill(255);
+  textAlign(CENTER, CENTER);
+
+  // 텍스트 표시
+  textSize(24);
+  text(
+  `첫 번째 카드로 당신만을 위한 타로 카드를 뽑아봤으니,
+  이제 두 번째 “흐름의 카드”도 함께 볼까요?`,
+  boxX + boxW / 2, boxY + boxH / 2
+  );
+  
+  // 1) 이전 버튼
+  const baseY = boxY + boxH / 2 - before.width / 2;
+  const margin = 200;
+  const prevW = before.width;
+  const prevX = margin;
+
+  drawImageButton(before, beforeHover, prevX, baseY, () => {
+    state = "gemini"; // 이전 버튼은 gemini로
+  });
+
+  // 2) generate_card2 버튼 (설명 박스 아래 중앙)
+  if (generateCard2 && generateCard2Hover) {
+    const btnW = generateCard2.width;
+    const btnH = generateCard2.height;
+    const btnX = width / 2 - btnW / 2;
+    const btnY = boxY + boxH - 20; 
+
+    drawImageButton(generateCard2, generateCard2Hover, btnX, btnY, () => {
+     state = "flowCard"; // 다음 단계는 flowCard로
+    });
+  }
+}
 
 
 // ========== FLOW CARD SCREEN ==========
@@ -1184,20 +1340,7 @@ function drawFlowCardScreen() {
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
   drawStageTitle(title2);
-
-  // ===== 제목 =====
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text("요즘, 당신을 둘러싼 흐름 카드", width / 2, 80);
-
-  // 🔹 말 이미지: 제목 왼쪽에 배치
-  const horseSize = 120;
-  const horseX = width / 2 - 380;
-  const horseY = 50;
-  drawFramedHorse(horseImages[2], horseX, horseY, horseSize);
-
-  const contentStartY = 250;
+  const contentStartY = 400;
 
   // ===== 왼쪽 카드 =====
   const cardW = 260;
@@ -1205,39 +1348,65 @@ function drawFlowCardScreen() {
   const cardX = width / 2 - 580;
   const cardY = contentStartY;
 
-  fill(40, 20, 80, 240);
-  rect(cardX, cardY, cardW, cardH, 24);
+  image(flow_card, cardX, cardY, cardW, cardH);
 
+  // === 카드 상단 텍스트 ===
+  const cardTitleY = cardY - 30; // 카드 상단에서 40px 위
+    
   fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(18);
-  text("흐름 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
+  textAlign(CENTER, BOTTOM); // 중앙 정렬, 하단 맞춤
+  textSize(20);
+  text(`버튼을 클릭하여
+    원문 기사를 확인해 보세요!`, cardX + cardW / 2, cardTitleY);
+
 
   // ===== 오른쪽 텍스트 박스 =====
-  const boxW = 800;
+  const boxW = 900;
   const boxH = 380;
   const boxX = cardX + cardW + 30;
   const boxY = contentStartY;
-
+  
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 20);
+
+  // 🔹 말 이미지: 텍스트 박스 안 오른쪽
+  const horseW = 120;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + boxW - horseW - 30;  
+  const horseY = boxY + boxH - horseH - 30;
+
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+
+  // 텍스트
+  const textX = boxX + 30
+  const textY = boxY + 30
+  const textW = boxW - horseW - 90
+  const textH = boxH - 60
 
   fill(255);
   textAlign(LEFT, TOP);
   textSize(18);
 
   if (flowCard) {
-    text(`[흐름] ${flowCard.title}`, boxX + 32, boxY + 32);
-    text(flowCard.summary, boxX + 32, boxY + 80, boxW - 64, boxH - 112);
+    textSize(24);
+    textStyle(BOLD);
+    textAlign(LEFT, TOP);
+    text(`흐름의 카드`, textX, textY);
+    fill(255);
+    textAlign(LEFT, TOP);
+    textSize(20);
+    textStyle(NORMAL);
+    text(flowCard.summary, textX, textY + 50, textW, textH - 50);
   } else {
-    text("이 카테고리에 등록된 흐름 카드가 없습니다.", boxX + 32, boxY + 32);
+    text("이 카테고리에 등록된 흐름 카드가 없습니다.", textX, textY);
   }
 
   // ===== 기사 링크 버튼 =====
-  const linkW = link.width * 0.6;
-  const linkH = link.height * 0.6;
-  const linkBtnX = cardX + cardW / 2 - linkW / 2;
-  const linkBtnY = cardY + cardH + 30;
+  const linkW = link.width * 0.9;
+  const linkH = link.height * 0.9;
+  const linkBtnX = width / 2 - linkW / 2;
+  const linkBtnY = cardY + cardH + 40;
 
   drawImageButtonScaled(
     link,
@@ -1251,16 +1420,72 @@ function drawFlowCardScreen() {
     }
   );
 
-  // ===== 조언 카드 버튼 =====
-  drawImageButton(advice, adviceHover, width / 2 - advice.width / 2, boxY + boxH + 30 + 60, () => {
-    state = "adviceCard";
-  });
-  // 🔹 이전/다음 버튼 추가
-  const btnY = boxY + boxH + 90;  
-  drawPrevNextButtons("gemini", "adviceCard", btnY);
+  // 🔹 이전/다음 버튼 추가  
+  drawPrevNextButtons("pre_flowCard", "pre_adviceCard",  795 - before.width / 2);
 }
 
+// ========== pre_adviceCard Screen ==========
+function drawPre_adviceCardScreen(){
+  drawStartTutorialBackground();
 
+  const boxW = 1100;
+  const boxH = 230;
+  const boxX = width / 2 - boxW / 2;
+  const boxY = 680;
+
+  // 말 그림 (intro 단계와 동일한 위치)
+  if (horse_re1) {
+    const horseSize = 500;
+    const horseX = boxX + boxW / 2 - horseSize / 2;
+    const horseY = boxY - horseSize + 100;
+
+  // 1. 비율 유지 계산
+    const aspectRatio = horse_re1.width / horse_re1.height;
+    let drawH = horseSize;
+    let drawW = horseSize * aspectRatio;
+
+    imageMode(CORNER);
+    image(horse_re1, horseX + (horseSize - drawW)/2, horseY, drawW, drawH);
+  }
+
+  // 설명 박스 (intro 단계와 동일한 위치)
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 30);
+
+  // 텍스트 (FLOW_TEXTS 사용)
+  fill(255);
+  textAlign(CENTER, CENTER);
+
+  // 텍스트 표시
+  textSize(24);
+  text(
+  `두 번째 카드는 어떠셨나요? 이러한 흐름과 연결하여
+세 번째 카드로 유용한 조언을 찾아드릴 수 있습니다만…`,
+  boxX + boxW / 2, boxY + boxH / 2
+  );
+  
+  // 1) 이전 버튼
+  const baseY = boxY + boxH / 2 - before.width / 2;
+  const margin = 200;
+  const prevW = before.width;
+  const prevX = margin;
+
+  drawImageButton(before, beforeHover, prevX, baseY, () => {
+    state = "flowCard"; // 이전 버튼은 flowCard로
+  });
+
+  // 2) generate_card3 버튼 (설명 박스 아래 중앙)
+  if (generateCard3 && generateCard3Hover) {
+    const btnW = generateCard3.width;
+    const btnH = generateCard3.height;
+    const btnX = width / 2 - btnW / 2;
+    const btnY = boxY + boxH - 20; 
+
+    drawImageButton(generateCard3, generateCard3Hover, btnX, btnY, () => {
+     state = "adviceCard"; // 다음 단계는 adviceCard로
+    });
+  }
+}
 
 
 // ========== ADVICE CARD SCREEN ==========
@@ -1270,20 +1495,7 @@ function drawAdviceCardScreen() {
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
   drawStageTitle(title3);
-
-  // ===== 제목 =====
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text("당신을 위한 현실적인 조언 카드", width / 2, 80);
-
-  // 🔹 말 이미지: 제목 왼쪽에 배치 (같은 위치)
-  const horseSize = 120;
-  const horseX = width / 2 - 380;
-  const horseY = 50;
-  drawFramedHorse(horseImages[4], horseX, horseY, horseSize);
-
-  const contentStartY = 250;
+  const contentStartY = 400;
 
   // ===== 왼쪽 카드 =====
   const cardW = 260;
@@ -1291,39 +1503,67 @@ function drawAdviceCardScreen() {
   const cardX = width / 2 - 580;
   const cardY = contentStartY;
 
-  fill(40, 20, 80, 240);
-  rect(cardX, cardY, cardW, cardH, 24);
+  image(advice_card, cardX, cardY, cardW, cardH);
 
+  // === 카드 상단 텍스트 ===
+  const cardTitleY = cardY - 30; // 카드 상단에서 40px 위
+    
   fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(18);
-  text("조언 카드 이미지 자리", cardX + cardW / 2, cardY + cardH / 2);
+  textAlign(CENTER, BOTTOM); // 중앙 정렬, 하단 맞춤
+  textSize(20);
+  text(`버튼을 클릭하여
+    청년 지원 정보를 확인해 보세요!`, cardX + cardW / 2, cardTitleY);
+
+
 
   // ===== 오른쪽 텍스트 박스 =====
-  const boxW = 800;
+  const boxW = 900;
   const boxH = 380;
   const boxX = cardX + cardW + 30;
   const boxY = contentStartY;
-
+  
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 20);
+
+  // 🔹 말 이미지: 텍스트 박스 안 오른쪽
+  const horseW = 120;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + boxW - horseW - 30;  
+  const horseY = boxY + boxH - horseH - 30;
+
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+
+  // 텍스트
+  const textX = boxX + 30
+  const textY = boxY + 30
+  const textW = boxW - horseW - 90
+  const textH = boxH - 60
 
   fill(255);
   textAlign(LEFT, TOP);
   textSize(18);
 
+
   if (policyCard) {
-    text(`[정책] ${policyCard.title}`, boxX + 32, boxY + 32);
-    text(policyCard.policy, boxX + 32, boxY + 80, boxW - 64, boxH - 112);
+    textSize(24);
+    textStyle(BOLD);
+    textAlign(LEFT, TOP);
+    text(`조언의 카드`, textX, textY);
+    fill(255);
+    textAlign(LEFT, TOP);
+    textSize(20);
+    textStyle(NORMAL);
+    text(policyCard.policy, textX, textY + 50, textW, textH - 50);
   } else {
-    text("이 카테고리에 등록된 조언 카드가 없습니다.", boxX + 32, boxY + 32);
+    text("이 카테고리에 등록된 조언 카드가 없습니다.", textX, textY);
   }
 
   // ===== 링크 버튼 =====
-  const advicelinkW = advicelink.width * 0.6;
-  const advicelinkH = advicelink.height * 0.6;
-  const advicelinkBtnX = cardX + cardW / 2 - advicelinkW / 2;
-  const advicelinkBtnY = cardY + cardH + 30;
+  const advicelinkW = advicelink.width * 0.9;
+  const advicelinkH = advicelink.height * 0.9;
+  const advicelinkBtnX = width / 2 - advicelinkW / 2;
+  const advicelinkBtnY = cardY + cardH + 40;
 
   drawImageButtonScaled(
     advicelink,
@@ -1333,25 +1573,77 @@ function drawAdviceCardScreen() {
     advicelinkW,
     advicelinkH,
     () => {
-      if (policyCard?.link1) window.open(policyCard.link1, "_blank");
-      if (policyCard?.link2) window.open(policyCard.link2, "_blank");
+      if (policyCard?.link) window.open(policyCard.link, "_blank");
     }
   );
 
-  // ===== 결과 카드 버튼 =====
-  const speechY = boxY + boxH + 30;
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(18);
-  text("붉은 말: \"지금까지 뽑은 것들, 한 번에 정리해서 볼까요?\"", width / 2, speechY);
-
-  drawImageButton(result, resultHover, width / 2 - result.width / 2, speechY + 60, () => {
-    state = "summary";
-  });
   // 🔹 이전/다음 버튼 추가
   const btnY = boxY + boxH + 90;
-  drawPrevNextButtons("flowCard", "summary", btnY);
+  drawPrevNextButtons("pre_adviceCard", "pre_summary",  795 - before.width / 2);
+}
 
+
+// ========= Pre_summary Screen ===========
+function drawPre_summaryScreen(){
+  drawStartTutorialBackground();
+
+  const boxW = 1100;
+  const boxH = 230;
+  const boxX = width / 2 - boxW / 2;
+  const boxY = 680;
+
+  // 말 그림 (intro 단계와 동일한 위치)
+  if (horse_re1) {
+    const horseSize = 500;
+    const horseX = boxX + boxW / 2 - horseSize / 2;
+    const horseY = boxY - horseSize + 100;
+
+  // 1. 비율 유지 계산
+    const aspectRatio = horse_re1.width / horse_re1.height;
+    let drawH = horseSize;
+    let drawW = horseSize * aspectRatio;
+
+    imageMode(CORNER);
+    image(horse_re1, horseX + (horseSize - drawW)/2, horseY, drawW, drawH);
+  }
+
+  // 설명 박스 (intro 단계와 동일한 위치)
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 30);
+
+  // 텍스트 (FLOW_TEXTS 사용)
+  fill(255);
+  textAlign(CENTER, CENTER);
+
+  // 텍스트 표시
+  textSize(24);
+  text(
+  `이렇게 당신의 세 카드를 모두 살펴봤어요!
+  결과를 한눈에 만나볼 수 있게 정리해 드릴게요.`,
+  boxX + boxW / 2, boxY + boxH / 2
+  );
+  
+  // 1) 이전 버튼
+  const baseY = boxY + boxH / 2 - before.width / 2;
+  const margin = 200;
+  const prevW = before.width;
+  const prevX = margin;
+
+  drawImageButton(before, beforeHover, prevX, baseY, () => {
+    state = "adviceCard"; // 이전 버튼은 adviceCard로
+  });
+
+  // 2) 결과보기 버튼 (설명 박스 아래 중앙)
+  if (result && resultHover) {
+    const btnW = result.width;
+    const btnH = result.height;
+    const btnX = width / 2 - btnW / 2;
+    const btnY = boxY + boxH - 20; 
+
+    drawImageButton(result, resultHover, btnX, btnY, () => {
+     state = "summary"; // 다음 단계는 summary로
+    });
+  }
 }
 
 // ========== SUMMARY SCREEN (COMPLETE FINAL VERSION) ==========
@@ -1360,20 +1652,50 @@ function drawSummaryScreen() {
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
-  const boxColor = color(30, 25, 60, 230);
+  // =============================
+  // 🔶 1) 말 + 텍스트 박스
+  // =============================
+  const boxW = 1100;
+  const boxH = 230;
+  const boxX = width / 2 - boxW / 2;
+  const boxY = 680;
 
-  // =============================
-  // 🔶 1) 제목
-  // =============================
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 30);
+
+  // 말 얼굴
+  const horseW = 140;
+  const aspectRatio = horse_re2.width / horse_re2.height;
+  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
+  const horseX = boxX + + 40;  
+  const horseY = boxY + boxH / 2 - horseH /2;
+
+  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+
+
+  // 텍스트
   fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text("오늘의 한 단어가 보여준 것들", width / 2, 60);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  textLeading(35);
+  text(`
+    부디 고민 많은 청년 여러분께
+    수상한 타로 가게의 카드들이 도움이 되었기를 바랍니다. 
+    당신의 2026년을 붉은 말이 계속해서 응원할게요!`,
+    width/2 + 80,
+    boxY + boxH / 2 - 20);
+
+
+   const boxColor = color(30, 25, 60, 230);
 
   // =============================
   // 🔶 2) 상단 요약 박스 3개
   // =============================
-  const summaryLeftX = width / 2 - 600;
+  push();
+  textAlign(LEFT, TOP);
+  textSize(18);
+  textLeading(22);
+  const summaryLeftX = boxX;
 
   const bigW = 900;
   const bigH = 260;
@@ -1389,9 +1711,7 @@ function drawSummaryScreen() {
   rect(summaryLeftX, firstY, bigW, bigH, 25);
 
   fill(255);
-  textAlign(LEFT, TOP);
-  textSize(20);
-  text("① 타로 마스터의 조언", summaryLeftX + 24, firstY + 20);
+  text("① 타로 마스터의 해석", summaryLeftX + 24, firstY + 20);
   text(
     tarotAdvice || "-",
     summaryLeftX + 24,
@@ -1408,11 +1728,11 @@ function drawSummaryScreen() {
   rect(summaryLeftX, secondY, smallW, smallH, 20);
 
   fill(255);
-  text("② 흐름", summaryLeftX + 20, secondY + 20);
+  text("② 흐름의 카드", summaryLeftX + 20, secondY + 20);
 
   if (flowCard) {
     text(
-      `[${flowCard.title}] ${flowCard.summary}`,
+      flowCard.summary,
       summaryLeftX + 20,
       secondY + 55,
       smallW - 40,
@@ -1429,11 +1749,11 @@ function drawSummaryScreen() {
   rect(rightBoxX, secondY, smallW, smallH, 20);
 
   fill(255);
-  text("③ 현실적인 조언", rightBoxX + 20, secondY + 20);
+  text("③ 조언의 카드", rightBoxX + 20, secondY + 20);
 
   if (policyCard) {
     text(
-      `[${policyCard.title}] ${policyCard.policy}`,
+      policyCard.policy,
       rightBoxX + 20,
       secondY + 55,
       smallW - 40,
@@ -1442,6 +1762,7 @@ function drawSummaryScreen() {
   } else {
     text("등록된 조언 카드가 없습니다.", rightBoxX + 20, secondY + 55);
   }
+  pop();
 
   // =============================
   // 🔶 3) QR 버튼
@@ -1471,48 +1792,17 @@ function drawSummaryScreen() {
 
   return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
 
-
-
     }
   );
 
   // =============================
-  // 🔶 4) 말 + 텍스트 박스
-  //    (question screen보다 조금 아래)
-  // =============================
-  const bottomW = 1100;
-  const bottomH = 230;
-  const bottomX = width / 2 - 600
-
-  const bottomY = 700;  // ★ 위치 조정됨
-
-  fill(boxColor);
-  rect(bottomX, bottomY, bottomW, bottomH, 30);
-
-  // 말 이미지
-  const horseSize = 160;
-  const horseX = bottomX + 40;
-  const horseY = bottomY + bottomH / 2 - horseSize / 2;
-  drawFramedHorse(horseImages[4], horseX, horseY, horseSize);
-
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(20);
-  text(
-    "부디 고민 많았던 청년 여러분에게 수상한 타로 가게의 카드들이 도움이 되었길 바랍니다.\n당신의 2026년을 붉은 말이 계속해서 응원할게요!",
-    horseX + horseSize + 40,
-    bottomY + 55
-  );
-
-  // =============================
-  // 🔶 5) 이전 / 다음 버튼
+  // 🔶 4) 이전 / 다음 버튼
   // =============================
   const btnY = 720;  
 
-  drawPrevNextButtons("adviceCard", "start", btnY);
+  drawPrevNextButtons("pre_summary", "start", btnY);
 
 }
-
 
 
 
@@ -1588,7 +1878,7 @@ function drawPrevNextButtons(prevState, nextState, baseY) {
   const nextW = after.width;
 
   const prevX = margin;
-  const nextX = width - margin - nextW - 100;
+  const nextX = width - margin - nextW;
   const y = baseY;
 
   // 이전 버튼
@@ -1676,32 +1966,35 @@ function handleStartClick() {
   const categories = ["건강", "진로", "금전", "연애"];
   const normalImages = [health, career, money, love];
 
-  const btnW = normalImages[0].width * 0.9;
-  const btnH = normalImages[0].height * 0.9;
+// 렌더링 코드와 동일하게 버튼 크기를 계산
+  const btnW = normalImages[0].width * 0.9;
+  const btnH = normalImages[0].height * 0.9;
 
-  const startX = width / 2 - (btnW * 1.2);
-  const startY = 240;  
-  const gapX = btnW + 80;
-  const gapY = btnH + 40;
+  // 렌더링 코드와 동일하게 위치를 계산
+  const startX = width / 2 - (btnW * 1.2);
+  const startY = 240;  // drawQuestionScreen의 startY
+  const gapX = btnW + 80;
+  const gapY = btnH + 40;
 
-  for (let i = 0; i < categories.length; i++) {
-    const col = i % 2;
-    const row = floor(i / 2);
+  for (let i = 0; i < categories.length; i++) {
+    const col = i % 2;
+    const row = floor(i / 2);
 
-    const x = startX + col * gapX;
-    const y = startY + row * gapY;
+    const x = startX + col * gapX;
+    const y = startY + row * gapY;
 
-    if (
-      isInside(mouseX, mouseY, x, y, btnW, btnH)
-    ) {
-      selectedCategory = categories[i];
-      selectedTopic = null;
-      selectedKeyWord = null;
-      tarotAdvice = "";
-      return;
-    }
-  }
+    if (
+      isInside(mouseX, mouseY, x, y, btnW, btnH)
+    ) {
+      selectedCategory = categories[i];
+      selectedTopic = null;
+      selectedKeyWord = null;
+      tarotAdvice = "";
+      return;
+    }
+  }
 }
+
 function handleTopicsClick() {
   const topics = TOPICS_MAP[selectedCategory] || [];
   const imageMap = TOPICS_IMAGE_MAP[selectedCategory];
@@ -1713,25 +2006,25 @@ function handleTopicsClick() {
 
   const startX = width / 2 - (btnW * 1.2);
 
-  // ★ drawTopicsScreen()과 동일한 값
-  const startY = 130;
+// ★ drawTopicsScreen()과 동일하게 240으로 수정
+  const startY = 240; 
 
-  const gapX = btnW + 80;
-  const gapY = btnH + 40;
+  const gapX = btnW + 80;
+  const gapY = btnH + 40;
 
-  for (let i = 0; i < topics.length; i++) {
-    const col = i % 2;
-    const row = floor(i / 2);
+  for (let i = 0; i < topics.length; i++) {
+    const col = i % 2;
+    const row = floor(i / 2);
 
-    const x = startX + col * gapX;
-    const y = startY + row * gapY;
+    const x = startX + col * gapX;
+    const y = startY + row * gapY;
 
-    // 클릭 영역도 btnW, btnH 사용
-    if (isInside(mouseX, mouseY, x, y, btnW, btnH)) {
-      selectedTopic = topics[i];
-      return;
-    }
-  }
+    // 클릭 영역도 btnW, btnH 사용
+    if (isInside(mouseX, mouseY, x, y, btnW, btnH)) {
+      selectedTopic = topics[i];
+      return;
+    }
+  }
 }
 
 function handleKeywordsClick() {
@@ -1787,7 +2080,7 @@ function drawStageTitle(img) {
   const w = img.width *0.8
   const h = img.height *0.8
   const x = width/2;                // 화면 좌측 여백
-  const y = 50;                // 화면 상단 여백
+  const y = 200;                // 화면 상단 여백
 
   image(img, x, y, w, h);
   pop();
@@ -1831,21 +2124,35 @@ function loadCardsByTopic(topic) {
 }
 
 //액자 그리기 함수//
-function drawFramedHorse(horseImg, x, y, size) {
+function drawFramedHorse(horseImg, x, y, w, h) {
   if (!horseImg || !horseFrame) return;
 
-  // 말 이미지 그리기
-  image(horseImg, x, y, size, size);
-
   // 액자 비율 계산 (프레임 이미지는 말 이미지보다 약간 크게)
-  const framePadding = size * 0.06; // 프레임 두께 감각적으로 맞춘값
+  const framePadding = w * 0.1; // 프레임 두께 감각적으로 맞춘값
   
-  const frameX = x - framePadding / 2;
-  const frameY = y - framePadding / 2;
-  const frameSize = size + framePadding;
+  // 2. 액자(horseFrame)를 그릴 최종 위치와 크기
+  const frameX = x; 
+  const frameY = y;
+  const frameW = w;
+  const frameH = h;
+  
+  // 3. 프레임 내부에 그려질 말 이미지의 크기 및 위치 계산
+  // 말 이미지 크기를 프레임 두께의 2배만큼 줄여서 프레임 내부에 배치
+  const innerPadding = framePadding; // 좌우상하 동일한 패딩 적용
+  
+  const innerW = frameW - innerPadding * 2; // 전체 너비에서 좌/우 패딩 제거
+  const innerH = frameH - innerPadding * 2; // 전체 높이에서 상/하 패딩 제거
+  
+  const innerX = frameX + innerPadding; // 프레임 X + 패딩
+  const innerY = frameY + innerPadding; // 프레임 Y + 패딩
 
-  // 액자 그리기
-  image(horseFrame, frameX+4, frameY, frameSize, frameSize);
+
+  // A. 액자 그리기 (먼저 그려서 뒤로 가게 함)
+  imageMode(CORNER);
+  image(horseFrame, frameX, frameY, frameW, frameH);
+
+  // B. 말 이미지 그리기 (프레임 내부에 작게)
+  image(horseImg, innerX, innerY, innerW, innerH);
 }
 
 // ========== Gemini 호출 로직 ==========
