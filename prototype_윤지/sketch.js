@@ -94,6 +94,10 @@ let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이�
 // bgm
 let bgMusic = null;
 
+//수정구슬
+let rubProgress = 0;
+let isKeywordSelected = false;
+
 // 타로 결과 관련
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
@@ -414,6 +418,8 @@ function preload() {
   chanceHover = loadImage("button_3_chance_hover.png");
   change = loadImage("button_3_change.png");
   changeHover = loadImage("button_3_change_hover.png");
+  createcard = loadImage("button_createcard.png");     
+  createcardHover = loadImage("button_createcard_hover.png");
 
   // 기사 링크로 이동
   link = loadImage("button_link.png");
@@ -1080,71 +1086,187 @@ function drawKeywordsScreen() {
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
-  const keywords = DUMMY_KEYWORDS_LIST;
+  if (typeof rubProgress === 'undefined' || isNaN(rubProgress)) rubProgress = 0;
+  if (typeof isKeywordSelected === 'undefined') isKeywordSelected = false;
 
-  fill(255);
-  textAlign(CENTER, TOP);
-  textSize(32);
-  text(`현재의 기운을 담은 키워드 선택`, width / 2, 80);
+  // ================================
+  // 🔶 말 + 설명 박스
+  // ================================
+  const boxW = 1100;
+  const boxH = 230;
+  const boxX = width / 2 - boxW / 2;
+  const boxY = 680;
 
-  textSize(18);
-  text("당신에게 가장 강하게 끌리는 기운의 단어 하나를 골라주세요.", width / 2, 130);
+  fill(30, 25, 60, 230);
+  rect(boxX, boxY, boxW, boxH, 30);
 
-  textSize(20);
-
-  for (let i = 0; i < keywords.length; i++) {
-    const col = i % KWD_GRID_COLS;
-    const row = floor(i / KWD_GRID_COLS);
-
-    let x = KWD_START_X + col * KWD_CELL_W;
-    let y = KWD_START_Y + row * KWD_CELL_H;
-
-    const cardW = KWD_CELL_W - 40;
-    const cardH = KWD_CELL_H - 40;
-
-    if (selectedKeyWord === keywords[i]) {
-      fill(140, 110, 220, 240);
-    } else {
-      fill(40, 30, 70, 220);
-    }
-    rect(x, y, cardW, cardH, 16);
-
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(keywords[i], x + cardW / 2, y + cardH / 2);
+  // 말 이미지
+  const horseW = 140;
+  if (horse_re2) {
+    let hW = (horse_re2.width > 0) ? horse_re2.width : 1;
+    let hH = (horse_re2.height > 0) ? horse_re2.height : 1;
+    const aspectRatio = hW / hH;
+    const horseH = horseW / aspectRatio; 
+    const horseX = boxX + 40;  
+    const horseY = boxY + boxH / 2 - horseH / 2;
+    drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH);
   }
 
-  // 선택된 단어 표시
+  // 텍스트 출력
   fill(255);
-  textAlign(CENTER, TOP);
-  textSize(20);
-  if (selectedKeyWord) {
-    text(`선택된 키워드: "${selectedKeyWord}"`, width / 2, height - 220);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  textLeading(35);
+
+  if (!isKeywordSelected) {
+    text(`
+      [ 스페이스 바 ]를 꾹 눌러 타로 마스터를 불러주세요.
+      구슬 속에서 당신의 운명을 결정할 단어가 나타납니다.
+      (게이지가 가득 차면 자동으로 선택됩니다)`,
+      width / 2 + 80,
+      boxY + boxH / 2 - 20
+    );
   } else {
-    text("카드를 눌러, 당신의 기운에 가장 맞는 키워드 하나를 골라주세요.", width / 2, height - 220);
+    text(`
+      수정구슬의 안개가 걷히고 운명의 단어가 드러났습니다.
+      키워드 "${selectedKeyWord}"(으)로
+      당신만의 타로 카드를 생성하시겠습니까?`,
+      width / 2 + 80,
+      boxY + boxH / 2 - 20
+    );
   }
 
-  // 카드 생성하기 버튼
-  if (createcard) {
-    const imgW = createcard.width;
-    const imgH = createcard.height;
+  // ================================
+  // 수정 구슬
+  const crystalballSize = 550;
+  let drawW = crystalballSize; 
+  let drawH = crystalballSize;
+  let crystalballX = width / 2 - drawW / 2;
+  let crystalballY = boxY - drawH;
 
-    const btnX = width / 2 - imgW / 2;
-    const btnY = height - 200;
-
-    const isHover =
-      mouseX > btnX && mouseX < btnX + imgW &&
-      mouseY > btnY && mouseY < btnY + imgH;
-
+  if (crystalball_transparent && crystalball_transparent.width > 0) {
+    const aspectRatio = crystalball_transparent.width / crystalball_transparent.height;
+    drawW = crystalballSize * aspectRatio;
+    crystalballX = width / 2 - drawW / 2;
+    
     imageMode(CORNER);
-    const imgToDraw = (isHover && createcardHover) ? createcardHover : createcard;
-    image(imgToDraw, btnX, btnY);
+    
+    let shakeX = 0;
+    if (!isKeywordSelected && keyIsDown(32)) shakeX = random(-3, 3); 
+    image(crystalball_transparent, crystalballX + shakeX, crystalballY, drawW, drawH);
   } else {
-    drawButton(width / 2 - btnWidth / 2, height - 140, btnWidth, btnHeight, "카드 생성하기");
+    fill(255, 255, 255, 50);
+    ellipse(width/2, crystalballY + drawH/2, drawW, drawH);
   }
 
-  // 키워드/생성 버튼 클릭
-  if (mouseIsPressed) handleKeywordsClick();
+  // 게이지
+
+  if (!isKeywordSelected) {
+    if (keyIsDown(32)) { 
+      rubProgress += 1.0; // 게이지 속도
+      
+      // 키워드 떠다니는 애니메이션
+      if (typeof DUMMY_KEYWORDS_LIST !== 'undefined') {
+          textAlign(CENTER, CENTER);
+          textStyle(BOLD);
+          
+          const centerX = width / 2;
+          const centerY = height / 2 - 100;
+
+          for (let i = 0; i < DUMMY_KEYWORDS_LIST.length; i++) {
+              let radius = 250 + (i * 35); 
+            
+              let angleOffset = (TWO_PI / DUMMY_KEYWORDS_LIST.length) * i;
+              let time = frameCount * 0.003 * (1 + (i % 2) * 0.5); 
+              let currentAngle = angleOffset + time;
+              let wx = centerX + cos(currentAngle) * radius;
+              let wy = centerY + sin(currentAngle) * radius;
+
+              textSize(24 + (i % 3) * 5); 
+              fill(255, 255, 200, 180 + sin(frameCount * 0.1 + i) * 50); 
+              text(DUMMY_KEYWORDS_LIST[i], wx, wy);
+          }
+          textStyle(NORMAL);
+      }
+
+    } else {
+      rubProgress -= 2.0; 
+    }
+    
+    rubProgress = constrain(rubProgress, 0, 100);
+
+    // 게이지 바
+    const barW = 400;  
+    const barH = 20;   
+    const barX = width / 2 - barW / 2;
+    const barY = boxY - 80;
+
+    noStroke();
+    fill(50, 50, 80, 200);
+    rect(barX, barY, barW, barH, 10); 
+
+    fill(180, 100, 255); 
+    let currentBarW = map(rubProgress, 0, 100, 0, barW);
+    rect(barX, barY, currentBarW, barH, 10);
+
+    // 100% 달성 시
+    if (rubProgress >= 100) {
+      rubProgress = 100;
+      const r = floor(random(DUMMY_KEYWORDS_LIST.length));
+      selectedKeyWord = DUMMY_KEYWORDS_LIST[r];
+      actualImageKeyWord = KEYWORD_IMAGE_MAP[selectedKeyWord];
+      isKeywordSelected = true; 
+    }
+
+  } else {
+    // 결과 단어
+    push();
+    stroke(0)
+    strokeWeight(3)
+    fill(200, 120, 255);
+    textSize(80);
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    
+    if (typeof drawingContext !== 'undefined') {
+        drawingContext.shadowBlur = 30;
+        drawingContext.shadowColor = 'rgba(105, 0, 110, 0.9)';
+    }
+    text(selectedKeyWord, width/2, crystalballY + drawH/2 - 60);
+    
+    if (typeof drawingContext !== 'undefined') 
+      drawingContext.shadowBlur = 0;
+    pop();
+    textStyle(NORMAL);
+
+    // 카드 생성 버튼
+    let btnW, btnH, btnX, btnY;
+    
+    if (createcard && createcard.width > 1) {
+       // 이미지 버튼 사용
+       btnW = createcard.width;
+       btnH = createcard.height;
+       btnX = width / 2 - btnW / 2;
+       btnY = height - 200; 
+
+       drawImageButton(createcard, createcardHover, btnX, btnY, () => {
+           state = "loading"; 
+           tarotAdvice = "";
+           callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
+       });
+
+    }
+}
+
+  // 이전 버튼
+  if (before && before.width > 0) {
+    const baseY = boxY + boxH / 2 - before.width / 2;
+    drawImageButton(before, beforeHover, 200, baseY, () => {
+        state = "topics"; 
+        isKeywordSelected = false; 
+        rubProgress = 0;
+    });
+  }
 }
 
 // ========== LOADING SCREEN ==========
@@ -1254,7 +1376,7 @@ function drawGeminiScreen() {
   const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
 
   const url =
-  QRPage +
+  QRPage 
   "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
   "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
   "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
@@ -2098,6 +2220,9 @@ function resetAll() {
 
   receiving = false;
   clickableButtons = [];
+
+  isKeywordSelected = false; 
+  rubProgress = 0;
 }
 
 
