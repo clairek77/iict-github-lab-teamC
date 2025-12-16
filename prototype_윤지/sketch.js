@@ -104,6 +104,8 @@ let isKeywordSelected = false;
 //카드 뒤집기
 let isCardFlipped = false;
 
+let selectedCardIndex = -1;
+
 // 타로 결과 관련
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
@@ -549,6 +551,8 @@ function draw() {
     drawKeywordsScreen();
   } else if (state === "loading") {
     drawLoadingScreen();
+  } else if (state === "card_selection") {
+    drawCardSelectionScreen();
   } else if (state === "gemini") {
     drawGeminiScreen();
   } else if (state === "pre_flowCard") {
@@ -1291,8 +1295,115 @@ function drawLoadingScreen() {
   pop();
 }
 
+// ========== CARD SELECTION SCREEN (3장 중 택1) ==========
+function drawCardSelectionScreen() {
+  drawResultBackground(); // 공통 배경
+  fill(0, 0, 0, 180);     // 약간 어둡게
+  rect(0, 0, width, height);
+  
+  // 타이틀 (없으면 텍스트로)
+  if (title1) {
+      drawStageTitle(title1);
+  } else {
+      fill(255);
+      textAlign(CENTER, CENTER);
+      textSize(40);
+      text("운명의 카드를 선택하세요", width/2, 150);
+  }
+
+  const cardW = 260;
+  const cardH = 380;
+  const gap = 50; // 카드 사이 간격
+  
+  // 전체 카드 그룹의 너비 계산 (카드3개 + 간격2개)
+  const totalW = (cardW * 3) + (gap * 2);
+  const startX = (width - totalW) / 2; // 중앙 정렬을 위한 시작점
+  const cardY = height / 2 - cardH / 2 + 50;
+
+  imageMode(CORNER);
+
+  // 3장의 카드 그리기 Loop
+  for (let i = 0; i < 3; i++) {
+      let x = startX + (i * (cardW + gap));
+      let y = cardY;
+
+      // 1) 아직 아무것도 선택하지 않은 상태 (-1)
+      if (selectedCardIndex === -1) {
+          // 마우스 올렸을 때 살짝 위로 뜨는 효과 (Hover)
+          if (isInside(mouseX, mouseY, x, y, cardW, cardH)) {
+              y -= 20; 
+              // 커서 변경 힌트 (선택사항)
+              cursor(HAND); 
+          }
+          
+          // 카드 뒷면 그리기
+          if (back_card) image(back_card, x, y, cardW, cardH);
+          else { fill(50); rect(x,y,cardW,cardH); }
+      
+      } 
+      // 2) 무언가 선택된 상태
+      else {
+          cursor(ARROW); // 커서 복구
+
+          if (i === selectedCardIndex) {
+              // 👉 선택된 카드: 뒤집힘 (앞면 보여주기 - 3단 합체)
+              
+              // (배경)
+              if (cardImages[selectedCategory]) image(cardImages[selectedCategory], x, y, cardW, cardH);
+              // (캐릭터)
+              if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], x, y, cardW, cardH);
+              // (아이템)
+              if (cardImages[selectedTopic]) image(cardImages[selectedTopic], x, y, cardW, cardH);
+
+              // 선택된 카드는 강조 테두리
+              noFill();
+              stroke(255, 215, 0);
+              strokeWeight(4);
+              rect(x, y, cardW, cardH);
+              noStroke();
+
+          } else {
+              // 선택되지 않은 나머지 카드: 어둡게 처리 (비활성화 느낌)
+              if (back_card) image(back_card, x, y, cardW, cardH);
+              else { fill(50); rect(x,y,cardW,cardH); }
+
+              // 반투명 검은막 덮기
+              fill(0, 0, 0, 200);
+              rect(x, y, cardW, cardH);
+          }
+      }
+  }
+
+  // ==========================================
+  // 안내 문구 및 다음 버튼
+  // ==========================================
+  textAlign(CENTER, CENTER);
+  fill(255);
+  textSize(24);
+
+  if (selectedCardIndex === -1) {
+      text("가장 마음이 끌리는 카드 한 장을 선택해주세요.", width/2, height - 150);
+  } else {
+      text("운명이 결정되었습니다.", width/2, height - 180);
+
+      // [결과 확인하러 가기] 버튼 등장
+      // (기존 '다음' 버튼 이미지 사용하거나 텍스트 버튼 사용)
+      if (next && nextHover) {
+          let btnW = next.width;
+          let btnH = next.height;
+          drawImageButton(next, nextHover, width/2 - btnW/2, height - 120, () => {
+              state = "gemini"; // 결과 상세 화면으로 이동
+          });
+      } else {
+          drawButton(width/2 - 100, height - 120, 200, 60, "해석 보기");
+          if (mouseIsPressed && isInside(mouseX, mouseY, width/2 - 100, height - 120, 200, 60)) {
+              state = "gemini";
+          }
+      }
+  }
+}
+
 // ========== GEMINI SCREEN ==========
-// ========== GEMINI SCREEN (카드 뒤집기 기능 적용) ==========
 function drawGeminiScreen() {
   drawResultBackground();
   fill(0, 0, 0, 180);
@@ -1302,56 +1413,38 @@ function drawGeminiScreen() {
 
   const contentStartY = 400;
 
-  // ===== 왼쪽 카드 영역 =====
+  // ===== 왼쪽 카드 (이미 뒤집힌 상태) =====
   const cardW = 260;
   const cardH = 380;
   const cardX = width / 2 - 580;
   const cardY = contentStartY;
 
+  // 그림자
   noStroke();
   fill(0, 0, 0, 80);
   rect(cardX + 10, cardY + 10, cardW, cardH);
 
   imageMode(CORNER);
 
-  if (!isCardFlipped) {
-    if (back_card) {
-        image(back_card, cardX, cardY, cardW, cardH);
-    } else {
-        fill(50, 30, 80);
-        rect(cardX, cardY, cardW, cardH);
-    }
+  // 완성된 타로 카드 그리기 (3단 합체)
+  if (cardImages[selectedCategory]) image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
+  if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
+  if (cardImages[selectedTopic]) image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
 
-    textAlign(CENTER, BOTTOM);
-    textSize(20);
+  // 테두리 강조
+  noFill();
+  stroke(255, 215, 0);
+  strokeWeight(3);
+  rect(cardX, cardY, cardW, cardH);
+  noStroke();
 
-    let alpha = map(sin(frameCount * 0.1), -1, 1, 100, 255);
-    fill(255, 255, 255, alpha);
-    text("카드를 눌러 운명을 확인하세요!", cardX + cardW / 2, cardY - 20);
+  // 상단 안내 문구
+  fill(255);
+  textAlign(CENTER, BOTTOM);
+  textSize(20);
+  noStroke();
+  text("당신만을 위한 2026년의 카드", cardX + cardW / 2, cardY - 20);
 
-  } else {
-    
-    // (1) 배경 (Category)
-    if (cardImages[selectedCategory]) {
-        image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
-    }
-    
-    // (2) 캐릭터 (Keyword)
-    if (cardImages[actualImageKeyWord]) {
-        image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
-    }
-    
-    // (3) 아이템 (Topic)
-    if (cardImages[selectedTopic]) {
-        image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
-    }
-
-    // 앞면일 때 고정된 안내 문구
-    fill(255);
-    textAlign(CENTER, BOTTOM);
-    textSize(20);
-    text("당신만을 위한 2026년의 카드", cardX + cardW / 2, cardY - 20);
-  }
 
   // ===== 오른쪽 텍스트 박스 =====
   const boxW = 900;
@@ -1362,7 +1455,7 @@ function drawGeminiScreen() {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 20);
 
-  // 🔹 말 이미지: 텍스트 박스 안 오른쪽
+  // 말 이미지
   const horseW = 120;
   if (horse_re2) {
       const aspectRatio = horse_re2.width / horse_re2.height;
@@ -1382,42 +1475,39 @@ function drawGeminiScreen() {
   textAlign(LEFT, TOP);
   textSize(20);
   
-  if (isCardFlipped) {
-      text(tarotAdvice, textX, textY, textW, textH);
-  } else {
-      textAlign(CENTER, CENTER);
-      text("카드를 뒤집으면 조언이 나타납니다.", boxX + boxW/2 - 50, boxY + boxH/2);
-  }
+  // Gemini 조언 출력
+  text(tarotAdvice, textX, textY, textW, textH);
 
   // ===== QR 버튼 =====
-  if (isCardFlipped) {
-      const qrW = qr.width * 0.9;
-      const qrH = qr.height * 0.9;
-      const qrBtnX = width / 2 - qrW / 2;
-      const qrBtnY = cardY + cardH + 40;
+  const qrW = qr.width * 0.9;
+  const qrH = qr.height * 0.9;
+  const qrBtnX = width / 2 - qrW / 2;
+  const qrBtnY = cardY + cardH + 40;
 
-      drawImageButtonScaled(
-        qr,
-        qrHover,
-        qrBtnX,
-        qrBtnY,
-        qrW,
-        qrH,
-        () => {
-          const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
-          const url = QRPage +
-          "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
-          "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
-          "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
-          "&advice=" + encodeURIComponent(tarotAdvice);
+  drawImageButtonScaled(
+    qr, qrHover, qrBtnX, qrBtnY, qrW, qrH,
+    () => {
+      const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+      const url = QRPage +
+      "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
+      "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
+      "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
+      "&advice=" + encodeURIComponent(tarotAdvice);
 
-          return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-        }
-      );
-  }
+      return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+    }
+  );
 
-  // 🔹 이전 / 다음 버튼 추가
-  drawPrevNextButtons("keywords", "pre_flowCard", 795 - before.width / 2);
+  // 다음 버튼 (이전 버튼 제거됨)
+  // drawPrevNextButtons 함수 대신 다음 버튼만 직접 그리기
+  const margin = 200;
+  const nextW = after.width;
+  const nextX = width - margin - nextW;
+  const btnY = 795 - before.width / 2; // 기존 drawPrevNextButtons의 y좌표 계산식 사용
+
+  drawImageButton(after, afterHover, nextX, btnY, () => {
+      state = "pre_flowCard";
+  });
 }
 
 
@@ -2092,6 +2182,37 @@ function mousePressed() {
           if (clickSound && clickSound.isLoaded()) clickSound.play();
       }
   }
+
+  if (state === "card_selection") {
+      // 이미 선택했다면 클릭 무시 (혹은 다시 선택하게 할 수도 있음)
+      if (selectedCardIndex !== -1) return; 
+
+      const cardW = 260;
+      const cardH = 380;
+      const gap = 50;
+      const totalW = (cardW * 3) + (gap * 2);
+      const startX = (width - totalW) / 2;
+      const cardY = height / 2 - cardH / 2 + 50;
+
+      // 3장 중 어디를 눌렀나 확인
+      for (let i = 0; i < 3; i++) {
+          let x = startX + (i * (cardW + gap));
+          let y = cardY; // Hover시 y가 바뀌지만 클릭 판정은 원래 위치로 해도 무방
+
+          if (isInside(mouseX, mouseY, x, y, cardW, cardH)) {
+              selectedCardIndex = i; // i번째 카드 선택!
+              
+              // 효과음 재생
+              if (magicRevealSound && magicRevealSound.isLoaded()) {
+                   magicRevealSound.setVolume(1.0);
+                   magicRevealSound.play();
+              } else if (clickSound && clickSound.isLoaded()) {
+                   clickSound.play();
+              }
+              break;
+          }
+      }
+  }
 }
 
 // 마우스를 뗄 때: drawImageButton으로 등록된 버튼만 처리
@@ -2391,7 +2512,9 @@ function callGeminiTarot(category, topic, keyWord) {
         "조언 텍스트를 불러오지 못했습니다.";
       tarotAdvice = text;
       loadCardsByTopic(selectedTopic);
-      state = "gemini";
+
+      selectedCardIndex = -1; // 선택 상태 초기화
+      state = "card_selection";
     })
     .catch(err => {
       console.error("Gemini 호출 오류:", err);
