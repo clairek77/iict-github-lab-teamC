@@ -16,7 +16,7 @@ const FLOW_TEXTS = {
   intro_3: {
     text: `
 여기는 그저 흔한 타로 가게는 아니에요.
-이곳에서 만나게 될 타로 카드는 조금 **특별**하거든요.
+이곳에서 만나게 될 **타로 카드**는 조금 **특별**하거든요.
 `
   },
   tutorial_0: {
@@ -26,28 +26,26 @@ const FLOW_TEXTS = {
   },
   tutorial_1: {
     text: `
-**첫 번째**는, 당신의 고민을 들어본 뒤에
-내년의 기운을 강하게 나타내는 하나의 단어를 찾아
-**'세상에 오직 하나뿐인'** 타로 카드를 만들어 드릴거예요.
+**첫 번째 카드**는, 이 세상에 오직 하나뿐인 타로 카드예요.
+당신이 선택한 **고민**과 내년의 기운을 나타내는 **한 단어**로 만든 카드이죠. 
 `
   },
   tutorial_2: {
     text: `
-**두 번째 카드**로 당신의 고민과 맞닿아 있는 **'세상의 흐름'**을 읽어볼 거예요.
-이러한 흐름을 미리 알고 있으면 미래를 대비하는 데에도 도움이 되죠...
-
-(HINT: 여기 사람들은 **"기사"**라는 텍스트를 통해 세상의 흐름을 읽는다죠?)
+**두 번째 카드**로는, 당신의 고민과 맞닿아 있는 **'세상의 흐름'**을 보여줄 거예요.
+다른 청년들도 어쩌면 당신과 비슷한 고민을 하고 있을지도 모르죠.
+(HINT: 여기 사람들은 **기사**라는 텍스트를 통해 세상의 흐름을 읽는다죠?)
 `
   },
   tutorial_3: {
     text: `
-**마지막 카드**로는 당신의 고민과 세상의 흐름을 엮어
-**실질적인 조언**을 얻을 수 있는 곳이 어디인지 알려드릴게요.
+**마지막 카드**로는, 당신의 고민과 관련된 **실질적인 조언**을 드릴게요. 
+당신께 현실적으로 도움이 될 법한 다양한 정보를 드리겠습니다. 후후.
 `
   },
   tutorial_fin: {
     text: `
-그럼 붉은 말의 해를 미리 엿볼 준비가 되셨나요?
+그럼 **붉은 말의 해**를 미리 엿볼 준비가 되셨나요?
 아래 버튼을 눌러 지금 확인해볼 수 있어요!
 `
   },
@@ -113,7 +111,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "AIzaSyChymXT_qNB1ixVyFAC5eZYiOq9G6w5JIg";
+const API_KEY = "####";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -130,9 +128,8 @@ const SYSTEM_PROMPT = `
 - 키워드가 "정체", "걱정", "갈등", "혼란"일 때 XX는 "위로자"
 - 키워드가 "선택", "균형", "전환", "결단"일 때 XX는 "항해자"
 
-- 출력양식: 'OO하는 XX'을 가장 처음 줄에 출력. 그 다음줄에 '2026년 당신을 나타내는 카드는 OO하는 XX입니다.'로 조언을 시작할 것.
+- 출력양식: '**OO하는 XX**'을 가장 처음 줄에 출력. 그 다음줄에 '2026년 당신을 나타내는 카드는 **OO하는 XX**입니다.'로 조언을 시작할 것.
 - 한국어로 250자 정도 분량. 절대 넘어서는 안됨.
-- 볼드체나 ** 와 같은 강조 표시 없이 출력
 - 겁주거나 공포를 조장하지 말 것
 - 너무 뻔한 일반론이 아니라, 사용자가 선택한 주제와 키워드를 적어도 한 번은 자연스럽게 등장시킬 것
 - 말투는 친절하고 약간 수상한 점집 느낌으로
@@ -496,7 +493,7 @@ function preload() {
 
   // font
   
-  fontRegular = loadFont('Sunflower-Medium.ttf');
+  fontRegular = loadFont('Sunflower-Light.ttf');
   fontBold = loadFont('Sunflower-Bold.ttf');
 
   // JSON 카드 데이터
@@ -688,19 +685,12 @@ function drawIntroScreen(txtObj, prevState, nextState, showHorse) {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // noFill();
-  // stroke(255, 0, 0); // 빨간색 테두리
-  // rect(boxX + 30, boxY + 30, boxW - 60, boxH - 60);
-  // stroke(255);
-
   // 텍스트
   fill(255);
-  textSize(24);
-  textAlign(LEFT,TOP);
 
-  const baseFontSize = 30;
+  const baseFontSize = 28;
   const lineHeight = 45;
-  const boldScaleFactor = 1.3;
+  const boldScaleFactor = 1.2;
 
   if (fontRegular && fontBold) {
       drawStyledText(
@@ -812,12 +802,31 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
     fill(30, 25, 60, 230);
     rect(boxX, boxY, boxW, boxH, 30);
 
-    // 7. 텍스트
+    // 텍스트
     fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(24);
-    textLeading(35);
-    text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
+
+    const baseFontSize = 28;
+    const lineHeight = 45;
+    const boldScaleFactor = 1.2;
+
+  if (fontRegular && fontBold) {
+      drawStyledText(
+          txtObj.text, 
+          boxX + boxW / 2, // 중앙 정렬 기준 X
+          boxY + boxH / 2, // 중앙 정렬 기준 Y
+          boxW - 60,       // 최대 너비
+          lineHeight,      // 줄 간격
+          fontRegular,     // 일반 폰트
+          fontBold,         // 볼드 폰트
+          baseFontSize,        // 기본 폰트 크기
+          boldScaleFactor   // 볼드 확대 비율
+     );  
+  } else {
+      // 폰트가 로드되지 않았으면 일반 텍스트로 대체
+      textAlign(CENTER, CENTER);
+      text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
+  }
+
 
     // 8. 이전/다음 버튼
     const baseY = boxY + boxH / 2 - before.width / 2;
@@ -853,13 +862,31 @@ function drawTutorialFinScreen() {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-// 텍스트 (FLOW_TEXTS 사용)
-  fill(255);
-  textAlign(CENTER, CENTER);
+// 텍스트
+  fill(255);
 
-  // 텍스트 표시
-  textSize(24);
-  text(FLOW_TEXTS.tutorial_fin.text, boxX + boxW / 2, boxY + boxH / 2);
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
+
+  if (fontRegular && fontBold) {
+      drawStyledText(
+          FLOW_TEXTS.tutorial_fin.text, 
+          boxX + boxW / 2, // 중앙 정렬 기준 X
+          boxY + boxH / 2, // 중앙 정렬 기준 Y
+          boxW - 60,       // 최대 너비
+          lineHeight,      // 줄 간격
+          fontRegular,     // 일반 폰트
+          fontBold,         // 볼드 폰트
+          baseFontSize,        // 기본 폰트 크기
+          boldScaleFactor   // 볼드 확대 비율
+      );
+
+  } else {
+      // 폰트가 로드되지 않았으면 일반 텍스트로 대체
+      textAlign(CENTER, CENTER);
+      text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
+  }
   
   // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
@@ -931,7 +958,7 @@ function drawQuestionScreen() {
   // ================================
   // 🔶 2) 말 + 설명 박스
   // ================================
-  const boxW = 1100;
+  const boxW = 800;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
@@ -939,31 +966,67 @@ function drawQuestionScreen() {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 말 얼굴
+  // 말 이미지
   const horseW = 140;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + + 40;  
-  const horseY = boxY + boxH / 2 - horseH /2;
+  if (horse_re2) {
+    let hW = (horse_re2.width > 0) ? horse_re2.width : 1;
+    let hH = (horse_re2.height > 0) ? horse_re2.height : 1;
+    const aspectRatio = hW / hH;
+    const horseH = horseW / aspectRatio; 
+    const horseX = boxX - horseW - 60;  
+    const horseY = boxY + boxH / 2 - horseH / 2;
+    imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
+  }
 
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
 
-
-  // 텍스트
+    // 텍스트
   fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(24);
-  textLeading(35);
-  if (selectedCategory) {
-    text(`
-      음… ${selectedCategory}이/가 궁금하시군요.
-      오른쪽 화살표를 눌러 따라오시죠.`,
-      width/2 + 80,
-      boxY + boxH / 2 - 20);
-  } else {
-    text(`먼저, 다가오는 2026년에 가장 궁금한 고민거리를 골라주세요.`, 
-        width/2 + 80, 
-        boxY + boxH / 2 - 20);
+  textAlign(CENTER, CENTER)
+
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
+
+  let currentText
+
+  if (fontRegular && fontBold) {
+    if(selectedCategory) {
+      if (selectedCategory === '금전' || selectedCategory === '건강'){
+        currentText = `음.. **${selectedCategory}**이 궁금하시군요.
+        후후 알겠습니다. 계속 따라오시죠...`
+      } 
+      else {
+        currentText = `음.. **${selectedCategory}**가 궁금하시군요.
+        후후 알겠습니다. 계속 따라오시죠...`}
+      
+      drawStyledText(
+            currentText, 
+            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxY + boxH / 2, // 중앙 정렬 기준 Y
+            boxW - 60,       // 최대 너비
+            lineHeight,      // 줄 간격
+            fontRegular,     // 일반 폰트
+            fontBold,         // 볼드 폰트
+            baseFontSize,     // 기본 폰트 크기
+            boldScaleFactor   // 볼드 확대 비율
+        );
+    } else {
+            drawStyledText(
+            `먼저, 다가오는 2026년에 가장 궁금한 고민거리를 골라주세요.`, 
+            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxY + boxH / 2, // 중앙 정렬 기준 Y
+            boxW - 60,       // 최대 너비
+            lineHeight,      // 줄 간격
+            fontRegular,     // 일반 폰트
+            fontBold,         // 볼드 폰트
+            baseFontSize,     // 기본 폰트 크기
+            boldScaleFactor   // 볼드 확대 비율
+        );
+    }
+  } else {
+      // 폰트가 로드되지 않았으면 일반 텍스트로 대체
+      textAlign(CENTER, CENTER);
+      text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
   }
 
   // ================================
@@ -1021,41 +1084,59 @@ function drawTopicsScreen() {
   // ================================
   // 🔶 2) 말 + 설명 박스
   // ================================
-  const boxW = 1100;
+  const boxW = 800;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
-
   const boxY = 680;
 
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 말 얼굴
+  // 말 이미지
   const horseW = 140;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + + 40;  
-  const horseY = boxY + boxH / 2 - horseH /2;
-
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+  if (horse_re2) {
+    let hW = (horse_re2.width > 0) ? horse_re2.width : 1;
+    let hH = (horse_re2.height > 0) ? horse_re2.height : 1;
+    const aspectRatio = hW / hH;
+    const horseH = horseW / aspectRatio; 
+    const horseX = boxX - horseW - 60;  
+    const horseY = boxY + boxH / 2 - horseH / 2;
+    imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
+  }
 
   fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(24);
-  textLeading(35);
+  textAlign(CENTER, CENTER)
+
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
 
   if (selectedTopic) {
-    text(`
-      좋아요! 고민을 들어봤으니 이제 당신에게서 느껴지는 기운을 살펴볼게요.
-      오른쪽 화살표를 눌러 계속해주세요.`,
-      width/2 + 80,
-      boxY + boxH / 2 - 20);
+    drawStyledText(
+            `좋아요! 당신의 고민이 무엇인지 이제 잘 알겠습니다.
+계속 따라오시면 당신에게서 느껴지는 기운을 알려드리죠.`, 
+            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxY + boxH / 2, // 중앙 정렬 기준 Y
+            boxW - 60,       // 최대 너비
+            lineHeight,      // 줄 간격
+            fontRegular,     // 일반 폰트
+            fontBold,         // 볼드 폰트
+            baseFontSize,     // 기본 폰트 크기
+            boldScaleFactor   // 볼드 확대 비율
+    )
   } else {
-    text(`
-      당신의 고민에 대해 조금 더 자세히 말씀해주세요…
-      구체적으로 무엇이 궁금하나요?`, 
-      width/2 + 80, 
-      boxY + boxH / 2 - 20);
+        drawStyledText(
+           `당신의 고민에 대해 조금 더 자세히 말씀해주세요.
+당신은 구체적으로 무엇이 궁금하나요?`,
+            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxY + boxH / 2, // 중앙 정렬 기준 Y
+            boxW - 60,       // 최대 너비
+            lineHeight,      // 줄 간격
+            fontRegular,     // 일반 폰트
+            fontBold,         // 볼드 폰트
+            baseFontSize,     // 기본 폰트 크기
+            boldScaleFactor   // 볼드 확대 비율
+        )
   }
 
   // ================================
@@ -1080,7 +1161,7 @@ function drawKeywordsScreen() {
   // ================================
   // 🔶 말 + 설명 박스
   // ================================
-  const boxW = 1100;
+  const boxW = 800;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
@@ -1095,34 +1176,47 @@ function drawKeywordsScreen() {
     let hH = (horse_re2.height > 0) ? horse_re2.height : 1;
     const aspectRatio = hW / hH;
     const horseH = horseW / aspectRatio; 
-    const horseX = boxX + 40;  
+    const horseX = boxX - horseW - 60;  
     const horseY = boxY + boxH / 2 - horseH / 2;
-    drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH);
+    imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
   }
 
   // 텍스트 출력
   fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(24);
-  textLeading(35);
+  textAlign(CENTER, CENTER)
+
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
 
   if (!isKeywordSelected) {
-    text(`
-      마우스를 클릭한 채로 [수정구슬]을 문질러주세요.
-      당신의 기운이 모여 운명의 단어가 나타납니다.
-      (게이지가 가득 차면 자동으로 선택됩니다)`,
-      width / 2 + 80,
-      boxY + boxH / 2 - 20
-    );
+    drawStyledText(
+            `마우스를 클릭한 채 [수정구슬]을 문질러보시죠.
+당신의 기운이 모여 운명의 단어가 나타날겁니다!
+(게이지가 가득 차면 자동으로 선택됩니다)`,
+            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxY + boxH / 2, // 중앙 정렬 기준 Y
+            boxW - 60,       // 최대 너비
+            lineHeight,      // 줄 간격
+            fontRegular,     // 일반 폰트
+            fontBold,         // 볼드 폰트
+            baseFontSize,     // 기본 폰트 크기
+            boldScaleFactor   // 볼드 확대 비율
+    )
   } else {
-    text(`
-      수정구슬의 안개가 걷히고 운명의 단어가 드러났습니다.
-      키워드 "${selectedKeyWord}"(으)로
-      당신만의 타로 카드를 생성하시겠습니까?
-      (키워드가 마음에 들지 않다면 이전 버튼을 눌러주세요.)`,
-      width / 2 + 80,
-      boxY + boxH / 2 - 20
-    );
+    drawStyledText(
+            `당신에게서 **${selectedKeyWord}**의 기운이 강하게 느껴지네요..
+이제 이 기운으로 세상에 단 하나뿐인 타로 카드를 만들어드겠습니다.
+      (단어가 마음에 들지 않는다면 이전 버튼을 눌러 돌아가세요.)`,
+            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxY + boxH / 2, // 중앙 정렬 기준 Y
+            boxW - 60,       // 최대 너비
+            lineHeight,      // 줄 간격
+            fontRegular,     // 일반 폰트
+            fontBold,         // 볼드 폰트
+            baseFontSize,     // 기본 폰트 크기
+            boldScaleFactor   // 볼드 확대 비율
+    )
   }
 
   // ================================
@@ -1255,6 +1349,7 @@ function drawKeywordsScreen() {
     fill(200, 120, 255); 
     textSize(80);
     textAlign(CENTER, CENTER);
+    textFont("Pretendard, sans-serif");
     textStyle(BOLD);
     
     if (typeof drawingContext !== 'undefined') {
@@ -1579,17 +1674,25 @@ function drawPre_flowCardScreen() {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 텍스트 (FLOW_TEXTS 사용)
-  fill(255);
-  textAlign(CENTER, CENTER);
+  // 텍스트
+  fill(255);
+  textAlign(CENTER, CENTER);
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
 
-  // 텍스트 표시
-  textSize(24);
-  text(
-  `첫 번째 카드로 당신만을 위한 타로 카드를 뽑아봤으니,
-  이제 두 번째 “흐름의 카드”도 함께 볼까요?`,
-  boxX + boxW / 2, boxY + boxH / 2
-  );
+  drawStyledText(
+      `첫 번째 카드로 당신만을 위한 타로 카드를 뽑아봤으니,
+이제 두 번째 **흐름의 카드**도 함께 볼까요?`, 
+        boxX + boxW / 2, // 중앙 정렬 기준 X
+        boxY + boxH / 2, // 중앙 정렬 기준 Y
+        boxW - 60,       // 최대 너비
+        lineHeight,      // 줄 간격
+        fontRegular,     // 일반 폰트
+        fontBold,         // 볼드 폰트
+        baseFontSize,        // 기본 폰트 크기
+        boldScaleFactor   // 볼드 확대 비율
+     );  
   
   // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
@@ -1734,17 +1837,25 @@ function drawPre_adviceCardScreen(){
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 텍스트 (FLOW_TEXTS 사용)
-  fill(255);
-  textAlign(CENTER, CENTER);
+  // 텍스트
+  fill(255);
+  textAlign(CENTER, CENTER);
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
 
-  // 텍스트 표시
-  textSize(24);
-  text(
-  `두 번째 카드는 어떠셨나요? 이러한 흐름과 연결하여
-세 번째 카드로 유용한 조언을 찾아드릴 수 있습니다만…`,
-  boxX + boxW / 2, boxY + boxH / 2
-  );
+  drawStyledText(
+      `두 번째 카드는 어떠셨나요? 이러한 흐름과 연결하여
+세 번째 카드로 **유용한 조언**을 찾아드릴 수 있습니다만...`, 
+        boxX + boxW / 2, // 중앙 정렬 기준 X
+        boxY + boxH / 2, // 중앙 정렬 기준 Y
+        boxW - 60,       // 최대 너비
+        lineHeight,      // 줄 간격
+        fontRegular,     // 일반 폰트
+        fontBold,         // 볼드 폰트
+        baseFontSize,        // 기본 폰트 크기
+        boldScaleFactor   // 볼드 확대 비율
+     );
   
   // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
@@ -1893,18 +2004,26 @@ function drawPre_summaryScreen(){
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 텍스트 (FLOW_TEXTS 사용)
-  fill(255);
-  textAlign(CENTER, CENTER);
+// 텍스트
+  fill(255);
+  textAlign(CENTER, CENTER);
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
 
-  // 텍스트 표시
-  textSize(24);
-  text(
-  `이렇게 당신의 세 카드를 모두 살펴봤어요!
-  결과를 한눈에 만나볼 수 있게 정리해 드릴게요.`,
-  boxX + boxW / 2, boxY + boxH / 2
-  );
-  
+  drawStyledText(
+      `이렇게 당신의 **세 카드**를 모두 살펴봤어요!
+  결과를 한 눈에 볼 수 있게 **QR 코드**로 정리해 드릴게요.`, 
+        boxX + boxW / 2, // 중앙 정렬 기준 X
+        boxY + boxH / 2, // 중앙 정렬 기준 Y
+        boxW - 60,       // 최대 너비
+        lineHeight,      // 줄 간격
+        fontRegular,     // 일반 폰트
+        fontBold,         // 볼드 폰트
+        baseFontSize,        // 기본 폰트 크기
+        boldScaleFactor   // 볼드 확대 비율
+     );
+
   // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
   const margin = 200;
@@ -1937,7 +2056,7 @@ function drawSummaryScreen() {
   // =============================
   // 🔶 1) 말 + 텍스트 박스
   // =============================
-  const boxW = 1100;
+  const boxW = 800;
   const boxH = 230;
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
@@ -1945,137 +2064,148 @@ function drawSummaryScreen() {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
-  // 말 얼굴
+  // 말 이미지
   const horseW = 140;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + + 40;  
-  const horseY = boxY + boxH / 2 - horseH /2;
-
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
+  if (horse_re2) {
+    let hW = (horse_re2.width > 0) ? horse_re2.width : 1;
+    let hH = (horse_re2.height > 0) ? horse_re2.height : 1;
+    const aspectRatio = hW / hH;
+    const horseH = horseW / aspectRatio; 
+    const horseX = boxX - horseW - 60;  
+    const horseY = boxY + boxH / 2 - horseH / 2;
+    imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
+  }
 
 
   // 텍스트
   fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(24);
-  textLeading(35);
-  text(`
-    부디 고민 많은 청년 여러분께
+  textAlign(CENTER, CENTER);
+  const baseFontSize = 28;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.2;
+
+  drawStyledText(
+      `부디 고민 많은 청년 여러분께
     수상한 타로 가게의 카드들이 도움이 되었기를 바랍니다. 
-    당신의 2026년을 붉은 말이 계속해서 응원할게요!`,
-    width/2 + 80,
-    boxY + boxH / 2 - 20);
+    **당신의 2026년을 붉은 말이 계속해서 응원할게요!**`, 
+        boxX + boxW / 2, // 중앙 정렬 기준 X
+        boxY + boxH / 2, // 중앙 정렬 기준 Y
+        boxW - 60,       // 최대 너비
+        lineHeight,      // 줄 간격
+        fontRegular,     // 일반 폰트
+        fontBold,         // 볼드 폰트
+        baseFontSize,        // 기본 폰트 크기
+        boldScaleFactor   // 볼드 확대 비율
+     );
 
+  // const boxColor = color(30, 25, 60, 230);
 
-   const boxColor = color(30, 25, 60, 230);
+  // // =============================
+  // // 🔶 2) 상단 요약 박스 3개
+  // // =============================
+  // push();
+  // textAlign(LEFT, TOP);
+  // textSize(18);
+  // textLeading(22);
+  // const summaryLeftX = boxX;
 
-  // =============================
-  // 🔶 2) 상단 요약 박스 3개
-  // =============================
-  push();
-  textAlign(LEFT, TOP);
-  textSize(18);
-  textLeading(22);
-  const summaryLeftX = boxX;
+  // const bigW = 900;
+  // const bigH = 260;
 
-  const bigW = 900;
-  const bigH = 260;
+  // const smallW = 430;
+  // const smallH = 220;
+  // const gap = 30;
 
-  const smallW = 430;
-  const smallH = 220;
-  const gap = 30;
+  // // 첫 번째 박스 (타로 조언)
+  // const firstY = 150;
 
-  // 첫 번째 박스 (타로 조언)
-  const firstY = 150;
+  // fill(boxColor);
+  // rect(summaryLeftX, firstY, bigW, bigH, 25);
 
-  fill(boxColor);
-  rect(summaryLeftX, firstY, bigW, bigH, 25);
+  // fill(255);
+  // text("① 타로 마스터의 해석", summaryLeftX + 24, firstY + 20);
+  // text(
+  //   tarotAdvice || "-",
+  //   summaryLeftX + 24,
+  //   firstY + 60,
+  //   bigW - 48,
+  //   bigH - 80
+  // );
 
-  fill(255);
-  text("① 타로 마스터의 해석", summaryLeftX + 24, firstY + 20);
-  text(
-    tarotAdvice || "-",
-    summaryLeftX + 24,
-    firstY + 60,
-    bigW - 48,
-    bigH - 80
-  );
+  // // 두 번째 & 세 번째 박스 (좌/우)
+  // const secondY = firstY + bigH + gap;
 
-  // 두 번째 & 세 번째 박스 (좌/우)
-  const secondY = firstY + bigH + gap;
+  // // 흐름 카드
+  // fill(boxColor);
+  // rect(summaryLeftX, secondY, smallW, smallH, 20);
 
-  // 흐름 카드
-  fill(boxColor);
-  rect(summaryLeftX, secondY, smallW, smallH, 20);
+  // fill(255);
+  // text("② 흐름의 카드", summaryLeftX + 20, secondY + 20);
 
-  fill(255);
-  text("② 흐름의 카드", summaryLeftX + 20, secondY + 20);
+  // if (flowCard) {
+  //   text(
+  //     flowCard.summary,
+  //     summaryLeftX + 20,
+  //     secondY + 55,
+  //     smallW - 40,
+  //     smallH - 75
+  //   );
+  // } else {
+  //   text("등록된 흐름 카드가 없습니다.", summaryLeftX + 20, secondY + 55);
+  // }
 
-  if (flowCard) {
-    text(
-      flowCard.summary,
-      summaryLeftX + 20,
-      secondY + 55,
-      smallW - 40,
-      smallH - 75
-    );
-  } else {
-    text("등록된 흐름 카드가 없습니다.", summaryLeftX + 20, secondY + 55);
-  }
+  // // 조언 카드
+  // const rightBoxX = summaryLeftX + smallW + 20;
 
-  // 조언 카드
-  const rightBoxX = summaryLeftX + smallW + 20;
+  // fill(boxColor);
+  // rect(rightBoxX, secondY, smallW, smallH, 20);
 
-  fill(boxColor);
-  rect(rightBoxX, secondY, smallW, smallH, 20);
+  // fill(255);
+  // text("③ 조언의 카드", rightBoxX + 20, secondY + 20);
 
-  fill(255);
-  text("③ 조언의 카드", rightBoxX + 20, secondY + 20);
+  // if (policyCard) {
+  //   text(
+  //     policyCard.policy,
+  //     rightBoxX + 20,
+  //     secondY + 55,
+  //     smallW - 40,
+  //     smallH - 75
+  //   );
+  // } else {
+  //   text("등록된 조언 카드가 없습니다.", rightBoxX + 20, secondY + 55);
+  // }
+  // pop();
 
-  if (policyCard) {
-    text(
-      policyCard.policy,
-      rightBoxX + 20,
-      secondY + 55,
-      smallW - 40,
-      smallH - 75
-    );
-  } else {
-    text("등록된 조언 카드가 없습니다.", rightBoxX + 20, secondY + 55);
-  }
-  pop();
+  // // =============================
+  // // 🔶 3) QR 버튼
+  // // =============================
+  // const qrW = qr.width * 0.55;
+  // const qrH = qr.height * 0.55;
 
-  // =============================
-  // 🔶 3) QR 버튼
-  // =============================
-  const qrW = qr.width * 0.55;
-  const qrH = qr.height * 0.55;
+  // const qrX = rightBoxX + smallW + 30;
+  // const qrY = secondY + smallH / 2 - qrH / 2;
 
-  const qrX = rightBoxX + smallW + 30;
-  const qrY = secondY + smallH / 2 - qrH / 2;
+  // drawImageButtonScaled(
+  //   qr,
+  //   qrHover,
+  //   qrX,
+  //   qrY,
+  //   qrW,
+  //   qrH,
+  //   () => {
+  // const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
 
-  drawImageButtonScaled(
-    qr,
-    qrHover,
-    qrX,
-    qrY,
-    qrW,
-    qrH,
-    () => {
-  const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
+  // const url =
+  //   QRPage +
+  //   "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
+  //   "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
+  //   "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
+  //   "&advice=" + encodeURIComponent(tarotAdvice);
 
-  const url =
-    QRPage +
-    "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
-    "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
-    "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
-    "&advice=" + encodeURIComponent(tarotAdvice);
+  // return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
 
-  return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-
-    }
-  );
+  //   }
+  // );
 
   // =============================
   // 🔶 4) 이전 / 다음 버튼
@@ -2086,63 +2216,63 @@ function drawSummaryScreen() {
 
 }
 
-// ===========텍스트 쓰기 함수==========
-function drawStyledText(textStr, x, y, maxWidth, lineHeight, regularFont, boldFont, baseSize, boldScale) {
+// ===========텍스트 쓰기 함수 ===========
+function drawStyledText(
+    textStr, x, y, maxWidth, lineHeight,
+    regularFont, boldFont,
+    baseSize, boldScale
+) {
     if (!regularFont || !boldFont) return;
-    
-    
-    // 볼드 텍스트의 최종 크기 계산
-    const boldSize = baseSize * boldScale; 
 
-    // 텍스트를 줄 단위로 나눕니다.
+    const boldSize = baseSize * boldScale;
+
+    textAlign(LEFT, BASELINE);
+
     const lines = textStr.trim().split('\n');
-    const textBlockHeight = lines.length * lineHeight; 
-    let currentY = y - textBlockHeight / 2 + lineHeight / 2; // 중앙 Y에서 블록 높이의 절반을 빼고 첫 줄의 baseline을 더함
-    
-    // 각 줄을 순회하며 출력
+    const textBlockHeight = lines.length * lineHeight;
+    let currentY = y - textBlockHeight / 2 + lineHeight / 2;
+
     for (const line of lines) {
         const parts = line.split('**');
-        let currentX = 0; 
         let totalLineWidth = 0;
 
-        // 1단계: 현재 줄의 전체 길이(픽셀)를 계산합니다.
-        for (let i = 0; i < parts.length; i++) {
-            const part = parts[i];
-            const isBold = i % 2 !== 0;
+        // 기준 폰트 descent 계산
+        textFont(regularFont);
+        textSize(baseSize);
+        const regularDescent = textDescent();
 
-            // 폰트와 크기를 설정해야 정확한 textWidth를 얻을 수 있습니다.
+        // 1단계: 줄 전체 너비 계산
+        for (let i = 0; i < parts.length; i++) {
+            const isBold = i % 2 !== 0;
             textFont(isBold ? boldFont : regularFont);
             textSize(isBold ? boldSize : baseSize);
-            
-            totalLineWidth += textWidth(part);
+            totalLineWidth += textWidth(parts[i]);
         }
 
-        // 2단계: 중앙 정렬을 위한 시작 X 위치 계산
-        currentX = x - totalLineWidth / 2;
+        let currentX = x - totalLineWidth / 2;
 
-        // 3단계: 실제 텍스트 출력 (★ 사이즈 변경 반영)
+        // 2단계: 실제 출력
         for (let i = 0; i < parts.length; i++) {
             const part = parts[i];
             const isBold = i % 2 !== 0;
 
-            // 폰트와 크기 설정
             textFont(isBold ? boldFont : regularFont);
             textSize(isBold ? boldSize : baseSize);
-            
-            // 텍스트 그리기
-            text(part, currentX, currentY);
 
-            // X 위치 업데이트
+            // 현재 폰트 descent
+            const currentDescent = textDescent();
+
+            // 하단 정렬을 위한 y 보정
+            const yOffset = regularDescent - currentDescent;
+
+            text(part, currentX, currentY + yOffset);
             currentX += textWidth(part);
         }
-
-        // 다음 줄로 이동
         currentY += lineHeight;
     }
-    // 텍스트 출력 후 기본 폰트와 크기로 되돌립니다.
+    // 원상 복구
     textFont(regularFont);
     textSize(baseSize);
-    textStyle(NORMAL);
 }
 
 // ========== 예비 버튼 (이미지 버튼이 출력 안될시)==========
@@ -2553,6 +2683,15 @@ function drawFramedHorse(horseImg, x, y, w, h) {
 
   // B. 말 이미지 그리기 (프레임 내부에 작게)
   image(horseImg, innerX, innerY, innerW, innerH);
+}
+
+// ========= 말 이미지 뒤집기 ===========
+function imageFlipX(img, x, y, w = img.width, h = img.height) {
+  push();
+  translate(x + w, y);
+  scale(-1, 1);
+  image(img, 0, 0, w, h);
+  pop();
 }
 
 // ========== Gemini 호출 로직 ==========
