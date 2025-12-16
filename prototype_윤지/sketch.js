@@ -545,8 +545,6 @@ function draw() {
     drawQuestionScreen();
   } else if (state === "topics") {
     drawTopicsScreen();
-  } else if (state === "pre_keywords"){
-    drawPre_keywordsScreen();
   } else if (state === "keywords") {
     drawKeywordsScreen();
   } else if (state === "loading") {
@@ -914,7 +912,7 @@ function drawQuestionScreen() {
   textLeading(35);
   if (selectedCategory) {
     text(`
-      음… ${selectedCategory}이(가) 궁금하시군요.
+      음… ${selectedCategory}이/가 궁금하시군요.
       오른쪽 화살표를 눌러 따라오시죠.`,
       width/2 + 80,
       boxY + boxH / 2 - 20);
@@ -1020,80 +1018,18 @@ function drawTopicsScreen() {
   // 🔶 3) 이전/다음 버튼
   // ================================
   const baseY = boxY + boxH / 2 - before.width / 2;
-  drawPrevNextButtons("question", selectedTopic ? "pre_keywords" : null, baseY);
-}
-
-// ========== Pre_keywords Screen ==========
-function drawPre_keywordsScreen(){
-  drawResultBackground();
-
-  fill(0, 0, 0, 160);
-  rect(0, 0, width, height);
-
-  // ================================
-  // 🔶 말 + 설명 박스
-  // ================================
-  const boxW = 1100;
-  const boxH = 230;
-  const boxX = width / 2 - boxW / 2;
-
-  const boxY = 680;
-
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
-
-  const horseW = 140;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + + 40;  
-  const horseY = boxY + boxH / 2 - horseH /2;
-
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
-
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(24);
-  textLeading(35);
-
-  text(`
-    이 수정구슬을 문지르면 그 속에 단어 하나가 비칠 거예요. 
-    수정구슬을 문지르려면 오른쪽 버튼을 누르세요.`,
-    width/2 + 80,
-    boxY + boxH / 2 - 20);
-
-  //================================
-  // 수정 구슬 이미지
-  //================================
-
-  if (crystalball_transparent) {
-    const crystalballSize = 550;
-
-  // 1. 비율 유지 계산
-    const aspectRatio = crystalball_transparent.width / crystalball_transparent.height;
-    let drawH = crystalballSize;
-    let drawW = crystalballSize * aspectRatio;
-
-    const crystalballX = width / 2 - drawW / 2;
-    const crystalballY =  boxY - drawH;
-    
-    imageMode(CORNER);
-    image(crystalball_transparent, crystalballX, crystalballY, drawW, drawH);
-  }
-
-  // ================================
-  // 🔶 이전/다음 버튼
-  // ================================
-  const baseY = boxY + boxH / 2 - before.width / 2;
-  drawPrevNextButtons("topics", selectedTopic ? "keywords" : null, baseY);
+  drawPrevNextButtons("question", selectedTopic ? "keywords" : null, baseY);
 }
 
 // ========== KEYWORDS SCREEN ==========
 function drawKeywordsScreen() {
   drawResultBackground();
 
+  // 배경 어둡게
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
+  // 변수 안전장치
   if (typeof rubProgress === 'undefined' || isNaN(rubProgress)) rubProgress = 0;
   if (typeof isKeywordSelected === 'undefined') isKeywordSelected = false;
 
@@ -1128,8 +1064,8 @@ function drawKeywordsScreen() {
 
   if (!isKeywordSelected) {
     text(`
-      [ 스페이스 바 ]를 꾹 눌러 타로 마스터를 불러주세요.
-      구슬 속에서 당신의 운명을 결정할 단어가 나타납니다.
+      마우스를 클릭한 채로 [수정구슬]을 문질러주세요.
+      당신의 기운이 모여 운명의 단어가 나타납니다.
       (게이지가 가득 차면 자동으로 선택됩니다)`,
       width / 2 + 80,
       boxY + boxH / 2 - 20
@@ -1138,74 +1074,98 @@ function drawKeywordsScreen() {
     text(`
       수정구슬의 안개가 걷히고 운명의 단어가 드러났습니다.
       키워드 "${selectedKeyWord}"(으)로
-      당신만의 타로 카드를 생성하시겠습니까?`,
+      당신만의 타로 카드를 생성하시겠습니까?
+      (키워드가 마음에 들지 않다면 이전 버튼을 눌러주세요.)`,
       width / 2 + 80,
       boxY + boxH / 2 - 20
     );
   }
 
   // ================================
-  // 수정 구슬
+  // 수정 구슬 (위치 계산 및 그리기)
+  // ================================
   const crystalballSize = 550;
   let drawW = crystalballSize; 
   let drawH = crystalballSize;
+  
+  if (crystalball_transparent && crystalball_transparent.width > 0) {
+     const aspectRatio = crystalball_transparent.width / crystalball_transparent.height;
+     drawW = crystalballSize * aspectRatio;
+  }
   let crystalballX = width / 2 - drawW / 2;
   let crystalballY = boxY - drawH;
 
+  let isRubbing = false;
+  let movement = 0; 
+
+  if (!isKeywordSelected && mouseIsPressed && 
+      isInside(mouseX, mouseY, crystalballX, crystalballY, drawW, drawH)) {
+      
+      movement = dist(mouseX, mouseY, pmouseX, pmouseY);
+      
+      if (movement > 0.5) {
+          isRubbing = true;
+      }
+  }
+
   if (crystalball_transparent && crystalball_transparent.width > 0) {
-    const aspectRatio = crystalball_transparent.width / crystalball_transparent.height;
-    drawW = crystalballSize * aspectRatio;
-    crystalballX = width / 2 - drawW / 2;
-    
     imageMode(CORNER);
     
     let shakeX = 0;
-    if (!isKeywordSelected && keyIsDown(32)) shakeX = random(-3, 3); 
+    if (isRubbing) {
+        shakeX = random(-3, 3); 
+    }
     image(crystalball_transparent, crystalballX + shakeX, crystalballY, drawW, drawH);
   } else {
     fill(255, 255, 255, 50);
     ellipse(width/2, crystalballY + drawH/2, drawW, drawH);
   }
 
-  // 게이지
 
   if (!isKeywordSelected) {
-    if (keyIsDown(32)) { 
-      rubProgress += 0.6; // 게이지 속도
+    
+    if (isRubbing) { 
+      rubProgress += 0.5; 
 
       if (magicChargeSound && magicChargeSound.isLoaded()) {
-          // 이미 재생 중이 아닐 때만 재생 (소리 중첩 방지)
           if (!magicChargeSound.isPlaying()) {
-              magicChargeSound.loop(); // 누르고 있는 동안 계속 나게 loo
+              magicChargeSound.loop();
           }
+          let dynamicVol = map(rubProgress, 0, 100, 0.1, 1.0);
+          magicChargeSound.setVolume(dynamicVol); 
       }
       
-      // 키워드 떠다니는 애니메이션
       if (typeof DUMMY_KEYWORDS_LIST !== 'undefined') {
           textAlign(CENTER, CENTER);
           textStyle(BOLD);
-          
           const centerX = width / 2;
-          const centerY = height / 2 - 100;
+          const centerY = height / 2 - 100; 
 
           for (let i = 0; i < DUMMY_KEYWORDS_LIST.length; i++) {
               let radius = 250 + (i * 35); 
-            
               let angleOffset = (TWO_PI / DUMMY_KEYWORDS_LIST.length) * i;
-              let time = frameCount * 0.003 * (1 + (i % 2) * 0.5); 
+              
+              let speed = 0.005; 
+              let time = frameCount * speed * (1 + (i % 2) * 0.5); 
               let currentAngle = angleOffset + time;
+
               let wx = centerX + cos(currentAngle) * radius;
               let wy = centerY + sin(currentAngle) * radius;
 
               textSize(24 + (i % 3) * 5); 
-              fill(255, 255, 200, 180 + sin(frameCount * 0.1 + i) * 50); 
+              
+              // 게이지가 찰수록 글씨가 점점 밝게 빛남 (시각적 피드백 유지)
+              let alpha = map(rubProgress, 0, 100, 100, 255);
+              fill(255, 255, 200, alpha); 
               text(DUMMY_KEYWORDS_LIST[i], wx, wy);
           }
           textStyle(NORMAL);
       }
 
     } else {
+      // 문지르지 않으면 게이지 감소
       rubProgress -= 1.0; 
+      
       if (magicChargeSound && magicChargeSound.isPlaying()) {
           magicChargeSound.stop();
       }
@@ -1229,46 +1189,44 @@ function drawKeywordsScreen() {
 
     // 100% 달성 시
     if (rubProgress >= 100) {
+      if (magicChargeSound && magicChargeSound.isPlaying()) magicChargeSound.stop();
+      if (magicRevealSound && magicRevealSound.isLoaded()) {
+          magicRevealSound.setVolume(1.0);
+          magicRevealSound.play();
+      }
+
       rubProgress = 100;
 
-      if (magicChargeSound && magicChargeSound.isPlaying()) 
-        magicChargeSound.stop();
-      if (magicRevealSound && magicRevealSound.isLoaded()) 
-        magicRevealSound.setVolume(1.0);
-        magicRevealSound.play();
-
-      const r = floor(random(DUMMY_KEYWORDS_LIST.length));
-      selectedKeyWord = DUMMY_KEYWORDS_LIST[r];
+      // 셔플 뽑기
+      let mixedList = shuffle(DUMMY_KEYWORDS_LIST, false);
+      selectedKeyWord = mixedList[0];
+      if (!selectedKeyWord) selectedKeyWord = "운명"; 
+      
       actualImageKeyWord = KEYWORD_IMAGE_MAP[selectedKeyWord];
       isKeywordSelected = true; 
     }
 
   } else {
-    // 결과 단어
+    // [CASE 2] 뽑은 후 (결과 화면)
     push();
-    stroke(0)
-    strokeWeight(3)
-    fill(200, 120, 255);
+    fill(200, 120, 255); 
     textSize(80);
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
     
     if (typeof drawingContext !== 'undefined') {
         drawingContext.shadowBlur = 30;
-        drawingContext.shadowColor = 'rgba(105, 0, 110, 0.9)';
+        drawingContext.shadowColor = 'rgba(180, 50, 255, 0.9)'; 
     }
     text(selectedKeyWord, width/2, crystalballY + drawH/2 - 60);
     
-    if (typeof drawingContext !== 'undefined') 
-      drawingContext.shadowBlur = 0;
+    if (typeof drawingContext !== 'undefined') drawingContext.shadowBlur = 0;
     pop();
     textStyle(NORMAL);
 
     // 카드 생성 버튼
     let btnW, btnH, btnX, btnY;
-    
     if (createcard && createcard.width > 1) {
-       // 이미지 버튼 사용
        btnW = createcard.width;
        btnH = createcard.height;
        btnX = width / 2 - btnW / 2;
@@ -1279,11 +1237,20 @@ function drawKeywordsScreen() {
            tarotAdvice = "";
            callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
        });
-
+    } else {
+       btnW = 200; btnH = 60;
+       btnX = width / 2 - 100; btnY = height - 200;
+       drawButton(btnX, btnY, btnW, btnH, "카드 생성하기");
+       
+       if (mouseIsPressed && isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
+           state = "loading";
+           tarotAdvice = "";
+           callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
+       }
     }
-}
+  }
 
-  // 이전 버튼
+  // 4. 이전 버튼
   if (before && before.width > 0) {
     const baseY = boxY + boxH / 2 - before.width / 2;
     drawImageButton(before, beforeHover, 200, baseY, () => {
@@ -2310,6 +2277,10 @@ function resetAll() {
   rubProgress = 0;
 
   isCardFlipped = false;
+
+  if (bgMusic && bgMusic.isPlaying()) {
+      bgMusic.stop();
+  }
 }
 
 
