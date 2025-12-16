@@ -69,7 +69,7 @@ const ACTUAL_IMAGE_KEYWORDS = ["기회", "행운", "불안", "변화"];
 const DUMMY_KEYWORDS_LIST = [
   "도전", "성장", "시작", "발전", 
   "긍정", "활력", "안정", "평화", 
-  "정체", "걱정", "갈등", "혼란", 
+  "고민", "걱정", "근심", "위로", 
   "선택", "균형", "전환", "결단"
 ];
 
@@ -77,7 +77,7 @@ const DUMMY_KEYWORDS_LIST = [
 const KEYWORD_IMAGE_MAP = {
   "도전": "기회", "성장": "기회", "시작": "기회", "발전": "기회", 
   "긍정": "행운", "활력": "행운", "안정": "행운", "평화": "행운",
-  "정체": "불안", "걱정": "불안", "갈등": "불안", "혼란": "불안",
+  "고민": "불안", "걱정": "불안", "근심": "불안", "위로": "불안",
   "선택": "변화", "균형": "변화", "전환": "변화", "결단": "변화",
 };
 
@@ -1207,7 +1207,6 @@ function drawKeywordsScreen() {
     }
 
   } else {
-    // [CASE 2] 뽑은 후 (결과 화면)
     push();
     fill(200, 120, 255); 
     textSize(80);
@@ -1250,7 +1249,7 @@ function drawKeywordsScreen() {
     }
   }
 
-  // 4. 이전 버튼
+  // 이전 버튼
   if (before && before.width > 0) {
     const baseY = boxY + boxH / 2 - before.width / 2;
     drawImageButton(before, beforeHover, 200, baseY, () => {
