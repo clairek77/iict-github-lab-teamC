@@ -2,13 +2,13 @@
 const FLOW_TEXTS = {
   intro_1: {
     text: `
-환영합니다. 저는 이 가게의 타로마스터입니다.
-가만히 보니 한창 고민이 많은 청년 시기를 보내고 있군요.
+환영합니다. 저는 이 가게의 **타로마스터**입니다.
+가만히 보니 한창 고민이 많은 **청년 시기**를 보내고 있군요.
 `
   },
   intro_2: {
     text: `
-2026년 다가오는 붉은 말의 해, 
+**2026년** 다가오는 **붉은 말의 해**, 
 내년의 당신은 어떤 모습일지 궁금하다면...
 이곳에서 잠깐 머물다 가시죠.
 `
@@ -16,33 +16,33 @@ const FLOW_TEXTS = {
   intro_3: {
     text: `
 여기는 그저 흔한 타로 가게는 아니에요.
-이곳에서 만나게 될 타로 카드는 조금 특별하거든요.
+이곳에서 만나게 될 타로 카드는 조금 **특별**하거든요.
 `
   },
   tutorial_0: {
     text: `
-    당신은 앞으로 3장의 카드를 뽑게 됩니다.
+    당신은 앞으로 **3장의 카드**를 뽑게 됩니다.
     `
   },
   tutorial_1: {
     text: `
-첫 번째는, 당신의 고민을 들어본 뒤에
+**첫 번째**는, 당신의 고민을 들어본 뒤에
 내년의 기운을 강하게 나타내는 하나의 단어를 찾아
-'세상에 오직 하나뿐인' 타로 카드를 만들어 드릴거예요.
+**'세상에 오직 하나뿐인'** 타로 카드를 만들어 드릴거예요.
 `
   },
   tutorial_2: {
     text: `
-두 번째 카드로 당신의 고민과 맞닿아 있는 '세상의 흐름'을 읽어볼 거예요.
+**두 번째 카드**로 당신의 고민과 맞닿아 있는 **'세상의 흐름'**을 읽어볼 거예요.
 이러한 흐름을 미리 알고 있으면 미래를 대비하는 데에도 도움이 되죠...
 
-(HINT: 여기 사람들은 "기사"라는 텍스트를 통해 세상의 흐름을 읽는다죠?)
+(HINT: 여기 사람들은 **"기사"**라는 텍스트를 통해 세상의 흐름을 읽는다죠?)
 `
   },
   tutorial_3: {
     text: `
-마지막 카드로는 당신의 고민과 세상의 흐름을 엮어
-실질적인 조언을 얻을 수 있는 곳이 어디인지 알려드릴게요.
+**마지막 카드**로는 당신의 고민과 세상의 흐름을 엮어
+**실질적인 조언**을 얻을 수 있는 곳이 어디인지 알려드릴게요.
 `
   },
   tutorial_fin: {
@@ -97,6 +97,9 @@ let clickSound = null;
 let magicChargeSound = null;
 let magicRevealSound = null;
 
+//font
+let fontRegular, fontBold;
+
 //수정구슬
 let rubProgress = 0;
 let isKeywordSelected = false;
@@ -108,7 +111,7 @@ let isCardFlipped = false;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "###";
+const API_KEY = "AIzaSyChymXT_qNB1ixVyFAC5eZYiOq9G6w5JIg";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -117,9 +120,15 @@ const SYSTEM_PROMPT = `
 사용자가 고른 고민 카테고리(건강, 금전, 연애, 진로), 구체적인 주제, 그리고 키워드를 바탕으로,
 미래를 단정하지 않고, 사용자가 스스로 선택할 여지를 남기는 조언을 해 줘.
 
-- 카테고리와 주제, 키워드를 종합하여 타로카드 형식으로 조언에 맞는 아르카나 이름을 지을 것 "OO하는 XX"으로 
-- XX= '기회'는 탐험가, '행운'은 수호자, '불안'은 위로자, '변화'는 항해자
-- 출력양식: 'OO하는 XX'을 가장 처음 줄에 출력. 한 줄 띄고 '2026년 당신을 나타내는 카드는 OO하는 XX입니다.'로 조언을 시작할 것.
+- 카테고리와 주제, 키워드를 종합하여 타로카드 형식으로 조언에 맞는 아르카나 이름을 지을 것. 
+- 아르카나 이름의 형식은 "OO하는 XX"으로 지을 것.
+- XX는 다음과 같이 연결됨.
+- 키워드가 "도전", "성장", "시작", "발전"일 때 XX는 "탐험가"
+- 키워드가 "긍정", "활력", "안정", "평화"일 때 XX는 "수호자"
+- 키워드가 "정체", "걱정", "갈등", "혼란"일 때 XX는 "위로자"
+- 키워드가 "선택", "균형", "전환", "결단"일 때 XX는 "항해자"
+
+- 출력양식: 'OO하는 XX'을 가장 처음 줄에 출력. 그 다음줄에 '2026년 당신을 나타내는 카드는 OO하는 XX입니다.'로 조언을 시작할 것.
 - 한국어로 250자 정도 분량. 절대 넘어서는 안됨.
 - 볼드체나 ** 와 같은 강조 표시 없이 출력
 - 겁주거나 공포를 조장하지 말 것
@@ -483,6 +492,11 @@ function preload() {
   magicChargeSound = loadSound("magic_charge.mp3"); 
   magicRevealSound = loadSound("magic_reveal.mp3");
 
+  // font
+  
+  fontRegular = loadFont('Sunflower-Medium.ttf');
+  fontBold = loadFont('Sunflower-Bold.ttf');
+
   // JSON 카드 데이터
   cardsData = loadJSON("cards.json");
 
@@ -672,12 +686,38 @@ function drawIntroScreen(txtObj, prevState, nextState, showHorse) {
   fill(30, 25, 60, 230);
   rect(boxX, boxY, boxW, boxH, 30);
 
+  // noFill();
+  // stroke(255, 0, 0); // 빨간색 테두리
+  // rect(boxX + 30, boxY + 30, boxW - 60, boxH - 60);
+  // stroke(255);
+
   // 텍스트
-  fill(255);
-  textAlign(CENTER, CENTER); // 텍스트를 박스 중앙에 배치
+  fill(255);
   textSize(24);
-  textLeading(35);
-  text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
+  textAlign(LEFT,TOP);
+
+  const baseFontSize = 30;
+  const lineHeight = 45;
+  const boldScaleFactor = 1.3;
+
+  if (fontRegular && fontBold) {
+      drawStyledText(
+          txtObj.text, 
+          boxX + boxW / 2, // 중앙 정렬 기준 X
+          boxY + boxH / 2, // 중앙 정렬 기준 Y
+          boxW - 60,       // 최대 너비
+          lineHeight,      // 줄 간격
+          fontRegular,     // 일반 폰트
+          fontBold,         // 볼드 폰트
+          baseFontSize,        // 기본 폰트 크기
+          boldScaleFactor   // 볼드 확대 비율
+      );
+
+  } else {
+      // 폰트가 로드되지 않았으면 일반 텍스트로 대체
+      textAlign(CENTER, CENTER);
+      text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
+  }
 
   // 이전/다음 버튼
   const baseY = boxY + boxH / 2 - before.width / 2
@@ -914,7 +954,7 @@ function drawQuestionScreen() {
   textLeading(35);
   if (selectedCategory) {
     text(`
-      음… ${selectedCategory}이(가) 궁금하시군요.
+      음… ${selectedCategory}이/가 궁금하시군요.
       오른쪽 화살표를 눌러 따라오시죠.`,
       width/2 + 80,
       boxY + boxH / 2 - 20);
@@ -1990,7 +2030,64 @@ function drawSummaryScreen() {
 
 }
 
+// ===========텍스트 쓰기 함수==========
+function drawStyledText(textStr, x, y, maxWidth, lineHeight, regularFont, boldFont, baseSize, boldScale) {
+    if (!regularFont || !boldFont) return;
+    
+    
+    // 볼드 텍스트의 최종 크기 계산
+    const boldSize = baseSize * boldScale; 
 
+    // 텍스트를 줄 단위로 나눕니다.
+    const lines = textStr.trim().split('\n');
+    const textBlockHeight = lines.length * lineHeight; 
+    let currentY = y - textBlockHeight / 2 + lineHeight / 2; // 중앙 Y에서 블록 높이의 절반을 빼고 첫 줄의 baseline을 더함
+    
+    // 각 줄을 순회하며 출력
+    for (const line of lines) {
+        const parts = line.split('**');
+        let currentX = 0; 
+        let totalLineWidth = 0;
+
+        // 1단계: 현재 줄의 전체 길이(픽셀)를 계산합니다.
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            const isBold = i % 2 !== 0;
+
+            // 폰트와 크기를 설정해야 정확한 textWidth를 얻을 수 있습니다.
+            textFont(isBold ? boldFont : regularFont);
+            textSize(isBold ? boldSize : baseSize);
+            
+            totalLineWidth += textWidth(part);
+        }
+
+        // 2단계: 중앙 정렬을 위한 시작 X 위치 계산
+        currentX = x - totalLineWidth / 2;
+
+        // 3단계: 실제 텍스트 출력 (★ 사이즈 변경 반영)
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            const isBold = i % 2 !== 0;
+
+            // 폰트와 크기 설정
+            textFont(isBold ? boldFont : regularFont);
+            textSize(isBold ? boldSize : baseSize);
+            
+            // 텍스트 그리기
+            text(part, currentX, currentY);
+
+            // X 위치 업데이트
+            currentX += textWidth(part);
+        }
+
+        // 다음 줄로 이동
+        currentY += lineHeight;
+    }
+    // 텍스트 출력 후 기본 폰트와 크기로 되돌립니다.
+    textFont(regularFont);
+    textSize(baseSize);
+    textStyle(NORMAL);
+}
 
 // ========== 예비 버튼 (이미지 버튼이 출력 안될시)==========
 function drawButton(x, y, w, h, label) {
