@@ -378,6 +378,7 @@ function preload() {
   tarotBg1 = loadImage("tarotback1.png");
   tarotBg2 = loadImage("tarotback2.png");
 
+
   // 입장 버튼, 타이틀
   enterNormal = loadImage("enter_normal.png");
   enterHover  = loadImage("enter_hover.png");
@@ -445,8 +446,8 @@ function preload() {
   chanceHover = loadImage("button_3_chance_hover.png");
   change = loadImage("button_3_change.png");
   changeHover = loadImage("button_3_change_hover.png");
-  createcard = loadImage("button_createcard.png");     
-  createcardHover = loadImage("button_createcard_hover.png");
+  createcard = loadImage("rebutton_createcard.png");     
+  createcardHover = loadImage("rebutton_createcard_hover.png");
 
   // 기사 링크로 이동
   link = loadImage("button_link.png");
@@ -487,12 +488,12 @@ function preload() {
   adviceHover = loadImage("button_advice_hover.png");
 
   // 새로운 카드 뽑기 버튼
-  generateCard1 = loadImage("button_generate_card1.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard1Hover = loadImage("button_generate_card1_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard2 = loadImage("button_generate_card2.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard2Hover = loadImage("button_generate_card2_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard3 = loadImage("button_generate_card3.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard3Hover = loadImage("button_generate_card3_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard1 = loadImage("rebutton_generate_card1.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard1Hover = loadImage("rebutton_generate_card1_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard2 = loadImage("rebutton_generate_card2.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard2Hover = loadImage("rebutton_generate_card2_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard3 = loadImage("rebutton_generate_card3.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard3Hover = loadImage("rebutton_generate_card3_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
 
   // 결과 한번에 보기
   result = loadImage("button_result.png");
@@ -916,7 +917,7 @@ function drawTutorialFinScreen() {
     const btnW = generateCard1.width;
     const btnH = generateCard1.height;
     const btnX = width / 2 - btnW / 2;
-    const btnY = boxY + boxH - 20; 
+    const btnY = boxY + boxH; 
 
     drawImageButton(generateCard1, generateCard1Hover, btnX, btnY, () => {
       state = "question"; // 다음 단계는 question으로
@@ -1380,7 +1381,7 @@ function drawKeywordsScreen() {
        btnW = createcard.width;
        btnH = createcard.height;
        btnX = width / 2 - btnW / 2;
-       btnY = height - 200; 
+       btnY = height - 170; 
 
        drawImageButton(createcard, createcardHover, btnX, btnY, () => {
            state = "loading"; 
@@ -1729,7 +1730,7 @@ function drawPre_flowCardScreen() {
     const btnW = generateCard2.width;
     const btnH = generateCard2.height;
     const btnX = width / 2 - btnW / 2;
-    const btnY = boxY + boxH - 20; 
+    const btnY = boxY + boxH ; 
 
     drawImageButton(generateCard2, generateCard2Hover, btnX, btnY, () => {
      state = "flowCard"; // 다음 단계는 flowCard로
@@ -1934,7 +1935,7 @@ function drawPre_adviceCardScreen(){
     const btnW = generateCard3.width;
     const btnH = generateCard3.height;
     const btnX = width / 2 - btnW / 2;
-    const btnY = boxY + boxH - 20; 
+    const btnY = boxY + boxH ; 
 
     drawImageButton(generateCard3, generateCard3Hover, btnX, btnY, () => {
      state = "adviceCard"; // 다음 단계는 adviceCard로
@@ -2141,7 +2142,7 @@ function drawPre_summaryScreen(){
     const btnW = result.width;
     const btnH = result.height;
     const btnX = width / 2 - btnW / 2;
-    const btnY = boxY + boxH - 20; 
+    const btnY = boxY + boxH; 
 
 drawImageButton(result, resultHover, btnX, btnY, () => {
   state = "summary";               // 👉 바로 화면 전환
