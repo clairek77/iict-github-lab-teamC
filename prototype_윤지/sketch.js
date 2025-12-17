@@ -112,7 +112,9 @@ let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
 const API_KEY = "###";
-let receiving = false;
+let receiving = false; 
+let geminiStatus = "idle";
+// idle | loading | success | error
 
 // 시스템 프롬프트 (타로가게 버전)
 const SYSTEM_PROMPT = `
@@ -255,6 +257,16 @@ let printHover = null;
 let qr = null;
 let qrHover = null;
 let qrButton = null;
+let qrKey = null;
+const SUPABASE_URL = "https://wmfghjrimlraztofxpsq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZmdoanJpbWxyYXp0b2Z4cHNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NDkyNDMsImV4cCI6MjA4MTUyNTI0M30.x0d9onTCCBJlc1CsjZkaw75Mfq6P-uS-Pan1Gv4IzQc";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+
 
 //이전, 다음 버튼
 let before =null;
@@ -511,7 +523,6 @@ function preload() {
 function setup() {
   createCanvas(1920, 1080);
   textFont("Pretendard, sans-serif");
-
   // 카테고리별 이미지 버튼 세트
   TOPICS_IMAGE_MAP = {
     "건강": {
@@ -535,7 +546,7 @@ function setup() {
 
 function draw() {
   // 🔹 매 프레임마다 버튼 리스트 초기화
-  clickableButtons = [];
+  clickableButtons.length = 0;
 
   if (state === "start") {
     drawStartScreen();
@@ -2132,11 +2143,23 @@ function drawPre_summaryScreen(){
     const btnX = width / 2 - btnW / 2;
     const btnY = boxY + boxH - 20; 
 
-    drawImageButton(result, resultHover, btnX, btnY, () => {
-     state = "summary"; // 다음 단계는 summary로
-    });
-  }
+drawImageButton(result, resultHover, btnX, btnY, () => {
+  state = "summary";               // 👉 바로 화면 전환
+
+  // 👉 Supabase 저장은 기다리지 않고 실행
+  saveResultToSupabase()
+    .then((id) => {
+      qrKey = id;                  // 성공하면 QR용 key만 저장
+    })
+    .catch((e) => {
+      console.error("Supabase 저장 실패", e);
+      // 실패해도 아무것도 안 함 (UX 유지)
+    });
+  });
 }
+}
+
+
 
 // ========== SUMMARY SCREEN (COMPLETE FINAL VERSION) ==========
 function drawSummaryScreen() {
@@ -2161,14 +2184,29 @@ function drawSummaryScreen() {
     let hW = (horse_re2.width > 0) ? horse_re2.width : 1;
     let hH = (horse_re2.height > 0) ? horse_re2.height : 1;
     const aspectRatio = hW / hH;
-    const horseH = horseW / aspectRatio; 
-    const horseX = boxX - horseW - 60;  
+    const horseH = horseW / aspectRatio;
+    const horseX = boxX - horseW - 60;
     const horseY = boxY + boxH / 2 - horseH / 2;
     imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
   }
 
+  // =============================
+  // 🔶 2) summary 텍스트 분기
+  // =============================
+  let summaryText;
 
-  // 텍스트
+  if (geminiStatus === "error") {
+    summaryText =
+      "타로 마스터가 잠시 휴식 중입니다.\n" +
+      "잠시 후 다시 시도해 주세요.";
+  } else {
+    summaryText =
+      "부디 고민 많은 청년 여러분께\n" +
+      "수상한 타로 가게의 카드들이 도움이 되었기를 바랍니다.\n" +
+      "**당신의 2026년을 붉은 말이 계속해서 응원할게요!**";
+  }
+
+  // 텍스트 스타일
   fill(255);
   textAlign(CENTER, CENTER);
   const baseFontSize = 28;
@@ -2176,18 +2214,37 @@ function drawSummaryScreen() {
   const boldScaleFactor = 1.2;
 
   drawStyledText(
-      `부디 고민 많은 청년 여러분께
-    수상한 타로 가게의 카드들이 도움이 되었기를 바랍니다. 
-    **당신의 2026년을 붉은 말이 계속해서 응원할게요!**`, 
-        boxX + boxW / 2, // 중앙 정렬 기준 X
-        boxY + boxH / 2, // 중앙 정렬 기준 Y
-        boxW - 60,       // 최대 너비
-        lineHeight,      // 줄 간격
-        fontRegular,     // 일반 폰트
-        fontBold,         // 볼드 폰트
-        baseFontSize,        // 기본 폰트 크기
-        boldScaleFactor   // 볼드 확대 비율
-     );
+    summaryText,
+    boxX + boxW / 2,   // 중앙 정렬 기준 X
+    boxY + boxH / 2,   // 중앙 정렬 기준 Y
+    boxW - 60,         // 최대 너비
+    lineHeight,        // 줄 간격
+    fontRegular,       // 일반 폰트
+    fontBold,          // 볼드 폰트
+    baseFontSize,      // 기본 폰트 크기
+    boldScaleFactor    // 볼드 확대 비율
+  );
+
+  // =============================
+  // 🔶 3) QR 영역 (기존 그대로)
+  // =============================
+  if (geminiStatus !== "error") {
+    const qrSize = 220;
+    const qrX = width / 2 - qrSize / 2;
+    const qrY = 380;
+
+    drawQRCode(qrX, qrY, qrSize);
+
+    fill(200);
+    textAlign(CENTER, CENTER);
+    textSize(16);
+    text(
+      "QR을 스캔해 결과를 저장하세요",
+      width / 2,
+      qrY + qrSize + 20
+    );
+  }
+
 
   // const boxColor = color(30, 25, 60, 230);
 
@@ -2899,16 +2956,95 @@ function imageFlipX(img, x, y, w = img.width, h = img.height) {
   pop();
 }
 
+// ========== QR코드==========
+function makeQRData() {
+  return {
+    bg: BACKGROUND_MAP[selectedCategory],
+    char: CHARACTER_MAP[actualImageKeyWord],
+    item: ITEM_MAP[selectedTopic],
+
+    tarotAdvice: tarotAdvice,
+    flowText: flowCard?.summary || "",
+    policyText: policyCard?.policy || ""
+  };
+}
+
+function generateQRString() {
+  const baseURL = "https://iamsaeun.github.io/tarot/qr_result.html";
+  if (!qrKey) return null; // 아직 저장 안 됐으면 QR 못 그림
+  return `${baseURL}?key=${encodeURIComponent(qrKey)}`;
+}
+function drawQRCode(x, y, size) {
+  const url = generateQRString();
+  if (!url) return;
+
+  const QRCodeGen = window.qrcode;
+  if (!QRCodeGen) {
+    console.error("QRCode library not loaded");
+    return;
+  }
+
+  const qr = QRCodeGen(0, 'M');
+  qr.addData(url);
+  qr.make();
+
+  const cellCount = qr.getModuleCount();
+  const cellSize = size / cellCount;
+
+  push();
+  translate(x, y);
+  noStroke();
+
+  for (let r = 0; r < cellCount; r++) {
+    for (let c = 0; c < cellCount; c++) {
+      fill(qr.isDark(r, c) ? 0 : 255);
+      rect(c * cellSize, r * cellSize, cellSize, cellSize);
+    }
+  }
+  pop();
+}
+
+
+async function saveResultToSupabase() {
+  const { data, error } = await supabaseClient
+    .from("tarot_results")
+    .insert([{
+  bg: BACKGROUND_MAP[selectedCategory],
+  char: CHARACTER_MAP[actualImageKeyWord],
+  item: ITEM_MAP[selectedTopic],
+  tarot_advice: tarotAdvice,
+  flow_text: flowCard?.summary || "",
+  policy_text: policyCard?.policy || ""
+}])
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data.id;
+}
+
+
+
+
+
+
+
 // ========== Gemini 호출 로직 ==========
 function callGeminiTarot(category, topic, keyWord) {
   if (!API_KEY || API_KEY === "%%%%") {
     console.error("API_KEY를 설정해주세요!");
     tarotAdvice = "API 키가 설정되지 않았습니다. 스케치를 수정해 주세요.";
+    geminiStatus = "error";
     state = "summary";
     return;
   }
 
   receiving = true;
+  geminiStatus = "loading";
 
   const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
@@ -2953,7 +3089,8 @@ function callGeminiTarot(category, topic, keyWord) {
         "조언 텍스트를 불러오지 못했습니다.";
       tarotAdvice = text;
       loadCardsByTopic(selectedTopic);
-
+      
+      geminiStatus = "success";
       selectedCardIndex = -1; // 선택 상태 초기화
       state = "card_selection";
     })
@@ -2962,6 +3099,7 @@ function callGeminiTarot(category, topic, keyWord) {
       receiving = false;
       tarotAdvice =
         "타로 마스터가 잠시 휴식 중입니다.\n잠시 후 다시 시도해 주세요.";
+      geminiStatus = "error";
       state = "summary";
     });
 }
