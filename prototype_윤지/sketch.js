@@ -111,7 +111,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "AIzaSyCoVZNLk7YWm-ABvEZoHImkkHRMiK87UMk";
+const API_KEY = "###";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -1596,7 +1596,7 @@ function drawGeminiScreen() {
     
     // 텍스트 영역의 시작점과 크기
     const textX = boxX + textMargin;
-    const textY = boxY + textMargin;
+    const textY = boxY + boxH/2;
     const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
     const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
@@ -1635,7 +1635,7 @@ function drawGeminiScreen() {
         // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
         const horseY = boxY + boxH - textMargin - horseH; 
         
-        image(horse_re2, horseX, horseY, horseW, horseH);
+        imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
     }
     
     // =======================================================
@@ -1780,7 +1780,7 @@ function drawFlowCardScreen() {
     
     // 텍스트 영역의 시작점과 크기
     const textX = boxX + textMargin;
-    const textY = boxY + textMargin;
+    const textY = boxY + boxH/2;
     const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
     const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
@@ -1819,14 +1819,14 @@ function drawFlowCardScreen() {
       // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
       const horseY = boxY + boxH - textMargin - horseH; 
       
-      image(horse_re2, horseX, horseY, horseW, horseH);
+      imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
   }
 
   // ===== 기사 링크 버튼 =====
-  const linkW = link.width * 0.9;
-  const linkH = link.height * 0.9;
-  const linkBtnX = width / 2 - linkW / 2;
-  const linkBtnY = cardY + cardH + 40;
+  const linkW = link.width * 0.8;
+  const linkH = link.height * 0.8;
+  const linkBtnX = cardX + cardW + 15; 
+  const linkBtnY = cardY + cardH - linkH;
 
   drawImageButtonScaled(
     link,
@@ -1839,6 +1839,22 @@ function drawFlowCardScreen() {
       if (flowCard?.link) window.open(flowCard.link, "_blank");
     }
   );
+
+  // 안내 문구
+  const tooltipText = `
+  < 아래를 눌러 
+  기사 전문을 확인하세요! >
+  `;
+
+  textSize(18);
+  const tooltipW = textWidth(tooltipText) + 20;
+  const tooltipH = 35;
+  const tooltipX = linkBtnX + (linkW / 2) - (tooltipW / 2);
+  const tooltipY = linkBtnY - tooltipH - 10; // 버튼 위 10px 간격
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text(tooltipText, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2);
 
   // 🔹 이전/다음 버튼 추가  
   drawPrevNextButtons("pre_flowCard", "pre_adviceCard",  795 - before.width / 2);
@@ -1968,7 +1984,7 @@ function drawAdviceCardScreen() {
     
     // 텍스트 영역의 시작점과 크기
     const textX = boxX + textMargin;
-    const textY = boxY + textMargin;
+    const textY = boxY + boxH/2;;
     const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
     const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
@@ -2007,14 +2023,15 @@ function drawAdviceCardScreen() {
       // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
       const horseY = boxY + boxH - textMargin - horseH; 
       
-      image(horse_re2, horseX, horseY, horseW, horseH);
+      imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
   }
 
-  // ===== 링크 버튼 =====
-  const advicelinkW = advicelink.width * 0.9;
-  const advicelinkH = advicelink.height * 0.9;
-  const advicelinkBtnX = width / 2 - advicelinkW / 2;
-  const advicelinkBtnY = cardY + cardH + 40;
+
+  // ===== 정책 링크 버튼 =====
+  const advicelinkW = advicelink.width * 0.8;
+  const advicelinkH = advicelink.height * 0.8;
+  const advicelinkBtnX = cardX + cardW + 15; 
+  const advicelinkBtnY = cardY + cardH - advicelinkH;
 
   drawImageButtonScaled(
     advicelink,
@@ -2027,6 +2044,22 @@ function drawAdviceCardScreen() {
       if (policyCard?.link) window.open(policyCard.link, "_blank");
     }
   );
+
+  // 안내 문구
+  const tooltipText = `
+  < 아래를 눌러 
+  자세히 알아보세요! >
+  `;
+
+  textSize(18);
+  const tooltipW = textWidth(tooltipText) + 20;
+  const tooltipH = 35;
+  const tooltipX = advicelinkBtnX + (advicelinkW / 2) - (tooltipW / 2);
+  const tooltipY = advicelinkBtnY - tooltipH - 10; // 버튼 위 10px 간격
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text(tooltipText, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2);
 
   // 🔹 이전/다음 버튼 추가
   const btnY = boxY + boxH + 90;
@@ -2342,28 +2375,64 @@ function drawLeftStyledText(
     if (!regularFont || !boldFont) return;
 
     const boldSize = baseSize * boldScale;
-
     textAlign(LEFT, BASELINE);
     fill(255);
 
-    let cursorX = x;
-    let cursorY = y + baseSize;
-
-    // 기준 descent
+    // 기준 descent 계산
     textFont(regularFont);
     textSize(baseSize);
     const regularDescent = textDescent();
 
-    // 1️⃣ 개행 기준 분리
-    const lines = textStr.split(/\r?\n/);
+    // 개행 기준 분리
+    const paragraphs = textStr.split(/\r?\n/);
 
-    for (const line of lines) {
+    // --------------------------------------------------------
+    // [1단계] 전체 높이 미리 계산하기
+    // --------------------------------------------------------
+    let totalHeight = 0;
+    let tempCursorX = 0;
+    let lineCount = 0;
+
+    for (let i = 0; i < paragraphs.length; i++) {
+        const tokens = paragraphs[i].split(/(\*\*.*?\*\*|\s+)/);
+        tempCursorX = 0;
+        lineCount++; // 새로운 문단 시작 시 줄 수 증가
+
+        for (const token of tokens) {
+            if (!token) continue;
+
+            const isBold = token.startsWith('**') && token.endsWith('**');
+            const content = isBold ? token.slice(2, -2) : token;
+            
+            textFont(isBold ? boldFont : regularFont);
+            textSize(isBold ? boldSize : baseSize);
+            const w = textWidth(content);
+
+            if (tempCursorX + w > maxWidth) {
+                tempCursorX = w;
+                lineCount++;
+            } else {
+                tempCursorX += w;
+            }
+        }
+    }
+    totalHeight = lineCount * lineHeight;
+
+    // --------------------------------------------------------
+    // [2단계] 중앙 정렬된 시작 위치 계산 및 실제 출력
+    // --------------------------------------------------------
+    // y는 텍스트박스의 중앙 좌표라고 가정합니다.
+    // 박스 중앙(y)에서 전체 높이의 절반을 빼서 시작점 결정
+    let cursorX = x;
+    let cursorY = y - (totalHeight / 2) + baseSize; 
+
+    for (const line of paragraphs) {
         const tokens = line.split(/(\*\*.*?\*\*|\s+)/);
 
         for (const token of tokens) {
             if (!token) continue;
 
-            // 공백 토큰
+            // 공백 토큰 처리
             if (/^\s+$/.test(token)) {
                 textFont(regularFont);
                 textSize(baseSize);
@@ -2378,7 +2447,7 @@ function drawLeftStyledText(
                 continue;
             }
 
-            // 볼드 여부
+            // 볼드 여부 및 텍스트 설정
             const isBold = token.startsWith('**') && token.endsWith('**');
             const content = isBold ? token.slice(2, -2) : token;
 
@@ -2389,6 +2458,7 @@ function drawLeftStyledText(
             const currentDescent = textDescent();
             const yOffset = regularDescent - currentDescent;
 
+            // 자동 줄바꿈
             if (cursorX + w > x + maxWidth) {
                 cursorX = x;
                 cursorY += lineHeight;
@@ -2398,12 +2468,12 @@ function drawLeftStyledText(
             cursorX += w;
         }
 
-        // 명시적 줄바꿈
+        // 문단 종료 후 명시적 줄바꿈
         cursorX = x;
         cursorY += lineHeight;
     }
 
-    // 복구
+    // 설정 복구
     textFont(regularFont);
     textSize(baseSize);
 }
