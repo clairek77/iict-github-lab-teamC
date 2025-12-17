@@ -111,7 +111,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 =====
-const API_KEY = "####";
+const API_KEY = "AIzaSyCoVZNLk7YWm-ABvEZoHImkkHRMiK87UMk";
 let receiving = false;
 
 // 시스템 프롬프트 (타로가게 버전)
@@ -128,8 +128,9 @@ const SYSTEM_PROMPT = `
 - 키워드가 "정체", "걱정", "갈등", "혼란"일 때 XX는 "위로자"
 - 키워드가 "선택", "균형", "전환", "결단"일 때 XX는 "항해자"
 
-- 출력양식: '**OO하는 XX**'을 가장 처음 줄에 출력. 그 다음줄에 '2026년 당신을 나타내는 카드는 **OO하는 XX**입니다.'로 조언을 시작할 것.
-- 한국어로 250자 정도 분량. 절대 넘어서는 안됨.
+- 출력양식: 'OO하는 XX'을 가장 처음 줄에 출력. 그 다음줄에 '2026년 당신을 나타내는 카드는 OO하는 XX입니다.'로 이후 줄넘김 없이 조언을 시작할 것.
+- **으로 중요 부분에 마크업할 것. 'OO하는 XX'에는 무조건 **로 볼드 마크업을 할 것.
+- !주의! 공백 포함 250자를 절대 넘겨선 안 됨.
 - 겁주거나 공포를 조장하지 말 것
 - 너무 뻔한 일반론이 아니라, 사용자가 선택한 주제와 키워드를 적어도 한 번은 자연스럽게 등장시킬 것
 - 말투는 친절하고 약간 수상한 점집 느낌으로
@@ -1192,7 +1193,7 @@ function drawKeywordsScreen() {
   if (!isKeywordSelected) {
     drawStyledText(
             `마우스를 클릭한 채 [수정구슬]을 문질러보시죠.
-당신의 기운이 모여 운명의 단어가 나타날겁니다!
+당신의 기운이 모여 **운명의 단어**가 나타날겁니다!
 (게이지가 가득 차면 자동으로 선택됩니다)`,
             boxX + boxW / 2, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
@@ -1206,7 +1207,7 @@ function drawKeywordsScreen() {
   } else {
     drawStyledText(
             `당신에게서 **${selectedKeyWord}**의 기운이 강하게 느껴지네요..
-이제 이 기운으로 세상에 단 하나뿐인 타로 카드를 만들어드겠습니다.
+이제 이 기운으로 **세상에 단 하나뿐인** 타로 카드를 만들어드겠습니다.
       (단어가 마음에 들지 않는다면 이전 버튼을 눌러 돌아가세요.)`,
             boxX + boxW / 2, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
@@ -1540,111 +1541,119 @@ function drawCardSelectionScreen() {
 
 // ========== GEMINI SCREEN ==========
 function drawGeminiScreen() {
-  drawResultBackground();
-  fill(0, 0, 0, 180);
-  rect(0, 0, width, height);
-  
-  drawStageTitle(title1);
+    drawResultBackground();
+    fill(0, 0, 0, 180);
+    rect(0, 0, width, height);
+    
+    drawStageTitle(title1);
 
-  const contentStartY = 400;
+    // =======================================================
+    // 1. 카드 (중앙 상단 위치 유지)
+    // =======================================================
+    const cardW = 260;
+    const cardH = 380;
+    
+    const cardX = width / 2 - cardW / 2;
+    const cardY = 200;
 
-  // ===== 왼쪽 카드 (이미 뒤집힌 상태) =====
-  const cardW = 260;
-  const cardH = 380;
-  const cardX = width / 2 - 580;
-  const cardY = contentStartY;
+    // 그림자
+    noStroke();
+    fill(0, 0, 0, 80);
+    rect(cardX + 10, cardY + 10, cardW, cardH);
 
-  // 그림자
-  noStroke();
-  fill(0, 0, 0, 80);
-  rect(cardX + 10, cardY + 10, cardW, cardH);
+    imageMode(CORNER);
 
-  imageMode(CORNER);
+    // 완성된 타로 카드 그리기 (3단 합체)
+    if (cardImages[selectedCategory]) image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
+    if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
+    if (cardImages[selectedTopic]) image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
 
-  // 완성된 타로 카드 그리기 (3단 합체)
-  if (cardImages[selectedCategory]) image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
-  if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
-  if (cardImages[selectedTopic]) image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
+    // 테두리 강조
+    noFill();
+    stroke(255, 215, 0);
+    strokeWeight(3);
+    rect(cardX, cardY, cardW, cardH);
+    noStroke();
 
-  // 테두리 강조
-  noFill();
-  stroke(255, 215, 0);
-  strokeWeight(3);
-  rect(cardX, cardY, cardW, cardH);
-  noStroke();
+    // =======================================================
+    // 2. 텍스트 박스 (카드 아래 중앙으로 이동)
+    // =======================================================
+    const boxW = 1000;
+    const boxH = 400; 
+    
+    // ★ 변경: 텍스트 박스를 살짝 왼쪽에 배치
+    const boxOffset = 50; 
+    const boxX = width / 2 - boxW / 2 + boxOffset;
+    const boxY = cardY + cardH + 30; 
 
-  // 상단 안내 문구
-  fill(255);
-  textAlign(CENTER, BOTTOM);
-  textSize(20);
-  noStroke();
-  text("당신만을 위한 2026년의 카드", cardX + cardW / 2, cardY - 20);
+    fill(30, 25, 60, 230);
+    rect(boxX, boxY, boxW, boxH, 20);
+
+    // -------------------------------------------------------
+    // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
+    // -------------------------------------------------------
+    const textMargin = 50; // 중앙 배치를 위한 내부 여백
+    
+    // 텍스트 영역의 시작점과 크기
+    const textX = boxX + textMargin;
+    const textY = boxY + textMargin;
+    const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
+    const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
+
+    fill(255);
+    
+    const baseFontSize = 24;      // 기본 폰트 크기
+    const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
+    const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
+    
+    // ★ 함수 호출해 텍스트 쓰기
+    drawLeftStyledText(
+        tarotAdvice, 
+        textX, 
+        textY, 
+        textW, 
+        lineHeight, 
+        fontRegular, 
+        fontBold, 
+        baseFontSize, 
+        boldScaleFactor
+    );
 
 
-  // ===== 오른쪽 텍스트 박스 =====
-  const boxW = 900;
-  const boxH = 380;
-  const boxX = cardX + cardW + 30;
-  const boxY = contentStartY;
-  
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 20);
-
-  // 말 이미지
-  const horseW = 120;
-  if (horse_re2) {
-      const aspectRatio = horse_re2.width / horse_re2.height;
-      const horseH = horseW / aspectRatio; 
-      const horseX = boxX + boxW - horseW - 30;  
-      const horseY = boxY + boxH - horseH - 30;
-      drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH);
-  }
-
-  // 텍스트 내용
-  const textX = boxX + 30;
-  const textY = boxY + 30;
-  const textW = boxW - horseW - 90;
-  const textH = boxH - 60;
-
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(20);
-  
-  // Gemini 조언 출력
-  text(tarotAdvice, textX, textY, textW, textH);
-
-  // ===== QR 버튼 =====
-  const qrW = qr.width * 0.9;
-  const qrH = qr.height * 0.9;
-  const qrBtnX = width / 2 - qrW / 2;
-  const qrBtnY = cardY + cardH + 40;
-
-  drawImageButtonScaled(
-    qr, qrHover, qrBtnX, qrBtnY, qrW, qrH,
-    () => {
-      const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
-      const url = QRPage +
-      "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
-      "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
-      "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
-      "&advice=" + encodeURIComponent(tarotAdvice);
-
-      return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+    // =======================================================
+    // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
+    // =======================================================
+    const horseW = 140;
+    if (horse_re2) {
+        const aspectRatio = horse_re2.width / horse_re2.height;
+        const horseH = horseW / aspectRatio; 
+        
+        // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
+        const horseMargin = 40; // 텍스트 박스와의 간격
+        const horseX = boxX - horseW - horseMargin;
+        
+        // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
+        const horseY = boxY + boxH - textMargin - horseH; 
+        
+        image(horse_re2, horseX, horseY, horseW, horseH);
     }
-  );
+    
+    // =======================================================
+    // 5. QR 버튼 삭제 완료 (QR 관련 코드 모두 제거됨)
+    // =======================================================
+    
+    // =======================================================
+    // 6. 다음 버튼 (위치 유지)
+    // =======================================================
+    const margin = 200;
+    const nextW = after.width;
+    const nextX = width - margin - nextW;
+    const btnY = 795 - before.width / 2; 
 
-  // 다음 버튼 (이전 버튼 제거됨)
-  // drawPrevNextButtons 함수 대신 다음 버튼만 직접 그리기
-  const margin = 200;
-  const nextW = after.width;
-  const nextX = width - margin - nextW;
-  const btnY = 795 - before.width / 2; // 기존 drawPrevNextButtons의 y좌표 계산식 사용
-
-  drawImageButton(after, afterHover, nextX, btnY, () => {
-      state = "pre_flowCard";
-  });
+    drawImageButton(after, afterHover, nextX, btnY, () => {
+        state = "pre_flowCard";
+    });
 }
-
 
 // ========== pre_flowCard Screen ==========
 function drawPre_flowCardScreen() {
@@ -1720,71 +1729,97 @@ function drawPre_flowCardScreen() {
 
 // ========== FLOW CARD SCREEN ==========
 function drawFlowCardScreen() {
+
   drawResultBackground();
-  
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
+    
   drawStageTitle(title2);
-  const contentStartY = 400;
 
-  // ===== 왼쪽 카드 =====
+// ====== 1. 중앙 상단 카드 ========
   const cardW = 260;
   const cardH = 380;
-  const cardX = width / 2 - 580;
-  const cardY = contentStartY;
+    
+  const cardX = width / 2 - cardW / 2;
+  const cardY = 200;
+
+  // 그림자
+  noStroke();
+  fill(0, 0, 0, 80);
+  rect(cardX + 10, cardY + 10, cardW, cardH);
+
+  imageMode(CORNER);
 
   image(flow_card, cardX, cardY, cardW, cardH);
 
-  // === 카드 상단 텍스트 ===
-  const cardTitleY = cardY - 30; // 카드 상단에서 40px 위
+  // 테두리 강조
+  noFill();
+  stroke(255, 215, 0);
+  strokeWeight(3);
+  rect(cardX, cardY, cardW, cardH);
+  noStroke();
+
+  // 2. 텍스트 박스 (카드 아래 중앙으로 이동)
+  // =======================================================
+    const boxW = 1000;
+    const boxH = 400; 
     
-  fill(255);
-  textAlign(CENTER, BOTTOM); // 중앙 정렬, 하단 맞춤
-  textSize(20);
-  text(`버튼을 클릭하여
-    원문 기사를 확인해 보세요!`, cardX + cardW / 2, cardTitleY);
+    // ★ 변경: 텍스트 박스를 살짝 왼쪽에 배치
+    const boxOffset = 50; 
+    const boxX = width / 2 - boxW / 2 + boxOffset;
+    const boxY = cardY + cardH + 30; 
 
+    fill(30, 25, 60, 230);
+    rect(boxX, boxY, boxW, boxH, 20);
 
-  // ===== 오른쪽 텍스트 박스 =====
-  const boxW = 900;
-  const boxH = 380;
-  const boxX = cardX + cardW + 30;
-  const boxY = contentStartY;
-  
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 20);
+      
+    // -------------------------------------------------------
+    // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
+    // -------------------------------------------------------
+    const textMargin = 50; // 중앙 배치를 위한 내부 여백
+    
+    // 텍스트 영역의 시작점과 크기
+    const textX = boxX + textMargin;
+    const textY = boxY + textMargin;
+    const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
+    const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
-  // 🔹 말 이미지: 텍스트 박스 안 오른쪽
-  const horseW = 120;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + boxW - horseW - 30;  
-  const horseY = boxY + boxH - horseH - 30;
-
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
-
-  // 텍스트
-  const textX = boxX + 30
-  const textY = boxY + 30
-  const textW = boxW - horseW - 90
-  const textH = boxH - 60
-
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(18);
-
-  if (flowCard) {
-    textSize(24);
-    textStyle(BOLD);
-    textAlign(LEFT, TOP);
-    text(`흐름의 카드`, textX, textY);
     fill(255);
-    textAlign(LEFT, TOP);
-    textSize(20);
-    textStyle(NORMAL);
-    text(flowCard.summary, textX, textY + 50, textW, textH - 50);
-  } else {
-    text("이 카테고리에 등록된 흐름 카드가 없습니다.", textX, textY);
+    
+    const baseFontSize = 24;      // 기본 폰트 크기
+    const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
+    const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
+    
+    // ★ 함수 호출해 텍스트 쓰기
+    drawLeftStyledText(
+        flowCard.summary, 
+        textX, 
+        textY, 
+        textW, 
+        lineHeight, 
+        fontRegular, 
+        fontBold, 
+        baseFontSize, 
+        boldScaleFactor
+    );
+
+
+  // =======================================================
+  // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
+  // =======================================================
+  const horseW = 140;
+  if (horse_re2) {
+      const aspectRatio = horse_re2.width / horse_re2.height;
+      const horseH = horseW / aspectRatio; 
+      
+      // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
+      const horseMargin = 40; // 텍스트 박스와의 간격
+      const horseX = boxX - horseW - horseMargin;
+       
+      // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
+      const horseY = boxY + boxH - textMargin - horseH; 
+      
+      image(horse_re2, horseX, horseY, horseW, horseH);
   }
 
   // ===== 기사 링크 버튼 =====
@@ -1884,72 +1919,95 @@ function drawPre_adviceCardScreen(){
 // ========== ADVICE CARD SCREEN ==========
 function drawAdviceCardScreen() {
   drawResultBackground();
-  
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
+    
   drawStageTitle(title3);
-  const contentStartY = 400;
 
-  // ===== 왼쪽 카드 =====
+// ====== 1. 중앙 상단 카드 ========
   const cardW = 260;
   const cardH = 380;
-  const cardX = width / 2 - 580;
-  const cardY = contentStartY;
+    
+  const cardX = width / 2 - cardW / 2;
+  const cardY = 200;
+
+  // 그림자
+  noStroke();
+  fill(0, 0, 0, 80);
+  rect(cardX + 10, cardY + 10, cardW, cardH);
+
+  imageMode(CORNER);
 
   image(advice_card, cardX, cardY, cardW, cardH);
 
-  // === 카드 상단 텍스트 ===
-  const cardTitleY = cardY - 30; // 카드 상단에서 40px 위
+  // 테두리 강조
+  noFill();
+  stroke(255, 215, 0);
+  strokeWeight(3);
+  rect(cardX, cardY, cardW, cardH);
+  noStroke();
+
+  // 2. 텍스트 박스 (카드 아래 중앙으로 이동)
+  // =======================================================
+    const boxW = 1000;
+    const boxH = 400; 
     
-  fill(255);
-  textAlign(CENTER, BOTTOM); // 중앙 정렬, 하단 맞춤
-  textSize(20);
-  text(`버튼을 클릭하여
-    청년 지원 정보를 확인해 보세요!`, cardX + cardW / 2, cardTitleY);
+    // ★ 변경: 텍스트 박스를 살짝 왼쪽에 배치
+    const boxOffset = 50; 
+    const boxX = width / 2 - boxW / 2 + boxOffset;
+    const boxY = cardY + cardH + 30; 
 
+    fill(30, 25, 60, 230);
+    rect(boxX, boxY, boxW, boxH, 20);
 
+      
+    // -------------------------------------------------------
+    // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
+    // -------------------------------------------------------
+    const textMargin = 50; // 중앙 배치를 위한 내부 여백
+    
+    // 텍스트 영역의 시작점과 크기
+    const textX = boxX + textMargin;
+    const textY = boxY + textMargin;
+    const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
+    const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
-  // ===== 오른쪽 텍스트 박스 =====
-  const boxW = 900;
-  const boxH = 380;
-  const boxX = cardX + cardW + 30;
-  const boxY = contentStartY;
-  
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 20);
-
-  // 🔹 말 이미지: 텍스트 박스 안 오른쪽
-  const horseW = 120;
-  const aspectRatio = horse_re2.width / horse_re2.height;
-  const horseH = horseW / aspectRatio; // 너비를 기준으로 높이 계산
-  const horseX = boxX + boxW - horseW - 30;  
-  const horseY = boxY + boxH - horseH - 30;
-
-  drawFramedHorse(horse_re2, horseX, horseY, horseW, horseH)
-
-  // 텍스트
-  const textX = boxX + 30
-  const textY = boxY + 30
-  const textW = boxW - horseW - 90
-  const textH = boxH - 60
-
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(18);
-
-
-  if (policyCard) {
-    textSize(24);
-    textStyle(BOLD);
-    textAlign(LEFT, TOP);
-    text(`조언의 카드`, textX, textY);
     fill(255);
-    textAlign(LEFT, TOP);
-    textSize(20);
-    textStyle(NORMAL);
-    text(policyCard.policy, textX, textY + 50, textW, textH - 50);
-  } else {
-    text("이 카테고리에 등록된 조언 카드가 없습니다.", textX, textY);
+    
+    const baseFontSize = 24;      // 기본 폰트 크기
+    const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
+    const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
+    
+    // ★ 함수 호출해 텍스트 쓰기
+    drawLeftStyledText(
+        policyCard.policy, 
+        textX, 
+        textY, 
+        textW, 
+        lineHeight, 
+        fontRegular, 
+        fontBold, 
+        baseFontSize, 
+        boldScaleFactor
+    );
+
+
+  // =======================================================
+  // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
+  // =======================================================
+  const horseW = 140;
+  if (horse_re2) {
+      const aspectRatio = horse_re2.width / horse_re2.height;
+      const horseH = horseW / aspectRatio; 
+      
+      // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
+      const horseMargin = 40; // 텍스트 박스와의 간격
+      const horseX = boxX - horseW - horseMargin;
+       
+      // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
+      const horseY = boxY + boxH - textMargin - horseH; 
+      
+      image(horse_re2, horseX, horseY, horseW, horseH);
   }
 
   // ===== 링크 버튼 =====
@@ -2216,7 +2274,7 @@ function drawSummaryScreen() {
 
 }
 
-// ===========텍스트 쓰기 함수 ===========
+// ========== 작은 말풍선 텍스트 쓰기 함수 ===========
 function drawStyledText(
     textStr, x, y, maxWidth, lineHeight,
     regularFont, boldFont,
@@ -2274,6 +2332,83 @@ function drawStyledText(
     textFont(regularFont);
     textSize(baseSize);
 }
+
+// =========== 큰 말풍선 텍스트 쓰기 함수 =============
+function drawLeftStyledText(
+    textStr, x, y, maxWidth, lineHeight,
+    regularFont, boldFont,
+    baseSize, boldScale
+) {
+    if (!regularFont || !boldFont) return;
+
+    const boldSize = baseSize * boldScale;
+
+    textAlign(LEFT, BASELINE);
+    fill(255);
+
+    let cursorX = x;
+    let cursorY = y + baseSize;
+
+    // 기준 descent
+    textFont(regularFont);
+    textSize(baseSize);
+    const regularDescent = textDescent();
+
+    // 1️⃣ 개행 기준 분리
+    const lines = textStr.split(/\r?\n/);
+
+    for (const line of lines) {
+        const tokens = line.split(/(\*\*.*?\*\*|\s+)/);
+
+        for (const token of tokens) {
+            if (!token) continue;
+
+            // 공백 토큰
+            if (/^\s+$/.test(token)) {
+                textFont(regularFont);
+                textSize(baseSize);
+                const w = textWidth(token);
+
+                if (cursorX + w > x + maxWidth) {
+                    cursorX = x;
+                    cursorY += lineHeight;
+                } else {
+                    cursorX += w;
+                }
+                continue;
+            }
+
+            // 볼드 여부
+            const isBold = token.startsWith('**') && token.endsWith('**');
+            const content = isBold ? token.slice(2, -2) : token;
+
+            textFont(isBold ? boldFont : regularFont);
+            textSize(isBold ? boldSize : baseSize);
+
+            const w = textWidth(content);
+            const currentDescent = textDescent();
+            const yOffset = regularDescent - currentDescent;
+
+            if (cursorX + w > x + maxWidth) {
+                cursorX = x;
+                cursorY += lineHeight;
+            }
+
+            text(content, cursorX, cursorY + yOffset);
+            cursorX += w;
+        }
+
+        // 명시적 줄바꿈
+        cursorX = x;
+        cursorY += lineHeight;
+    }
+
+    // 복구
+    textFont(regularFont);
+    textSize(baseSize);
+}
+
+
 
 // ========== 예비 버튼 (이미지 버튼이 출력 안될시)==========
 function drawButton(x, y, w, h, label) {
@@ -2601,7 +2736,7 @@ function drawStageTitle(img) {
   const w = img.width *0.8
   const h = img.height *0.8
   const x = width/2;                // 화면 좌측 여백
-  const y = 200;                // 화면 상단 여백
+  const y = 130;                // 화면 상단 여백
 
   image(img, x, y, w, h);
   pop();
