@@ -110,8 +110,8 @@ let selectedCardIndex = -1;
 // 타로 결과 관련
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
-// ===== API 관련 =====
-const API_KEY = "###";
+// ===== API 관련 ====
+const API_KEY = "AIzaSyAeW2xr-h9QwbkNE6OSRGhjg2R4ZRps4P4";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -377,6 +377,12 @@ function preload() {
   // 배경 이미지 2종
   tarotBg1 = loadImage("tarotback1.png");
   tarotBg2 = loadImage("tarotback2.png");
+
+  //말풍선
+  textbox1 = loadImage("textbox_1.png");
+  textbox2 = loadImage("textbox_2.png");
+  textbox3 = loadImage("textbox_3.png");
+
 
 
   // 입장 버튼, 타이틀
@@ -695,11 +701,10 @@ function drawIntroScreen(txtObj, prevState, nextState, showHorse) {
   }
 
   // 설명 박스
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox1, boxX, boxY);
 
   // 텍스트
-  fill(255);
+  fill(0);
 
   const baseFontSize = 28;
   const lineHeight = 45;
@@ -812,11 +817,10 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
     const boxX = width / 2 - boxW / 2;
     const boxY = boxY_new; // 680
 
-    fill(30, 25, 60, 230);
-    rect(boxX, boxY, boxW, boxH, 30);
+    image(textbox1, boxX, boxY, boxW, boxH);
 
     // 텍스트
-    fill(255);
+    fill(0);
 
     const baseFontSize = 28;
     const lineHeight = 45;
@@ -872,11 +876,11 @@ function drawTutorialFinScreen() {
   }
 
  // 설명 박스 (intro 단계와 동일한 위치)
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox1, boxX, boxY, boxW, boxH);
 
 // 텍스트
-  fill(255);
+  fill(0);
+  textAlign(CENTER, CENTER);
 
   const baseFontSize = 28;
   const lineHeight = 45;
@@ -976,8 +980,7 @@ function drawQuestionScreen() {
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox2, boxX-35, boxY);
 
   // 말 이미지
   const horseW = 140;
@@ -993,7 +996,7 @@ function drawQuestionScreen() {
 
 
     // 텍스트
-  fill(255);
+  fill(0);
   textAlign(CENTER, CENTER)
 
   const baseFontSize = 28;
@@ -1014,7 +1017,7 @@ function drawQuestionScreen() {
       
       drawStyledText(
             currentText, 
-            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
             lineHeight,      // 줄 간격
@@ -1026,7 +1029,7 @@ function drawQuestionScreen() {
     } else {
             drawStyledText(
             `먼저, 다가오는 2026년에 가장 궁금한 고민거리를 골라주세요.`, 
-            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
             lineHeight,      // 줄 간격
@@ -1102,8 +1105,7 @@ function drawTopicsScreen() {
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox2, boxX-35, boxY);
 
   // 말 이미지
   const horseW = 140;
@@ -1117,7 +1119,7 @@ function drawTopicsScreen() {
     imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
   }
 
-  fill(255);
+  fill(0);
   textAlign(CENTER, CENTER)
 
   const baseFontSize = 28;
@@ -1128,7 +1130,7 @@ function drawTopicsScreen() {
     drawStyledText(
             `좋아요! 당신의 고민이 무엇인지 이제 잘 알겠습니다.
 계속 따라오시면 당신에게서 느껴지는 기운을 알려드리죠.`, 
-            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxX + boxW / 2 +25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
             lineHeight,      // 줄 간격
@@ -1141,7 +1143,7 @@ function drawTopicsScreen() {
         drawStyledText(
            `당신의 고민에 대해 조금 더 자세히 말씀해주세요.
 당신은 구체적으로 무엇이 궁금하나요?`,
-            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
             lineHeight,      // 줄 간격
@@ -1179,8 +1181,7 @@ function drawKeywordsScreen() {
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox2, boxX-35, boxY);
 
   // 말 이미지
   const horseW = 140;
@@ -1195,7 +1196,7 @@ function drawKeywordsScreen() {
   }
 
   // 텍스트 출력
-  fill(255);
+  fill(0);
   textAlign(CENTER, CENTER)
 
   const baseFontSize = 28;
@@ -1207,7 +1208,7 @@ function drawKeywordsScreen() {
             `마우스를 클릭한 채 [수정구슬]을 문질러보시죠.
 당신의 기운이 모여 **운명의 단어**가 나타날겁니다!
 (게이지가 가득 차면 자동으로 선택됩니다)`,
-            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
             lineHeight,      // 줄 간격
@@ -1219,9 +1220,9 @@ function drawKeywordsScreen() {
   } else {
     drawStyledText(
             `당신에게서 **${selectedKeyWord}**의 기운이 강하게 느껴지네요..
-이제 이 기운으로 **세상에 단 하나뿐인** 타로 카드를 만들어드겠습니다.
+이 기운으로 **세상에 단 하나뿐인** 타로 카드를 만들어드겠습니다.
       (단어가 마음에 들지 않는다면 이전 버튼을 눌러 돌아가세요.)`,
-            boxX + boxW / 2, // 중앙 정렬 기준 X
+            boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
             lineHeight,      // 줄 간격
@@ -1362,8 +1363,7 @@ function drawKeywordsScreen() {
     fill(200, 120, 255); 
     textSize(80);
     textAlign(CENTER, CENTER);
-    textFont("Pretendard, sans-serif");
-    textStyle(BOLD);
+    textFont(fontBold);
     
     if (typeof drawingContext !== 'undefined') {
         drawingContext.shadowBlur = 30;
@@ -1598,8 +1598,7 @@ function drawGeminiScreen() {
     const boxX = width / 2 - boxW / 2 + boxOffset;
     const boxY = cardY + cardH + 30; 
 
-    fill(30, 25, 60, 230);
-    rect(boxX, boxY, boxW, boxH, 20);
+    image(textbox3, boxX-35, boxY);
 
     // -------------------------------------------------------
     // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
@@ -1612,8 +1611,7 @@ function drawGeminiScreen() {
     const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
     const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
-    fill(255);
-    
+    fill(0);
     const baseFontSize = 24;      // 기본 폰트 크기
     const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
     const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
@@ -1621,7 +1619,7 @@ function drawGeminiScreen() {
     // ★ 함수 호출해 텍스트 쓰기
     drawLeftStyledText(
         tarotAdvice, 
-        textX, 
+        textX+35, 
         textY, 
         textW, 
         lineHeight, 
@@ -1641,7 +1639,7 @@ function drawGeminiScreen() {
         const horseH = horseW / aspectRatio; 
         
         // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
-        const horseMargin = 40; // 텍스트 박스와의 간격
+        const horseMargin = 60; // 텍스트 박스와의 간격
         const horseX = boxX - horseW - horseMargin;
         
         // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
@@ -1692,11 +1690,10 @@ function drawPre_flowCardScreen() {
   }
 
   // 설명 박스 (intro 단계와 동일한 위치)
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox1, boxX, boxY);
 
   // 텍스트
-  fill(255);
+  fill(0);
   textAlign(CENTER, CENTER);
   const baseFontSize = 28;
   const lineHeight = 45;
@@ -1781,8 +1778,7 @@ function drawFlowCardScreen() {
     const boxX = width / 2 - boxW / 2 + boxOffset;
     const boxY = cardY + cardH + 30; 
 
-    fill(30, 25, 60, 230);
-    rect(boxX, boxY, boxW, boxH, 20);
+    image(textbox3, boxX-35, boxY);
 
       
     // -------------------------------------------------------
@@ -1796,7 +1792,7 @@ function drawFlowCardScreen() {
     const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
     const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
-    fill(255);
+    fill(0);
     
     const baseFontSize = 24;      // 기본 폰트 크기
     const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
@@ -1805,7 +1801,7 @@ function drawFlowCardScreen() {
     // ★ 함수 호출해 텍스트 쓰기
     drawLeftStyledText(
         flowCard.summary, 
-        textX, 
+        textX+35, 
         textY, 
         textW, 
         lineHeight, 
@@ -1825,7 +1821,7 @@ function drawFlowCardScreen() {
       const horseH = horseW / aspectRatio; 
       
       // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
-      const horseMargin = 40; // 텍스트 박스와의 간격
+      const horseMargin = 60; // 텍스트 박스와의 간격
       const horseX = boxX - horseW - horseMargin;
        
       // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
@@ -1897,8 +1893,7 @@ function drawPre_adviceCardScreen(){
   }
 
   // 설명 박스 (intro 단계와 동일한 위치)
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox1, boxX, boxY);
 
   // 텍스트
   fill(255);
@@ -1985,8 +1980,7 @@ function drawAdviceCardScreen() {
     const boxX = width / 2 - boxW / 2 + boxOffset;
     const boxY = cardY + cardH + 30; 
 
-    fill(30, 25, 60, 230);
-    rect(boxX, boxY, boxW, boxH, 20);
+    image(textbox3, boxX-35, boxY);
 
       
     // -------------------------------------------------------
@@ -2000,7 +1994,7 @@ function drawAdviceCardScreen() {
     const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
     const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
 
-    fill(255);
+    fill(0);
     
     const baseFontSize = 24;      // 기본 폰트 크기
     const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
@@ -2009,7 +2003,7 @@ function drawAdviceCardScreen() {
     // ★ 함수 호출해 텍스트 쓰기
     drawLeftStyledText(
         policyCard.policy, 
-        textX, 
+        textX+35, 
         textY, 
         textW, 
         lineHeight, 
@@ -2029,7 +2023,7 @@ function drawAdviceCardScreen() {
       const horseH = horseW / aspectRatio; 
       
       // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
-      const horseMargin = 40; // 텍스트 박스와의 간격
+      const horseMargin = 60; // 텍스트 박스와의 간격
       const horseX = boxX - horseW - horseMargin;
        
       // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
@@ -2104,11 +2098,10 @@ function drawPre_summaryScreen(){
   }
 
   // 설명 박스 (intro 단계와 동일한 위치)
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox1, boxX, boxY);
 
 // 텍스트
-  fill(255);
+  fill(0);
   textAlign(CENTER, CENTER);
   const baseFontSize = 28;
   const lineHeight = 45;
@@ -2176,8 +2169,7 @@ function drawSummaryScreen() {
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  fill(30, 25, 60, 230);
-  rect(boxX, boxY, boxW, boxH, 30);
+  image(textbox2, boxX-35, boxY);
 
   // 말 이미지
   const horseW = 140;
@@ -2208,7 +2200,7 @@ function drawSummaryScreen() {
   }
 
   // 텍스트 스타일
-  fill(255);
+  fill(0);
   textAlign(CENTER, CENTER);
   const baseFontSize = 28;
   const lineHeight = 45;
@@ -2216,7 +2208,7 @@ function drawSummaryScreen() {
 
   drawStyledText(
     summaryText,
-    boxX + boxW / 2,   // 중앙 정렬 기준 X
+    boxX + boxW / 2+25,   // 중앙 정렬 기준 X
     boxY + boxH / 2,   // 중앙 정렬 기준 Y
     boxW - 60,         // 최대 너비
     lineHeight,        // 줄 간격
@@ -2370,7 +2362,7 @@ function drawStyledText(
     textStr, x, y, maxWidth, lineHeight,
     regularFont, boldFont,
     baseSize, boldScale
-) {
+) { fill(0);
     if (!regularFont || !boldFont) return;
 
     const boldSize = baseSize * boldScale;
@@ -2434,7 +2426,7 @@ function drawLeftStyledText(
 
     const boldSize = baseSize * boldScale;
     textAlign(LEFT, BASELINE);
-    fill(255);
+    fill(0);
 
     // 기준 descent 계산
     textFont(regularFont);
@@ -3015,7 +3007,10 @@ async function saveResultToSupabase() {
   item: ITEM_MAP[selectedTopic],
   tarot_advice: tarotAdvice,
   flow_text: flowCard?.summary || "",
-  policy_text: policyCard?.policy || ""
+  flow_link: flowCard?.link || "", 
+  policy_text: policyCard?.policy || "",
+  policy_link: policyCard?.link || ""
+
 }])
     .select("id")
     .single();

@@ -53,6 +53,47 @@
       margin-bottom: 10px;
       font-weight: 600;
     }
+    .link-box {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.link-box a {
+  color: #cdbdff;
+  text-decoration: underline;
+}
+@font-face {
+  font-family: "SunflowerLight";
+  src: url("https://iamsaeun.github.io/tarot/Sunflower-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SunflowerBold";
+  src: url("https://iamsaeun.github.io/tarot/Sunflower-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+body {
+  background: #141021;
+  color: white;
+  font-family: "SunflowerLight", sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+h1,
+.section h2 {
+  font-family: "SunflowerBold", sans-serif;
+}
+.section {
+  font-family: "SunflowerLight", sans-serif;
+}
+.link-box a {
+  font-family: "SunflowerLight", sans-serif;
+  color: #cdbdff;
+}
+
   </style>
 
   <!-- Supabase SDK -->
@@ -77,11 +118,13 @@
   <div class="section">
     <h2>② 흐름의 카드</h2>
     <div id="flowText">불러오는 중…</div>
+    <div id="flowLink"></div>
   </div>
 
   <div class="section">
     <h2>③ 조언의 카드</h2>
     <div id="policyText">불러오는 중…</div>
+    <div id="policyLink"></div>
   </div>
 
 <script>
@@ -130,15 +173,33 @@
      화면 렌더링
   ====================== */
   function renderResult(data) {
-    document.getElementById("tarotAdvice").innerText =
-  (data.tarot_advice || "").replace(/\*\*.*?\*\*/g, "").trim();
+   document.getElementById("tarotAdvice").innerText =
+  (data.tarot_advice || "").replace(/\*\*/g, "").trim();
 
-
-    document.getElementById("flowText").innerText =
-  (data.flow_text || "").replace(/\*\*.*?\*\*/g, "").trim();
+document.getElementById("flowText").innerText =
+  (data.flow_text || "").replace(/\*\*/g, "").trim();
 
 document.getElementById("policyText").innerText =
-  (data.policy_text || "").replace(/\*\*.*?\*\*/g, "").trim();
+  (data.policy_text || "").replace(/\*\*/g, "").trim();
+
+  if (data.flow_link) {
+    document.getElementById("flowLink").innerHTML = `
+      <div class="link-box">
+        🔗 <a href="${data.flow_link}" target="_blank" rel="noopener">
+          관련 기사 보러가기
+        </a>
+      </div>
+    `;
+  }
+  if (data.policy_link) {
+    document.getElementById("policyLink").innerHTML = `
+      <div class="link-box">
+        🔗 <a href="${data.policy_link}" target="_blank" rel="noopener">
+          관련 정책 자세히 보기
+        </a>
+      </div>
+    `;
+  }
 
 
     drawCard(data);
