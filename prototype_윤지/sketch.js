@@ -56,6 +56,7 @@ let lastInteractionTime = 0;
 const IDLE_TIMEOUT = 30000; // 3분(1000*60*3), 테스트용 30초
 const WARNING_THRESHOLD = 10000; // 30초 전부터 경고 시작, 테스트용 10초
 let isResetting = false; // 리셋 중임을 알리는 플래그 (중복 실행 방지)
+let warningEl = null;
 
 
 
@@ -119,7 +120,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "AIzaSyBV3reieFlVr27XDEJj84t-uWWCTAT4orc";
+const API_KEY = "###";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -777,17 +778,35 @@ function setup() {
       hover: [career1Hover, career2Hover, career3Hover, career4Hover]
     }
   };
+  lastInteractionTime = millis();
 }
 
 function draw() {
   // [수정 사항 1] 매 프레임 버튼 배열 초기화 (중복 클릭 방지)
   clickableButtons = [];
 
-  // [수정 사항 2] 3분 타임아웃 체크 (첫 화면이 아닐 때만)
-  let idleTime = millis() - lastInteractionTime;
-  if (state !== "start" && idleTime > IDLE_TIMEOUT) { // 180,000ms = 3분
-    resetSystem();
-    return;
+  // [수정 사항 2]
+  if (state !== "start") {
+    let elapsed = millis() - lastInteractionTime;
+    let remaining = IDLE_TIMEOUT - elapsed;
+
+    // 1. 리셋 체크
+    if (elapsed > IDLE_TIMEOUT) {
+      resetSystem();
+      return; 
+    }
+
+    // 2. 경고창 체크
+    if (remaining <= WARNING_THRESHOLD && remaining > 0) {
+      let seconds = ceil(remaining / 1000);
+      showDomTimeoutWarning(seconds);
+    } else {
+      // 30초보다 많이 남았다면 경고창 제거
+      if (warningEl) removeDomTimeoutWarning();
+    }
+  } else {
+    // [중요] 시작 화면으로 돌아오면 무조건 경고창부터 제거
+    if (warningEl) removeDomTimeoutWarning();
   }
 
   if (state === "start") {
@@ -833,8 +852,6 @@ function draw() {
   } else if (state === "summary") {
     drawSummaryScreen();
   }
-
-  drawTimeoutWarning();
 }
 
 // 공통: 가게 배경 (tarotback1)
@@ -3289,6 +3306,7 @@ function resetSystem() {
   isResetting = true;
 
   closePdfModal();
+  removeDomTimeoutWarning(); // 경고창 닫기
 
   state = "start"; // 첫 화면으로
   lastInteractionTime = millis(); // 타이머 리셋
@@ -3323,48 +3341,47 @@ function resetSystem() {
 }
 
 //============ 초기화 경고 함수=============
-function drawTimeoutWarning() {
-  // 첫 화면("start")에서는 경고를 띄우지 않음
-  if (state === "start") return;
-
-  let elapsed = millis() - lastInteractionTime;
-  let remaining = IDLE_TIMEOUT - elapsed;
-
-  // 남은 시간이 30초 이하일 때만 실행
-  if (remaining <= WARNING_THRESHOLD && remaining > 0) {
-    push(); // 기존 스타일 보존
-    
-    // 1. 배경 어둡게 (오버레이)
-    fill(0, 0, 0, 180);
-    noStroke();
-    rect(0, 0, width, height);
-
-    // 2. 경고 문구 박스 (선택 사항)
-    rectMode(CENTER);
-    fill(255, 255, 255, 230);
-    rect(width / 2, height / 2, 600, 400, 20);
-
-    // 3. 안내 텍스트
-    textAlign(CENTER, CENTER);
-    fill(0);
-    textFont(fontBold || 'sans-serif'); // 볼드 폰트 사용
-    textSize(36);
-    text("잠시 후 초기화됩니다", width / 2, height / 2 - 80);
-
-    // 4. 카운트다운 숫자
-    textSize(100);
-    fill(220, 50, 50); // 붉은색 강조
-    let seconds = ceil(remaining / 1000); // 올림 처리하여 초 단위 계산
-    text(seconds, width / 2, height / 2 + 30);
-
-    // 5. 하단 안내
-    textSize(22);
-    fill(100);
-    textFont(fontRegular || 'sans-serif');
-    text("화면을 클릭하거나 움직이면 계속할 수 있습니다!", width / 2, height / 2 + 130);
-    
-    pop(); // 스타일 복구
+function showDomTimeoutWarning(seconds) {
+  // 이미 존재하면 내용만 갱신하고 종료
+  if (warningEl) {
+    let msgBox = document.getElementById('warning-msg-box');
+    if (msgBox) msgBox.innerText = seconds;
+    return;
   }
+
+  // 새로 생성
+  warningEl = createDiv(`
+    <div style="text-align:center; background:white; padding:40px; border-radius:20px; border:4px solid #333; pointer-events: auto;">
+      <h1 style="color:black; margin:0; font-size:32px;">잠시 후 초기화됩니다</h1>
+      <div id="warning-msg-box" style="font-size:80px; color:red; font-weight:bold; margin:20px 0;">${seconds}</div>
+      <p style="color:gray; font-size:18px;">화면을 클릭하면 계속할 수 있습니다</p>
+    </div>
+  `);
+  
+  warningEl.style("position", "fixed");
+  warningEl.style("inset", "0");
+  warningEl.style("display", "flex");
+  warningEl.style("align-items", "center");
+  warningEl.style("justify-content", "center");
+  warningEl.style("background", "rgba(0,0,0,0.6)");
+  warningEl.style("z-index", "10000");
+  
+  // 경고창 자체를 클릭해도 타이머가 리셋되도록 설정
+  warningEl.mousePressed(() => {
+    resetIdleTimer();
+    removeDomTimeoutWarning();
+  });
+}
+
+function removeDomTimeoutWarning() {
+  if (warningEl) {
+    warningEl.remove(); // DOM에서 완전히 제거
+    warningEl = null;   // 변수 초기화 (매우 중요)
+  }
+}
+
+function resetIdleTimer() {
+  lastInteractionTime = millis();
 }
 
 
