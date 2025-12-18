@@ -51,6 +51,11 @@ const FLOW_TEXTS = {
   },
 };
 
+// ====== 초기화 변수 =======
+let lastInteractionTime = 0; 
+const IDLE_TIMEOUT = 30000; // 3분(1000*60*3)
+let isResetting = false; // 리셋 중임을 알리는 플래그 (중복 실행 방지)
+
 // ===== 단어 목록 정의 =====
 const TOPICS_MAP = {
   "건강": ["마음", "신체", "운동", "식습관"],
@@ -111,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "AIzaSyAeW2xr-h9QwbkNE6OSRGhjg2R4ZRps4P4";
+const API_KEY = "####";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -552,8 +557,15 @@ function setup() {
 }
 
 function draw() {
-  // 🔹 매 프레임마다 버튼 리스트 초기화
-  clickableButtons.length = 0;
+  // [수정 사항 1] 매 프레임 버튼 배열 초기화 (중복 클릭 방지)
+  clickableButtons = [];
+
+  // [수정 사항 2] 3분 타임아웃 체크 (첫 화면이 아닐 때만)
+  let idleTime = millis() - lastInteractionTime;
+  if (state !== "start" && idleTime > IDLE_TIMEOUT) { // 180,000ms = 3분
+    resetSystem();
+    return;
+  }
 
   if (state === "start") {
     drawStartScreen();
@@ -2610,15 +2622,12 @@ function drawPrevNextButtons(prevState, nextState, baseY) {
     if (prevState) state = prevState;
   });
 
-  // 다음 버튼
   drawImageButton(after, afterHover, nextX, y, () => {
-
-
-    if (state === "summary" && nextState === "start") {
-      resetAll();
+    if (nextState === "start") {
+      resetSystem(); // 마지막에서 처음으로 갈 때 모든 데이터 삭제
+    } else {
+      state = nextState;
     }
-
-    if (nextState) state = nextState;
   });
 }
 
@@ -2629,6 +2638,7 @@ function drawPrevNextButtons(prevState, nextState, baseY) {
 
 // 마우스를 누를 때: start/question 화면만 처리
 function mousePressed() {
+  lastInteractionTime = millis(); // 타이머 갱신
   for (const btn of clickableButtons) {
     if (isInside(mouseX, mouseY, btn.x, btn.y, btn.w, btn.h)) {
       if (clickSound && clickSound.isLoaded()) {
@@ -2908,6 +2918,15 @@ function loadCardsByTopic(topic) {
   }
 }
 
+// 사용자 반응 없을 경우 초기화 X
+function mouseMoved() {
+  lastInteractionTime = millis(); // 마우스 움직임만으로도 타이머 갱신
+}
+
+function keyPressed() {
+  lastInteractionTime = millis(); // 키보드 입력 시 타이머 갱신
+}
+
 //액자 그리기 함수//
 function drawFramedHorse(horseImg, x, y, w, h) {
   if (!horseImg || !horseFrame) return;
@@ -3024,6 +3043,42 @@ async function saveResultToSupabase() {
 }
 
 
+
+// ========== 초기화 함수==========
+// 모든 데이터를 태초의 상태로 되돌리는 함수
+function resetSystem() {
+  isResetting = true;
+  state = "start"; // 첫 화면으로
+  lastInteractionTime = millis(); // 타이머 리셋
+
+  // 1. 선택 데이터 초기화
+  selectedCategory = null;
+  selectedTopic = null;
+  selectedKeyWord = null;
+  actualImageKeyWord = null;
+  selectedCardIndex = -1;
+  isCardFlipped = false;
+
+  // 2. 결과 및 상태 데이터 초기화
+  tarotAdvice = "";
+  flowCard = null;
+  policyCard = null;
+  qrKey = null;
+  geminiStatus = "idle";
+  receiving = false;
+
+  // 3. 인터랙션 요소 초기화
+  rubProgress = 0;
+  isKeywordSelected = false;
+  clickableButtons = []; // 버튼 배열 비우기
+
+  // 4. 사운드 제어
+  if (bgMusic && bgMusic.isPlaying()) bgMusic.stop();
+  if (magicChargeSound && magicChargeSound.isPlaying()) magicChargeSound.stop();
+  
+  isResetting = false;
+  console.log("시스템이 초기화되었습니다.");
+}
 
 
 
