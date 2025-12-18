@@ -3205,7 +3205,7 @@ async function saveResultToSupabase() {
   item: ITEM_MAP[selectedTopic],
   tarot_advice: tarotAdvice,
   flow_text: flowCard?.summary || "",
-  flow_link: flowCard?.link || "", 
+  flow_link: flowCard?.url || "", 
   policy_text: policyCard?.policy || "",
   policy_link: policyCard?.link || ""
 

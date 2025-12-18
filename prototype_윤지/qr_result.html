@@ -182,10 +182,10 @@ document.getElementById("flowText").innerText =
 document.getElementById("policyText").innerText =
   (data.policy_text || "").replace(/\*\*/g, "").trim();
 
-  if (data.flow_link) {
+  if (data.flow_url) {
     document.getElementById("flowLink").innerHTML = `
       <div class="link-box">
-        🔗 <a href="${data.flow_link}" target="_blank" rel="noopener">
+        🔗 <a href="${data.flow_url}" target="_blank" rel="noopener">
           관련 기사 보러가기
         </a>
       </div>
