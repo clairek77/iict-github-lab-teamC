@@ -53,8 +53,8 @@ const FLOW_TEXTS = {
 
 // ====== 초기화 변수 =======
 let lastInteractionTime = 0; 
-const IDLE_TIMEOUT = 30000; // 3분(1000*60*3), 테스트용 30초
-const WARNING_THRESHOLD = 10000; // 30초 전부터 경고 시작, 테스트용 10초
+const IDLE_TIMEOUT = 90000; // 1분 30초 (1000*90), 테스트용 30초
+const WARNING_THRESHOLD = 20000; // 20초 전부터 경고 시작, 테스트용 10초
 let isResetting = false; // 리셋 중임을 알리는 플래그 (중복 실행 방지)
 let warningEl = null;
 
@@ -88,10 +88,14 @@ const KEYWORD_IMAGE_MAP = {
   "선택": "변화", "균형": "변화", "전환": "변화", "결단": "변화",
 };
 
+
 // ===== state 관련 =====
 // start -> intro_1 -> intro_2 -> intro_3 -> tutorial_0 -> tutorial_1 -> tutorial_2 -> tutorial_3 -> tutorial_fin -> question -> topics -> pre_keywords -> keywords -> loading -> gemini -> pre_flowCard -> flowCard -> pre_adviceCard -> adviceCard-> pre_summary-> summary
 
 let state = "start";
+
+let currentPrevState = null; // 현재 화면에서 왼쪽 키를 눌렀을 때 갈 곳
+let currentNextState = null; // 현재 화면에서 오른쪽 키를 눌렀을 때 갈 곳
 
 let selectedCategory = null;   // "건강" / "금전" / "연애" / "진로"
 let selectedTopic = null;      // TOPICS_MAP 중 사용자가 클릭한 단어 1개
@@ -113,7 +117,7 @@ let isKeywordSelected = false;
 
 //카드 뒤집기
 let isCardFlipped = false;
-
+let selectionStartTime = 0; // 선택한 시점 저장용
 let selectedCardIndex = -1;
 
 // 타로 결과 관련
@@ -361,6 +365,7 @@ function closeUrlModal() {
 
 function openUrlModal(url) {
   closeUrlModal();
+  resetIdleTimer();
 
   urlModalEl = createDiv("");
   urlModalEl.position(0, 0);
@@ -385,8 +390,15 @@ function openUrlModal(url) {
   box.style("backdrop-filter", "blur(10px)");
   box.style("-webkit-backdrop-filter", "blur(10px)");
 
-  box.elt.addEventListener("mousedown", (e) => e.stopPropagation());
-  box.elt.addEventListener("click", (e) => e.stopPropagation());
+  box.elt.addEventListener("mousedown", (e) => {
+    resetIdleTimer(); // 사용자가 모달을 조작 중임을 알림
+    e.stopPropagation()
+  });
+
+  box.elt.addEventListener("click", (e) => {
+    resetIdleTimer(); // 사용자가 모달을 조작 중임을 알림
+    e.stopPropagation()
+  });
 
   const closeBtn = createButton("닫기 ✕");
   closeBtn.parent(box);
@@ -402,8 +414,15 @@ function openUrlModal(url) {
   closeBtn.style("font-weight", "800");
   closeBtn.style("background", "linear-gradient(135deg, rgba(255,140,200,0.95), rgba(120,70,255,0.95))");
 
-  closeBtn.elt.addEventListener("click", (e) => e.stopPropagation());
-  closeBtn.mousePressed(closeUrlModal);
+  closeBtn.elt.addEventListener("click", (e) => {
+    resetIdleTimer(); // 사용자가 모달을 조작 중임을 알림
+    e.stopPropagation()
+  });
+
+  closeBtn.mousePressed(() => {
+    resetIdleTimer();
+    closeUrlModal();
+  });
 
   const iframeWrap = createDiv("");
   iframeWrap.parent(box);
@@ -423,6 +442,7 @@ function openUrlModal(url) {
   iframe.style("border", "0");
 
   urlModalEl.elt.addEventListener("mousedown", (e) => {
+    resetIdleTimer();
     if (e.target === urlModalEl.elt) closeUrlModal();
   });
 }
@@ -867,6 +887,13 @@ function drawStartScreen() {
     const btnY = height / 2 + 260;
     drawButton(btnX, btnY, btnWidth, btnHeight, "입장하기");
   }
+
+  // 안내 텍스트
+  fill(255);
+  textFont(fontRegular);
+  textAlign(CENTER, CENTER);
+  textSize(25);
+  text("아래 버튼을 클릭하거나 방향키(</>)를 이용해 시작하세요!", width / 2, height / 2 + 230);
 }
 
 
@@ -1120,7 +1147,7 @@ function drawTutorialFinScreen() {
   const prevX = margin;
 
   drawImageButton(before, beforeHover, prevX, baseY, () => {
-    state = "tutorial_3"; // 이전 버튼은 tutorial_3로
+    goToPrev();
   });
 
 
@@ -1132,7 +1159,7 @@ function drawTutorialFinScreen() {
     const btnY = boxY + boxH; 
 
     drawImageButton(generateCard1, generateCard1Hover, btnX, btnY, () => {
-      state = "question"; // 다음 단계는 question으로
+     goToNext();
     });
   }
 }
@@ -1236,7 +1263,7 @@ function drawQuestionScreen() {
         );
     } else {
             drawStyledText(
-            `먼저, 다가오는 2026년에 가장 궁금한 고민거리를 골라주세요.`, 
+            `먼저, 다가오는 2026년에 가장 궁금한 고민거리를 클릭해주세요.`, 
             boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
@@ -1257,7 +1284,7 @@ function drawQuestionScreen() {
   // 🔶 3) 이전/다음 버튼 (기존 그대로)
   // ================================
   const baseY = boxY + boxH / 2 - before.width / 2;
-  drawPrevNextButtons("tutorial_fin", selectedCategory ? "topics" : null, baseY);
+  drawPrevNextButtons("tutorial_fin", "topics", baseY);
 }
 
 
@@ -1366,7 +1393,7 @@ function drawTopicsScreen() {
   // 🔶 3) 이전/다음 버튼
   // ================================
   const baseY = boxY + boxH / 2 - before.width / 2;
-  drawPrevNextButtons("question", selectedTopic ? "keywords" : null, baseY);
+  drawPrevNextButtons("question", "keywords", baseY);
 }
 
 // ========== KEYWORDS SCREEN ==========
@@ -1592,7 +1619,7 @@ function drawKeywordsScreen() {
        btnY = height - 170; 
 
        drawImageButton(createcard, createcardHover, btnX, btnY, () => {
-           state = "loading"; 
+           goToNext(); 
            tarotAdvice = "";
            callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
        });
@@ -1613,8 +1640,8 @@ function drawKeywordsScreen() {
   if (before && before.width > 0) {
     const baseY = boxY + boxH / 2 - before.width / 2;
     drawImageButton(before, beforeHover, 200, baseY, () => {
+        goToPrev()
         if (magicChargeSound && magicChargeSound.isPlaying()) magicChargeSound.stop();
-        state = "topics"; 
         isKeywordSelected = false; 
         rubProgress = 0;
     });
@@ -1664,7 +1691,7 @@ function drawCardSelectionScreen() {
       fill(255);
       textAlign(CENTER, CENTER);
       textSize(40);
-      text("운명의 카드를 선택하세요", width/2, 150);
+      text("운명의 카드를 선택해 클릭하세요", width/2, 150);
   }
 
   const cardW = 260;
@@ -1727,7 +1754,7 @@ function drawCardSelectionScreen() {
               fill(0, 0, 0, 200);
               rect(x, y, cardW, cardH);
           }
-      }
+        }
   }
 
   // ==========================================
@@ -1741,23 +1768,15 @@ function drawCardSelectionScreen() {
       text("가장 마음이 끌리는 카드 한 장을 선택해주세요.", width/2, height - 150);
   } else {
       text("당신의 카드가 나왔습니다!", width/2, height - 180);
-
-      // [결과 확인하러 가기] 버튼 등장
-      // (기존 '다음' 버튼 이미지 사용하거나 텍스트 버튼 사용)
-      if (next && nextHover) {
-          let btnW = next.width;
-          let btnH = next.height;
-          drawImageButton(next, nextHover, width/2 - btnW/2, height - 120, () => {
-              state = "gemini"; // 결과 상세 화면으로 이동
-          });
-      } else {
-          drawButton(width/2 - 100, height - 120, 200, 60, "해석 보기");
-          if (mouseIsPressed && isInside(mouseX, mouseY, width/2 - 100, height - 120, 200, 60)) {
-              state = "gemini";
-          }
+      let elapsedTime = millis() - selectionStartTime; // 현재 시간 - 클릭한 시간
+      
+      if (elapsedTime > 3000) { // 3초(3000ms)가 지나면
+        state = "gemini";       // 타로 해석 화면으로 전환
+        isCardFlipped = true;  // 해석 화면의 카드 뒤집기 상태 초기화
       }
   }
 }
+
 
 // ========== GEMINI SCREEN ==========
 function drawGeminiScreen() {
@@ -1869,7 +1888,7 @@ function drawGeminiScreen() {
     const btnY = 795 - before.width / 2; 
 
     drawImageButton(after, afterHover, nextX, btnY, () => {
-        state = "pre_flowCard";
+        goToNext();
     });
 }
 
@@ -1930,7 +1949,7 @@ function drawPre_flowCardScreen() {
   const prevX = margin;
 
   drawImageButton(before, beforeHover, prevX, baseY, () => {
-    state = "gemini"; // 이전 버튼은 gemini로
+    goToPrev(); // 이전 버튼은 gemini로
   });
 
   // 2) generate_card2 버튼 (설명 박스 아래 중앙)
@@ -1941,7 +1960,7 @@ function drawPre_flowCardScreen() {
     const btnY = boxY + boxH ; 
 
     drawImageButton(generateCard2, generateCard2Hover, btnX, btnY, () => {
-     state = "flowCard"; // 다음 단계는 flowCard로
+     goToNext(); // 다음 단계는 flowCard로
     });
   }
 }
@@ -2135,7 +2154,7 @@ function drawPre_adviceCardScreen(){
   const prevX = margin;
 
   drawImageButton(before, beforeHover, prevX, baseY, () => {
-    state = "flowCard"; // 이전 버튼은 flowCard로
+    goToPrev(); // 이전 버튼은 flowCard로
   });
 
   // 2) generate_card3 버튼 (설명 박스 아래 중앙)
@@ -2146,7 +2165,7 @@ function drawPre_adviceCardScreen(){
     const btnY = boxY + boxH ; 
 
     drawImageButton(generateCard3, generateCard3Hover, btnX, btnY, () => {
-     state = "adviceCard"; // 다음 단계는 adviceCard로
+    goToNext(); // 다음 단계는 adviceCard로
     });
   }
 }
@@ -2345,7 +2364,7 @@ function drawPre_summaryScreen(){
   const prevX = margin;
 
   drawImageButton(before, beforeHover, prevX, baseY, () => {
-    state = "adviceCard"; // 이전 버튼은 adviceCard로
+    goToPrev(); // 이전 버튼은 adviceCard로
   });
 
   // 2) 결과보기 버튼 (설명 박스 아래 중앙)
@@ -2356,7 +2375,7 @@ function drawPre_summaryScreen(){
     const btnY = boxY + boxH; 
 
 drawImageButton(result, resultHover, btnX, btnY, () => {
-  state = "summary";               // 👉 바로 화면 전환
+  goToNext();               // 👉 바로 화면 전환
 
   // 👉 Supabase 저장은 기다리지 않고 실행
   saveResultToSupabase()
@@ -2453,116 +2472,6 @@ function drawSummaryScreen() {
       qrY + qrSize + 20
     );
   }
-
-
-  // const boxColor = color(30, 25, 60, 230);
-
-  // // =============================
-  // // 🔶 2) 상단 요약 박스 3개
-  // // =============================
-  // push();
-  // textAlign(LEFT, TOP);
-  // textSize(18);
-  // textLeading(22);
-  // const summaryLeftX = boxX;
-
-  // const bigW = 900;
-  // const bigH = 260;
-
-  // const smallW = 430;
-  // const smallH = 220;
-  // const gap = 30;
-
-  // // 첫 번째 박스 (타로 조언)
-  // const firstY = 150;
-
-  // fill(boxColor);
-  // rect(summaryLeftX, firstY, bigW, bigH, 25);
-
-  // fill(255);
-  // text("① 타로 마스터의 해석", summaryLeftX + 24, firstY + 20);
-  // text(
-  //   tarotAdvice || "-",
-  //   summaryLeftX + 24,
-  //   firstY + 60,
-  //   bigW - 48,
-  //   bigH - 80
-  // );
-
-  // // 두 번째 & 세 번째 박스 (좌/우)
-  // const secondY = firstY + bigH + gap;
-
-  // // 흐름 카드
-  // fill(boxColor);
-  // rect(summaryLeftX, secondY, smallW, smallH, 20);
-
-  // fill(255);
-  // text("② 흐름의 카드", summaryLeftX + 20, secondY + 20);
-
-  // if (flowCard) {
-  //   text(
-  //     flowCard.summary,
-  //     summaryLeftX + 20,
-  //     secondY + 55,
-  //     smallW - 40,
-  //     smallH - 75
-  //   );
-  // } else {
-  //   text("등록된 흐름 카드가 없습니다.", summaryLeftX + 20, secondY + 55);
-  // }
-
-  // // 조언 카드
-  // const rightBoxX = summaryLeftX + smallW + 20;
-
-  // fill(boxColor);
-  // rect(rightBoxX, secondY, smallW, smallH, 20);
-
-  // fill(255);
-  // text("③ 조언의 카드", rightBoxX + 20, secondY + 20);
-
-  // if (policyCard) {
-  //   text(
-  //     policyCard.policy,
-  //     rightBoxX + 20,
-  //     secondY + 55,
-  //     smallW - 40,
-  //     smallH - 75
-  //   );
-  // } else {
-  //   text("등록된 조언 카드가 없습니다.", rightBoxX + 20, secondY + 55);
-  // }
-  // pop();
-
-  // // =============================
-  // // 🔶 3) QR 버튼
-  // // =============================
-  // const qrW = qr.width * 0.55;
-  // const qrH = qr.height * 0.55;
-
-  // const qrX = rightBoxX + smallW + 30;
-  // const qrY = secondY + smallH / 2 - qrH / 2;
-
-  // drawImageButtonScaled(
-  //   qr,
-  //   qrHover,
-  //   qrX,
-  //   qrY,
-  //   qrW,
-  //   qrH,
-  //   () => {
-  // const QRPage = "https://iamsaeun.github.io/tarot/qr_result.html";
-
-  // const url =
-  //   QRPage +
-  //   "?bg=" + encodeURIComponent(BACKGROUND_MAP[selectedCategory]) +
-  //   "&char=" + encodeURIComponent(CHARACTER_MAP[actualImageKeyWord]) +
-  //   "&item=" + encodeURIComponent(ITEM_MAP[selectedTopic]) +
-  //   "&advice=" + encodeURIComponent(tarotAdvice);
-
-  // return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-
-  //   }
-  // );
 
   // =============================
   // 🔶 4) 이전 / 다음 버튼
@@ -2812,42 +2721,156 @@ function drawImageButtonScaled(img, imgHover, x, y, w, h, callback) {
 // 공통: 이전/다음 버튼 그리기
 // =======================
 
-function drawPrevNextButtons(prevState, nextState, baseY) {
+function drawPrevNextButtons(showPrev = true, showNext = true, baseY) {
   const margin = 200;
   const prevW = before.width;
   const nextW = after.width;
-
   const prevX = margin;
   const nextX = width - margin - nextW;
   const y = baseY;
 
-  // 이전 버튼
-  drawImageButton(before, beforeHover, prevX, y, () => {
-    if (prevState) state = prevState;
-  });
-
-  if (nextState) {
-    // 카테고리가 선택되어 nextState가 존재할 때만 '클릭 가능한 버튼'으로 등록
-    drawImageButton(after, afterHover, nextX, y, () => {
-      if (state === "summary" && nextState === "start") {
-        resetSystem();
-      } else {
-        state = nextState;
-      }
+  // 1) 이전 버튼
+  if (showPrev) {
+    drawImageButton(before, beforeHover, prevX, y, () => {
+      goToPrev();
     });
-  } else {
-    // 카테고리가 선택되지 않았을 때는 '그냥 이미지'만 그림 (클릭 영역 등록 안 함)
-    push();
-    tint(255, 100); // 누를 수 없다는 것을 시각적으로 표시
-    image(after, nextX, y);
-    pop();
+  }
+
+  // 2) 다음 버튼
+  if (showNext) {
+    // 특정 조건(예: 카테고리 미선택)에서 버튼을 비활성화하고 싶다면 여기에 조건 추가
+    const canGoNext = (state === "question" && !selectedCategory) ? false : true;
+
+    if (canGoNext) {
+      drawImageButton(after, afterHover, nextX, y, () => {
+        goToNext();
+      });
+    } else {
+      // 누를 수 없을 때 반투명 표시
+      push();
+      tint(255, 100);
+      image(after, nextX, y);
+      pop();
+    }
+  }
+}
+
+function keyPressed() {
+  if (pdfModalEl || urlModalEl || warningEl) return;
+
+  if (keyCode === LEFT_ARROW) {
+    goToPrev();
+  } else if (keyCode === RIGHT_ARROW) {
+    goToNext();
+  }
+}
+
+
+
+// ========== 화면 넘김 처리 ==========
+// [통합] 이전 페이지로 이동
+function goToPrev() {
+  if (pdfModalEl || urlModalEl || warningEl) return; // 모달이 떠있으면 차단
+  resetIdleTimer();
+
+  // 현재 상태(state)에 따른 이전 단계 정의
+  switch (state) {
+    case "intro_1": state = "start"; break;
+    case "intro_2": state = "intro_1"; break;
+
+    case "question": 
+      selectedCategory = null;
+      state = "intro_2"; 
+      break;
+
+    case "topics":
+      selectedTopic = null;
+      state = "question";
+      break;
+    
+
+    case "keywords":
+      selectedKeyWord = null;
+      actualImageKeyWord = null;
+      isKeywordSelected = null;
+      state = "topics"; 
+      break;
+
+    case "gemini": state = "gemini"; break;
+    case "pre_flowCard": state = "gemini"; break;
+    case "flowCard": state = "pre_flowCard"; break;
+    case "pre_adviceCard": state = "flowCard"; break;
+    case "adviceCard": state = "pre_adviceCard"; break;
+    case "pre_summary": state = "adviceCard"; break;
+    case "summary": state = "pre_summary"; break;
+    default: break; 
+  }
+}
+
+// [통합] 다음 페이지로 이동
+function goToNext() {
+  if (pdfModalEl || urlModalEl || warningEl) return; 
+  resetIdleTimer();
+
+  switch (state) {
+    case "start": state = "intro_1"; break;
+    case "intro_1": state = "intro_2"; break;
+    case "intro_2": state = "question"; break;
+    // question -> topics, topics -> keywords는 개별 선택 로직이므로 조건부 추가
+    
+    case "question":
+      // 카테고리가 선택되었을 때만 topics로 이동
+      if (selectedCategory) state = "topics";
+      else console.log("카테고리를 먼저 선택해주세요."); 
+      break;
+
+    case "topics":
+      // 주제가 선택되었을 때만 keywords로 이동
+      if (selectedTopic) state = "keywords";
+      else console.log("주제를 먼저 선택해주세요.");
+      break;
+
+    case "keywords":
+      // 키워드가 선택되었을 때만 타로 생성(Gemini 호출)
+      if (selectedKeyWord) {
+        state = "loading";
+        tarotAdvice = "";
+        callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
+      } else {
+        console.log("키워드를 먼저 선택해주세요.");
+      }
+      break;    
+
+    case "gemini": 
+      if (isCardFlipped) state = "pre_flowCard"; 
+      break;
+
+    case "pre_flowCard": state = "flowCard"; break;
+    case "flowCard": state = "pre_adviceCard"; break;
+    case "pre_adviceCard": state = "adviceCard"; break;
+    case "adviceCard": state = "pre_summary"; break;
+    
+    case "pre_summary": 
+      // [특수] 요약 전 단계에서 다음을 누르면 저장하며 결과창으로
+      state = "summary";
+      saveResultToSupabase()
+        .then(id => { qrKey = id; })
+        .catch(e => console.error("저장 실패", e));
+      break;
+
+    case "summary": 
+      // [특수] 결과창에서 다음을 누르면 시스템 초기화 후 처음으로
+      resetSystem(); 
+      break;
+      
+    default: break;
   }
 }
 
 
 
 
-// ========== 클릭 처리 ==========
+// ============= 클릭 처리 =============
 
 // 마우스를 누를 때: start/question 화면만 처리
 
@@ -2907,6 +2930,8 @@ function mousePressed() {
 
           if (isInside(mouseX, mouseY, x, y, cardW, cardH)) {
               selectedCardIndex = i; // i번째 카드 선택!
+
+              selectionStartTime = millis(); // 클릭한 시점의 시간을 기록
               
               // 효과음 재생
               if (magicRevealSound && magicRevealSound.isLoaded()) {
@@ -3086,29 +3111,6 @@ function drawStageTitle(img) {
   pop();
 }
 
-function resetAll() {
-  selectedCategory = null;
-  selectedTopic = null;
-  selectedKeyWord = null;
-  actualImageKeyWord = null;
-
-  tarotAdvice = "";
-  flowCard = null;
-  policyCard = null;
-
-  receiving = false;
-  clickableButtons = [];
-
-  isKeywordSelected = false; 
-  rubProgress = 0;
-
-  isCardFlipped = false;
-
-  if (bgMusic && bgMusic.isPlaying()) {
-      bgMusic.stop();
-  }
-}
-
 
 function isInside(mx, my, x, y, w, h) {
   return mx > x && mx < x + w && my > y && my < y + h;
@@ -3137,9 +3139,27 @@ function mouseMoved() {
   lastInteractionTime = millis(); // 마우스 움직임만으로도 타이머 갱신
 }
 
-function keyPressed() {
-  lastInteractionTime = millis(); // 키보드 입력 시 타이머 갱신
+// [추가] 왼쪽 방향키/이전 버튼 공통 로직
+function handleBackNavigation() {
+  if (currentPrevState) {
+    resetIdleTimer(); // 상호작용 타이머 리셋
+    state = currentPrevState;
+  }
 }
+
+// [추가] 오른쪽 방향키/다음 버튼 공통 로직
+function handleForwardNavigation() {
+  if (currentNextState) {
+    resetIdleTimer(); // 상호작용 타이머 리셋
+    if (state === "summary" && currentNextState === "start") {
+      resetSystem();
+    } else {
+      state = currentNextState;
+    }
+  }
+}
+
+
 
 //액자 그리기 함수//
 function drawFramedHorse(horseImg, x, y, w, h) {
@@ -3264,6 +3284,7 @@ function resetSystem() {
   isResetting = true;
 
   closePdfModal();
+  closeUrlModal();
   removeDomTimeoutWarning(); // 경고창 닫기
 
   state = "start"; // 첫 화면으로
@@ -3312,7 +3333,7 @@ function showDomTimeoutWarning(seconds) {
     <div style="text-align:center; background:white; padding:40px; border-radius:20px; border:4px solid #333; pointer-events: auto;">
       <h1 style="color:black; margin:0; font-size:32px;">잠시 후 초기화됩니다</h1>
       <div id="warning-msg-box" style="font-size:80px; color:red; font-weight:bold; margin:20px 0;">${seconds}</div>
-      <p style="color:gray; font-size:18px;">화면을 클릭하면 계속할 수 있습니다</p>
+      <p style="color:gray; font-size:18px;">화면을 클릭하거나 방향키를 눌러 계속할 수 있습니다</p>
     </div>
   `);
   
