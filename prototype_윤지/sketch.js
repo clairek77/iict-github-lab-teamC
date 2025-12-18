@@ -53,8 +53,11 @@ const FLOW_TEXTS = {
 
 // ====== 초기화 변수 =======
 let lastInteractionTime = 0; 
-const IDLE_TIMEOUT = 30000; // 3분(1000*60*3)
+const IDLE_TIMEOUT = 30000; // 3분(1000*60*3), 테스트용 30초
+const WARNING_THRESHOLD = 10000; // 30초 전부터 경고 시작, 테스트용 10초
 let isResetting = false; // 리셋 중임을 알리는 플래그 (중복 실행 방지)
+
+
 
 // ===== 단어 목록 정의 =====
 const TOPICS_MAP = {
@@ -828,6 +831,8 @@ function draw() {
   } else if (state === "summary") {
     drawSummaryScreen();
   }
+
+  drawTimeoutWarning();
 }
 
 // 공통: 가게 배경 (tarotback1)
@@ -3140,7 +3145,7 @@ function loadCardsByTopic(topic) {
   }
 }
 
-// 사용자 반응 없을 경우 초기화 X
+// 사용자 반응 있을 경우 초기화 X
 function mouseMoved() {
   lastInteractionTime = millis(); // 마우스 움직임만으로도 타이머 갱신
 }
@@ -3302,8 +3307,50 @@ function resetSystem() {
   console.log("시스템이 초기화되었습니다.");
 }
 
+//============ 초기화 경고 함수=============
+function drawTimeoutWarning() {
+  // 첫 화면("start")에서는 경고를 띄우지 않음
+  if (state === "start") return;
 
+  let elapsed = millis() - lastInteractionTime;
+  let remaining = IDLE_TIMEOUT - elapsed;
 
+  // 남은 시간이 30초 이하일 때만 실행
+  if (remaining <= WARNING_THRESHOLD && remaining > 0) {
+    push(); // 기존 스타일 보존
+    
+    // 1. 배경 어둡게 (오버레이)
+    fill(0, 0, 0, 180);
+    noStroke();
+    rect(0, 0, width, height);
+
+    // 2. 경고 문구 박스 (선택 사항)
+    rectMode(CENTER);
+    fill(255, 255, 255, 230);
+    rect(width / 2, height / 2, 600, 400, 20);
+
+    // 3. 안내 텍스트
+    textAlign(CENTER, CENTER);
+    fill(0);
+    textFont(fontBold || 'sans-serif'); // 볼드 폰트 사용
+    textSize(36);
+    text("잠시 후 초기화됩니다", width / 2, height / 2 - 80);
+
+    // 4. 카운트다운 숫자
+    textSize(100);
+    fill(220, 50, 50); // 붉은색 강조
+    let seconds = ceil(remaining / 1000); // 올림 처리하여 초 단위 계산
+    text(seconds, width / 2, height / 2 + 30);
+
+    // 5. 하단 안내
+    textSize(22);
+    fill(100);
+    textFont(fontRegular || 'sans-serif');
+    text("화면을 클릭하거나 움직이면 계속할 수 있습니다!", width / 2, height / 2 + 130);
+    
+    pop(); // 스타일 복구
+  }
+}
 
 
 // ========== Gemini 호출 로직 ==========
