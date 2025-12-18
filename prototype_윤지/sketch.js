@@ -280,6 +280,7 @@ let urlModalEl = null;
 
 function openPdfModal(pdfPath) {
   closePdfModal();
+  lastInteractionTime = millis(); // 모달을 여는 순간 타이머 리셋
 
   pdfModalEl = createDiv("");
   pdfModalEl.position(0, 0);
@@ -338,6 +339,7 @@ closeBtn.elt.addEventListener("mouseleave", () => {
   iframe.style("border", "0");
 
   pdfModalEl.mousePressed((e) => {
+    lastInteractionTime = millis();
     if (e.target === pdfModalEl.elt) closePdfModal();
   });
 }
@@ -2801,13 +2803,22 @@ function drawPrevNextButtons(prevState, nextState, baseY) {
     if (prevState) state = prevState;
   });
 
-  drawImageButton(after, afterHover, nextX, y, () => {
-    if (nextState === "start") {
-      resetSystem(); // 마지막에서 처음으로 갈 때 모든 데이터 삭제
-    } else {
-      state = nextState;
-    }
-  });
+  if (nextState) {
+    // 카테고리가 선택되어 nextState가 존재할 때만 '클릭 가능한 버튼'으로 등록
+    drawImageButton(after, afterHover, nextX, y, () => {
+      if (state === "summary" && nextState === "start") {
+        resetSystem();
+      } else {
+        state = nextState;
+      }
+    });
+  } else {
+    // 카테고리가 선택되지 않았을 때는 '그냥 이미지'만 그림 (클릭 영역 등록 안 함)
+    push();
+    tint(255, 100); // 누를 수 없다는 것을 시각적으로 표시
+    image(after, nextX, y);
+    pop();
+  }
 }
 
 
@@ -2816,6 +2827,7 @@ function drawPrevNextButtons(prevState, nextState, baseY) {
 // ========== 클릭 처리 ==========
 
 // 마우스를 누를 때: start/question 화면만 처리
+
 function mousePressed() {
   lastInteractionTime = millis(); // 타이머 갱신
   for (const btn of clickableButtons) {
@@ -2927,7 +2939,7 @@ function handleStartClick() {
   }
 }
 
-  function handleQuestionClick() {
+function handleQuestionClick() {
   const categories = ["건강", "진로", "금전", "연애"];
   const normalImages = [health, career, money, love];
 
@@ -3227,6 +3239,9 @@ async function saveResultToSupabase() {
 // 모든 데이터를 태초의 상태로 되돌리는 함수
 function resetSystem() {
   isResetting = true;
+
+  closePdfModal();
+
   state = "start"; // 첫 화면으로
   lastInteractionTime = millis(); // 타이머 리셋
 
