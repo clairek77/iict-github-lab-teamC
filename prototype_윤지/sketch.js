@@ -116,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "####";
+const API_KEY = "###";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -533,7 +533,8 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1920, 1080);
+  const c = createCanvas(1920, 1080);
+  c.parent("stage");
   textFont("Pretendard, sans-serif");
   // 카테고리별 이미지 버튼 세트
   TOPICS_IMAGE_MAP = {
@@ -1823,6 +1824,64 @@ function drawFlowCardScreen() {
         boldScaleFactor
     );
 
+ //PDF 열기
+let pdfModalEl = null;
+
+function openPdfModal(pdfPath) {
+  closePdfModal();
+
+  pdfModalEl = createDiv("");
+  pdfModalEl.position(0, 0);
+  pdfModalEl.style("position", "fixed");
+  pdfModalEl.style("inset", "0");    
+  pdfModalEl.style("display", "flex");
+  pdfModalEl.style("align-items", "center");
+  pdfModalEl.style("justify-content", "center");
+  pdfModalEl.style("background", "rgba(0,0,0,0.75)");
+  pdfModalEl.style("z-index", "9999");
+  pdfModalEl.style("display", "flex");
+  pdfModalEl.style("align-items", "center");
+  pdfModalEl.style("justify-content", "center");
+
+  const box = createDiv("");
+  box.parent(pdfModalEl);
+  box.style("width", "min(1200px, 92vw)");
+  box.style("height", "min(760px, 88vh)");
+  box.style("background", "#111");
+  box.style("border-radius", "16px");
+  box.style("overflow", "hidden");
+  box.style("position", "relative");
+
+  const closeBtn = createButton("닫기 ✕");
+  closeBtn.parent(box);
+  closeBtn.style("position", "absolute");
+  closeBtn.style("right", "12px");
+  closeBtn.style("top", "12px");
+  closeBtn.style("z-index", "2");
+  closeBtn.style("padding", "10px 14px");
+  closeBtn.style("border", "0");
+  closeBtn.style("border-radius", "10px");
+  closeBtn.style("cursor", "pointer");
+  closeBtn.mousePressed(closePdfModal);
+
+  const iframe = createElement("iframe");
+  iframe.parent(box);
+  iframe.attribute("src", pdfPath);
+  iframe.attribute("width", "100%");
+  iframe.attribute("height", "100%");
+  iframe.style("border", "0");
+
+  pdfModalEl.mousePressed((e) => {
+    if (e.target === pdfModalEl.elt) closePdfModal();
+  });
+}
+
+function closePdfModal() {
+  if (pdfModalEl) {
+    pdfModalEl.remove();
+    pdfModalEl = null;
+  }
+}
 
   // =======================================================
   // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
@@ -1856,7 +1915,7 @@ function drawFlowCardScreen() {
     linkW,
     linkH,
     () => {
-      if (flowCard?.link) window.open(flowCard.link, "_blank");
+      if (flowCard?.link) openPdfModal(`articles/${flowCard.link}`);
     }
   );
 

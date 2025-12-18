@@ -1,8 +1,27 @@
 html, body {
+  height: 100%;
   margin: 0;
-  padding: 0;
+  background: #000; /* 배경 취향대로 */
 }
 
-canvas {
+#stage {
+  height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#stage canvas {
   display: block;
+  transform-origin: center center;
+
+  width: 80vmin; 
+  height: auto;
+
+  width: min(80vw, calc(80vh * (16 / 9)));
+  height: auto;
+ border-radius: 12px; 
+ box-shadow: 0 10px 40px rgba(0,0,0,0.45); 
 }
