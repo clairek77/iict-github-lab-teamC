@@ -116,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "AIzaSyDSbDn0t8GXXtXs-Hh7HmUUYtY-0_IEWe4";
+const API_KEY = "###";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
