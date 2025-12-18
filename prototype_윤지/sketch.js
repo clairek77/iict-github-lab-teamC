@@ -116,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "###";
+const API_KEY = "AIzaSyDSbDn0t8GXXtXs-Hh7HmUUYtY-0_IEWe4";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -368,8 +368,8 @@ function preload() {
 
   // 카드 뒷면, 조언 카드, 흐름 카드 
   back_card = loadImage("back_card.png");
-  flow_card = loadImage("flow_card.png");
-  advice_card = loadImage("advice_card.png");
+  flow_card = loadImage("flow_card_money.png");
+  advice_card = loadImage("advice_card_love_help.png");
 
   // 새로운 말 그림 (horse_re1) 추가
   horse_re1 = loadImage("horse_re1.png");
