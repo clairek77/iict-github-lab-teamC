@@ -116,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "###";
+const API_KEY = "AIzaSyBV3reieFlVr27XDEJj84t-uWWCTAT4orc";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -346,6 +346,13 @@ function closePdfModal() {
   }
 }
 
+function closeUrlModal() {
+  if (urlModalEl) {
+    urlModalEl.remove();
+    urlModalEl = null;
+  }
+}
+
 function openUrlModal(url) {
   closeUrlModal();
 
@@ -363,60 +370,101 @@ function openUrlModal(url) {
   box.parent(urlModalEl);
   box.style("width", "min(1200px, 92vw)");
   box.style("height", "min(760px, 88vh)");
-  box.style("background", "#111");
   box.style("border-radius", "16px");
   box.style("overflow", "hidden");
   box.style("position", "relative");
   box.style("border", "1px solid rgba(220, 180, 255, 0.35)");
-  box.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.06), 0 0 40px rgba(190,120,255,0.35), 0 0 120px rgba(90,40,160,0.25)");
+  box.style("box-shadow", "0 0 40px rgba(190,120,255,0.35)");
+  box.style("background", "rgba(20, 15, 35, 0.72)");
   box.style("backdrop-filter", "blur(10px)");
   box.style("-webkit-backdrop-filter", "blur(10px)");
-  box.style("background", "rgba(20, 15, 35, 0.72)");
 
+  // ✅ box 안에서 클릭하면 배경(overlay)로 이벤트가 안 퍼지게 막기 (중요!)
+  box.elt.addEventListener("mousedown", (e) => e.stopPropagation());
+  box.elt.addEventListener("click", (e) => e.stopPropagation());
 
+  // ✅ 상단 바 (항상 표시)
+  const topBar = createDiv(`
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+      <div style="font-size:13px; line-height:1.4; opacity:0.95;">
+        일부 사이트는 보안 정책으로 화면 안에서 열리지 않을 수 있어요.<br/>
+        <strong>(확인 후에 꼭 창을 닫아주세요!)</strong>
+      </div>
+      <button id="openNewTabBtn"
+        style="
+          padding:10px 14px; border-radius:999px; cursor:pointer;
+          border:1px solid rgba(255,255,255,0.35);
+          color:#fff; font-weight:700;
+          background:linear-gradient(135deg, rgba(190,120,255,0.95), rgba(90,40,160,0.95));
+          box-shadow:0 10px 26px rgba(160,90,255,0.35);
+        ">
+        🔗 새 창 열기
+      </button>
+    </div>
+  `);
+  topBar.parent(box);
+  topBar.style("position", "absolute");
+  topBar.style("left", "0");
+  topBar.style("top", "0");
+  topBar.style("right", "0");
+  topBar.style("z-index", "3");
+  topBar.style("padding", "14px 16px");
+  topBar.style("background", "rgba(10, 8, 18, 0.55)");
+  topBar.style("border-bottom", "1px solid rgba(255,255,255,0.10)");
+
+  // ✅ 닫기 버튼
   const closeBtn = createButton("닫기 ✕");
   closeBtn.parent(box);
   closeBtn.style("position", "absolute");
   closeBtn.style("right", "14px");
   closeBtn.style("top", "14px");
-  closeBtn.style("z-index", "2");
+  closeBtn.style("z-index", "4");
   closeBtn.style("padding", "12px 16px");
   closeBtn.style("border", "1px solid rgba(255,255,255,0.35)");
   closeBtn.style("border-radius", "999px");
   closeBtn.style("cursor", "pointer");
   closeBtn.style("color", "#fff");
-  closeBtn.style("font-weight", "700");
-  closeBtn.style("letter-spacing", "0.2px");
-  closeBtn.style("background", "linear-gradient(135deg, rgba(190,120,255,0.95), rgba(90,40,160,0.95))");
-  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(160,90,255,0.35), 0 0 24px rgba(200,140,255,0.5)");
-  closeBtn.elt.addEventListener("mouseenter", () => {
-  closeBtn.style("transform", "translateY(-1px) scale(1.02)");
-  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.14), 0 14px 34px rgba(160,90,255,0.45), 0 0 30px rgba(200,140,255,0.65)");
-});
-closeBtn.elt.addEventListener("mouseleave", () => {
-  closeBtn.style("transform", "none");
-  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(160,90,255,0.35), 0 0 24px rgba(200,140,255,0.5)");
-});
+  closeBtn.style("font-weight", "800");
+  closeBtn.style("background", "linear-gradient(135deg, rgba(255,140,200,0.95), rgba(120,70,255,0.95))");
+
+  // ✅ 닫기 버튼 클릭이 overlay로 퍼지지 않게
+  closeBtn.elt.addEventListener("click", (e) => e.stopPropagation());
   closeBtn.mousePressed(closeUrlModal);
 
+  // ✅ iframe 컨테이너: topBar 높이만큼 내려서 배치
+  const iframeWrap = createDiv("");
+  iframeWrap.parent(box);
+  iframeWrap.style("position", "absolute");
+  iframeWrap.style("left", "0");
+  iframeWrap.style("right", "0");
+  iframeWrap.style("top", "72px");
+  iframeWrap.style("bottom", "0");
+  iframeWrap.style("z-index", "1");
+  iframeWrap.style("background", "#fff");
+
   const iframe = createElement("iframe");
-  iframe.parent(box);
+  iframe.parent(iframeWrap);
   iframe.attribute("src", url);
   iframe.attribute("width", "100%");
   iframe.attribute("height", "100%");
   iframe.style("border", "0");
-  iframe.style("background", "#fff");
 
-  urlModalEl.mousePressed((e) => {
+  // ✅ 새 창 열기 버튼: 전파 차단 + 팝업 차단 감지
+  const openBtn = topBar.elt.querySelector("#openNewTabBtn");
+  openBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const w = window.open(url, "_blank", "noopener,noreferrer");
+    if (!w) {
+      alert("팝업이 차단됐어요! 주소창 옆 팝업 허용을 켜주세요.");
+    }
+  });
+
+  // ✅ 배경(overlay) 클릭하면 닫기 (box 밖만)
+  urlModalEl.elt.addEventListener("mousedown", (e) => {
     if (e.target === urlModalEl.elt) closeUrlModal();
   });
-}
-
-function closeUrlModal() {
-  if (urlModalEl) {
-    urlModalEl.remove();
-    urlModalEl = null;
-  }
 }
 
 //이전, 다음 버튼
