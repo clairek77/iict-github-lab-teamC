@@ -2,14 +2,14 @@
 const FLOW_TEXTS = {
   intro_1: {
     text: `
-환영합니다. 저는 이 가게의 **타로마스터**입니다.
-가만히 보니 한창 고민이 많은 **청년 시기**를 보내고 있군요.
+환영합니다. 저는 이 가게의 타로마스터 **붉은 말**입니다.
+가만히 보니 당신은 **2026년** 다가오는 **붉은 말의 해**를 앞두고
+한창 고민이 많은 **청년 시기**를 보내고 있군요.
 `
   },
   intro_2: {
     text: `
-**2026년** 다가오는 **붉은 말의 해**, 
-내년의 당신은 어떤 모습일지 궁금하다면...
+과연 내년의 당신은 어떤 모습일지 궁금하다면...
 이곳에서 잠깐 머물다 가시죠.
 `
   },
@@ -385,40 +385,9 @@ function openUrlModal(url) {
   box.style("backdrop-filter", "blur(10px)");
   box.style("-webkit-backdrop-filter", "blur(10px)");
 
-  // ✅ box 안에서 클릭하면 배경(overlay)로 이벤트가 안 퍼지게 막기 (중요!)
   box.elt.addEventListener("mousedown", (e) => e.stopPropagation());
   box.elt.addEventListener("click", (e) => e.stopPropagation());
 
-  // ✅ 상단 바 (항상 표시)
-  const topBar = createDiv(`
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-      <div style="font-size:13px; line-height:1.4; opacity:0.95;">
-        일부 사이트는 보안 정책으로 화면 안에서 열리지 않을 수 있어요.<br/>
-        <strong>(확인 후에 꼭 창을 닫아주세요!)</strong>
-      </div>
-      <button id="openNewTabBtn"
-        style="
-          padding:10px 14px; border-radius:999px; cursor:pointer;
-          border:1px solid rgba(255,255,255,0.35);
-          color:#fff; font-weight:700;
-          background:linear-gradient(135deg, rgba(190,120,255,0.95), rgba(90,40,160,0.95));
-          box-shadow:0 10px 26px rgba(160,90,255,0.35);
-        ">
-        🔗 새 창 열기
-      </button>
-    </div>
-  `);
-  topBar.parent(box);
-  topBar.style("position", "absolute");
-  topBar.style("left", "0");
-  topBar.style("top", "0");
-  topBar.style("right", "0");
-  topBar.style("z-index", "3");
-  topBar.style("padding", "14px 16px");
-  topBar.style("background", "rgba(10, 8, 18, 0.55)");
-  topBar.style("border-bottom", "1px solid rgba(255,255,255,0.10)");
-
-  // ✅ 닫기 버튼
   const closeBtn = createButton("닫기 ✕");
   closeBtn.parent(box);
   closeBtn.style("position", "absolute");
@@ -433,11 +402,9 @@ function openUrlModal(url) {
   closeBtn.style("font-weight", "800");
   closeBtn.style("background", "linear-gradient(135deg, rgba(255,140,200,0.95), rgba(120,70,255,0.95))");
 
-  // ✅ 닫기 버튼 클릭이 overlay로 퍼지지 않게
   closeBtn.elt.addEventListener("click", (e) => e.stopPropagation());
   closeBtn.mousePressed(closeUrlModal);
 
-  // ✅ iframe 컨테이너: topBar 높이만큼 내려서 배치
   const iframeWrap = createDiv("");
   iframeWrap.parent(box);
   iframeWrap.style("position", "absolute");
@@ -455,19 +422,6 @@ function openUrlModal(url) {
   iframe.attribute("height", "100%");
   iframe.style("border", "0");
 
-  // ✅ 새 창 열기 버튼: 전파 차단 + 팝업 차단 감지
-  const openBtn = topBar.elt.querySelector("#openNewTabBtn");
-  openBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const w = window.open(url, "_blank", "noopener,noreferrer");
-    if (!w) {
-      alert("팝업이 차단됐어요! 주소창 옆 팝업 허용을 켜주세요.");
-    }
-  });
-
-  // ✅ 배경(overlay) 클릭하면 닫기 (box 밖만)
   urlModalEl.elt.addEventListener("mousedown", (e) => {
     if (e.target === urlModalEl.elt) closeUrlModal();
   });
@@ -1395,8 +1349,8 @@ function drawTopicsScreen() {
     )
   } else {
         drawStyledText(
-           `당신의 고민에 대해 조금 더 자세히 말씀해주세요.
-당신은 구체적으로 무엇이 궁금하나요?`,
+           `당신의 고민에 대해 조금 더 자세히 듣고 싶어요.
+당신은 구체적으로 무엇이 궁금하신가요?`,
             boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
@@ -1459,7 +1413,7 @@ function drawKeywordsScreen() {
 
   if (!isKeywordSelected) {
     drawStyledText(
-            `마우스를 클릭한 채 [수정구슬]을 문질러보시죠.
+            `마우스를 클릭한 채 [수정구슬] 위를 둥글게 문질러보시죠.
 당신의 기운이 모여 **운명의 단어**가 나타날겁니다!
 (게이지가 가득 차면 자동으로 선택됩니다)`,
             boxX + boxW / 2+25, // 중앙 정렬 기준 X
@@ -1475,7 +1429,7 @@ function drawKeywordsScreen() {
     drawStyledText(
             `당신에게서 **${selectedKeyWord}**의 기운이 강하게 느껴지네요..
 이 기운으로 **세상에 단 하나뿐인** 타로 카드를 만들어드겠습니다.
-      (단어가 마음에 들지 않는다면 이전 버튼을 눌러 돌아가세요.)`,
+      (단어가 마음에 들지 않는다면 왼쪽 화살표 버튼을 눌러 돌아가세요.)`,
             boxX + boxW / 2+25, // 중앙 정렬 기준 X
             boxY + boxH / 2, // 중앙 정렬 기준 Y
             boxW - 60,       // 최대 너비
@@ -1676,7 +1630,7 @@ function drawLoadingScreen() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(32);
-  text("타로 마스터가 당신의 선택을 해석하는 중입니다...", width / 2, height / 2 - 40);
+  text("타로마스터가 당신의 선택을 해석하는 중입니다...", width / 2, height / 2 - 40);
 
   textSize(20);
   text(
@@ -1786,7 +1740,7 @@ function drawCardSelectionScreen() {
   if (selectedCardIndex === -1) {
       text("가장 마음이 끌리는 카드 한 장을 선택해주세요.", width/2, height - 150);
   } else {
-      text("운명이 결정되었습니다.", width/2, height - 180);
+      text("당신의 카드가 나왔습니다!", width/2, height - 180);
 
       // [결과 확인하러 가기] 버튼 등장
       // (기존 '다음' 버튼 이미지 사용하거나 텍스트 버튼 사용)
@@ -1954,8 +1908,11 @@ function drawPre_flowCardScreen() {
   const boldScaleFactor = 1.2;
 
   drawStyledText(
-      `첫 번째 카드로 당신만을 위한 타로 카드를 뽑아봤으니,
-이제 두 번째 **흐름의 카드**도 함께 볼까요?`, 
+      `첫 번째 카드로 당신의 **상황에 딱 맞는** 타로 카드를 만들어봤으니 ,
+이제 두 번째 **흐름의 카드**도 함께 볼까요?
+선택한 고민에 대해서 또래 청년들이 함께 겪고 있는 문제를 들려드릴게요.
+세상의 흐름이 담긴 글 속에는 **알아두면 도움이 되는 이야기**가 있을지도 몰라요.
+`, 
         boxX + boxW / 2, // 중앙 정렬 기준 X
         boxY + boxH / 2, // 중앙 정렬 기준 Y
         boxW - 60,       // 최대 너비
@@ -2104,7 +2061,7 @@ function drawFlowCardScreen() {
 
   // 안내 문구
   const tooltipText = `
-  < 아래를 눌러 
+  < 버튼을 눌러 관련된
   기사 전문을 확인하세요! >
   `;
 
@@ -2158,7 +2115,9 @@ function drawPre_adviceCardScreen(){
 
   drawStyledText(
       `두 번째 카드는 어떠셨나요? 이러한 흐름과 연결하여
-세 번째 카드로 **유용한 조언**을 찾아드릴 수 있습니다만...`, 
+세 번째 카드로 **유용한 조언**을 찾아드릴 수 있습니다만...
+많은 사람들이 잘 모르고 넘어가는 **청년 지원 정책/정보**를
+오늘 타로 가게에 들른 당신께만 몰래 말씀드리죠.`, 
         boxX + boxW / 2, // 중앙 정렬 기준 X
         boxY + boxH / 2, // 중앙 정렬 기준 Y
         boxW - 60,       // 최대 너비
@@ -2311,7 +2270,7 @@ drawImageButtonScaled(
 
   // 안내 문구
   const tooltipText = `
-  < 아래를 눌러 
+  < 버튼을 눌러 정책/정보를
   자세히 알아보세요! >
   `;
 
@@ -2367,7 +2326,8 @@ function drawPre_summaryScreen(){
 
   drawStyledText(
       `이렇게 당신의 **세 카드**를 모두 살펴봤어요!
-  결과를 한 눈에 볼 수 있게 **QR 코드**로 정리해 드릴게요.`, 
+  결과를 한 눈에 볼 수 있게 **QR 코드**로 정리해 드릴게요.
+  카드 **이미지도 저장**할 수 있고, 흐름과 조언 **링크**도 자유롭게 접속해볼 수 있어요.`, 
         boxX + boxW / 2, // 중앙 정렬 기준 X
         boxY + boxH / 2, // 중앙 정렬 기준 Y
         boxW - 60,       // 최대 너비
@@ -2410,8 +2370,6 @@ drawImageButton(result, resultHover, btnX, btnY, () => {
   });
 }
 }
-
-
 
 // ========== SUMMARY SCREEN (COMPLETE FINAL VERSION) ==========
 function drawSummaryScreen() {
