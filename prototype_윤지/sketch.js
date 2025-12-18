@@ -116,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "###";
+const API_KEY = "AIzaSyDSbDn0t8GXXtXs-Hh7HmUUYtY-0_IEWe4";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -285,7 +285,7 @@ function openPdfModal(pdfPath) {
   pdfModalEl.style("display", "flex");
   pdfModalEl.style("align-items", "center");
   pdfModalEl.style("justify-content", "center");
-  pdfModalEl.style("background", "rgba(0,0,0,0.75)");
+  pdfModalEl.style("background", "rgba(20,15,40,0.55)");
   pdfModalEl.style("z-index", "9999");
 
   const box = createDiv("");
@@ -296,17 +296,35 @@ function openPdfModal(pdfPath) {
   box.style("border-radius", "16px");
   box.style("overflow", "hidden");
   box.style("position", "relative");
+  box.style("border", "1px solid rgba(220, 180, 255, 0.35)");
+  box.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.06), 0 0 40px rgba(190,120,255,0.35), 0 0 120px rgba(90,40,160,0.25)");
+  box.style("backdrop-filter", "blur(10px)");
+  box.style("-webkit-backdrop-filter", "blur(10px)");
+  box.style("background", "rgba(20, 15, 35, 0.72)");
 
   const closeBtn = createButton("닫기 ✕");
   closeBtn.parent(box);
   closeBtn.style("position", "absolute");
-  closeBtn.style("right", "12px");
-  closeBtn.style("top", "12px");
+  closeBtn.style("right", "14px");
+  closeBtn.style("top", "14px");
   closeBtn.style("z-index", "2");
-  closeBtn.style("padding", "10px 14px");
-  closeBtn.style("border", "0");
-  closeBtn.style("border-radius", "10px");
+  closeBtn.style("padding", "12px 16px");
+  closeBtn.style("border", "1px solid rgba(255,255,255,0.35)");
+  closeBtn.style("border-radius", "999px");
   closeBtn.style("cursor", "pointer");
+  closeBtn.style("color", "#fff");
+  closeBtn.style("font-weight", "700");
+  closeBtn.style("letter-spacing", "0.2px");
+  closeBtn.style("background", "linear-gradient(135deg, rgba(190,120,255,0.95), rgba(90,40,160,0.95))");
+  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(160,90,255,0.35), 0 0 24px rgba(200,140,255,0.5)");
+  closeBtn.elt.addEventListener("mouseenter", () => {
+  closeBtn.style("transform", "translateY(-1px) scale(1.02)");
+  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.14), 0 14px 34px rgba(160,90,255,0.45), 0 0 30px rgba(200,140,255,0.65)");
+});
+closeBtn.elt.addEventListener("mouseleave", () => {
+  closeBtn.style("transform", "none");
+  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(160,90,255,0.35), 0 0 24px rgba(200,140,255,0.5)");
+});
   closeBtn.mousePressed(closePdfModal);
 
   const iframe = createElement("iframe");
@@ -338,7 +356,7 @@ function openUrlModal(url) {
   urlModalEl.style("display", "flex");
   urlModalEl.style("align-items", "center");
   urlModalEl.style("justify-content", "center");
-  urlModalEl.style("background", "rgba(0,0,0,0.75)");
+  urlModalEl.style("background", "rgba(20,15,40,0.55)");
   urlModalEl.style("z-index", "9999");
 
   const box = createDiv("");
@@ -349,17 +367,36 @@ function openUrlModal(url) {
   box.style("border-radius", "16px");
   box.style("overflow", "hidden");
   box.style("position", "relative");
+  box.style("border", "1px solid rgba(220, 180, 255, 0.35)");
+  box.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.06), 0 0 40px rgba(190,120,255,0.35), 0 0 120px rgba(90,40,160,0.25)");
+  box.style("backdrop-filter", "blur(10px)");
+  box.style("-webkit-backdrop-filter", "blur(10px)");
+  box.style("background", "rgba(20, 15, 35, 0.72)");
+
 
   const closeBtn = createButton("닫기 ✕");
   closeBtn.parent(box);
   closeBtn.style("position", "absolute");
-  closeBtn.style("right", "12px");
-  closeBtn.style("top", "12px");
+  closeBtn.style("right", "14px");
+  closeBtn.style("top", "14px");
   closeBtn.style("z-index", "2");
-  closeBtn.style("padding", "10px 14px");
-  closeBtn.style("border", "0");
-  closeBtn.style("border-radius", "10px");
+  closeBtn.style("padding", "12px 16px");
+  closeBtn.style("border", "1px solid rgba(255,255,255,0.35)");
+  closeBtn.style("border-radius", "999px");
   closeBtn.style("cursor", "pointer");
+  closeBtn.style("color", "#fff");
+  closeBtn.style("font-weight", "700");
+  closeBtn.style("letter-spacing", "0.2px");
+  closeBtn.style("background", "linear-gradient(135deg, rgba(190,120,255,0.95), rgba(90,40,160,0.95))");
+  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(160,90,255,0.35), 0 0 24px rgba(200,140,255,0.5)");
+  closeBtn.elt.addEventListener("mouseenter", () => {
+  closeBtn.style("transform", "translateY(-1px) scale(1.02)");
+  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.14), 0 14px 34px rgba(160,90,255,0.45), 0 0 30px rgba(200,140,255,0.65)");
+});
+closeBtn.elt.addEventListener("mouseleave", () => {
+  closeBtn.style("transform", "none");
+  closeBtn.style("box-shadow", "0 0 0 1px rgba(255,255,255,0.08), 0 10px 30px rgba(160,90,255,0.35), 0 0 24px rgba(200,140,255,0.5)");
+});
   closeBtn.mousePressed(closeUrlModal);
 
   const iframe = createElement("iframe");
