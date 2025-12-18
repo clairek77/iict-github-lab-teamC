@@ -116,7 +116,7 @@ let selectedCardIndex = -1;
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
 // ===== API 관련 ====
-const API_KEY = "AIzaSyDSbDn0t8GXXtXs-Hh7HmUUYtY-0_IEWe4";
+const API_KEY = "###";
 let receiving = false; 
 let geminiStatus = "idle";
 // idle | loading | success | error
@@ -271,7 +271,116 @@ const supabaseClient = supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
+// pdf와 링크 팝업
+let pdfModalEl = null;
+let urlModalEl = null;
 
+function openPdfModal(pdfPath) {
+  closePdfModal();
+
+  pdfModalEl = createDiv("");
+  pdfModalEl.position(0, 0);
+  pdfModalEl.style("position", "fixed");
+  pdfModalEl.style("inset", "0");
+  pdfModalEl.style("display", "flex");
+  pdfModalEl.style("align-items", "center");
+  pdfModalEl.style("justify-content", "center");
+  pdfModalEl.style("background", "rgba(0,0,0,0.75)");
+  pdfModalEl.style("z-index", "9999");
+
+  const box = createDiv("");
+  box.parent(pdfModalEl);
+  box.style("width", "min(1200px, 92vw)");
+  box.style("height", "min(760px, 88vh)");
+  box.style("background", "#111");
+  box.style("border-radius", "16px");
+  box.style("overflow", "hidden");
+  box.style("position", "relative");
+
+  const closeBtn = createButton("닫기 ✕");
+  closeBtn.parent(box);
+  closeBtn.style("position", "absolute");
+  closeBtn.style("right", "12px");
+  closeBtn.style("top", "12px");
+  closeBtn.style("z-index", "2");
+  closeBtn.style("padding", "10px 14px");
+  closeBtn.style("border", "0");
+  closeBtn.style("border-radius", "10px");
+  closeBtn.style("cursor", "pointer");
+  closeBtn.mousePressed(closePdfModal);
+
+  const iframe = createElement("iframe");
+  iframe.parent(box);
+  iframe.attribute("src", pdfPath);
+  iframe.attribute("width", "100%");
+  iframe.attribute("height", "100%");
+  iframe.style("border", "0");
+
+  pdfModalEl.mousePressed((e) => {
+    if (e.target === pdfModalEl.elt) closePdfModal();
+  });
+}
+
+function closePdfModal() {
+  if (pdfModalEl) {
+    pdfModalEl.remove();
+    pdfModalEl = null;
+  }
+}
+
+function openUrlModal(url) {
+  closeUrlModal();
+
+  urlModalEl = createDiv("");
+  urlModalEl.position(0, 0);
+  urlModalEl.style("position", "fixed");
+  urlModalEl.style("inset", "0");
+  urlModalEl.style("display", "flex");
+  urlModalEl.style("align-items", "center");
+  urlModalEl.style("justify-content", "center");
+  urlModalEl.style("background", "rgba(0,0,0,0.75)");
+  urlModalEl.style("z-index", "9999");
+
+  const box = createDiv("");
+  box.parent(urlModalEl);
+  box.style("width", "min(1200px, 92vw)");
+  box.style("height", "min(760px, 88vh)");
+  box.style("background", "#111");
+  box.style("border-radius", "16px");
+  box.style("overflow", "hidden");
+  box.style("position", "relative");
+
+  const closeBtn = createButton("닫기 ✕");
+  closeBtn.parent(box);
+  closeBtn.style("position", "absolute");
+  closeBtn.style("right", "12px");
+  closeBtn.style("top", "12px");
+  closeBtn.style("z-index", "2");
+  closeBtn.style("padding", "10px 14px");
+  closeBtn.style("border", "0");
+  closeBtn.style("border-radius", "10px");
+  closeBtn.style("cursor", "pointer");
+  closeBtn.mousePressed(closeUrlModal);
+
+  const iframe = createElement("iframe");
+  iframe.parent(box);
+  iframe.attribute("src", url);
+  iframe.attribute("width", "100%");
+  iframe.attribute("height", "100%");
+  iframe.style("border", "0");
+  iframe.style("background", "#fff");
+
+  urlModalEl.mousePressed((e) => {
+    if (e.target === urlModalEl.elt) closeUrlModal();
+  });
+}
+
+function closeUrlModal() {
+  if (urlModalEl) {
+    urlModalEl.remove();
+    urlModalEl = null;
+  }
+}
 
 //이전, 다음 버튼
 let before =null;
@@ -315,6 +424,8 @@ let cardImages = {}; // 타로 카드 이미지 저장할 객체
 let back_card = null;
 let flow_card = null;
 let advice_card = null;
+let flowCardImgs = {};
+let adviceCardImgs = {};
 
 // 배경 (Category: 4개)
 const BACKGROUND_MAP = {
@@ -323,6 +434,22 @@ const BACKGROUND_MAP = {
   "연애": "card_bg_love.png",
   "진로": "card_bg_career.png",
 };
+
+// 흐름/조언 카드 (Category: 4개)
+const FLOW_CARD_IMG_MAP = {
+  "건강": "flow_card_health.png",
+  "금전": "flow_card_money.png",
+  "연애": "flow_card_love.png",
+  "진로": "flow_card_career.png",
+};
+
+const ADVICE_CARD_IMG_MAP = {
+  "건강": "advice_card_health_checked.png",
+  "금전": "advice_card_money_more.png",
+  "연애": "advice_card_love_enjoy.png",
+  "진로": "advice_card_career_help.png",
+};
+
 
 // 캐릭터 (KeyWord: 4개)
 const CHARACTER_MAP = {
@@ -387,8 +514,6 @@ function preload() {
   textbox1 = loadImage("textbox_1.png");
   textbox2 = loadImage("textbox_2.png");
   textbox3 = loadImage("textbox_3.png");
-
-
 
   // 입장 버튼, 타이틀
   enterNormal = loadImage("enter_normal.png");
@@ -498,6 +623,7 @@ function preload() {
   advice = loadImage("button_advice.png");
   adviceHover = loadImage("button_advice_hover.png");
 
+  
   // 새로운 카드 뽑기 버튼
   generateCard1 = loadImage("rebutton_generate_card1.png"); // 버튼 이미지 파일 이름은 확인 필요
   generateCard1Hover = loadImage("rebutton_generate_card1_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
@@ -530,6 +656,12 @@ function preload() {
     const fileName = allImages[key];
     cardImages[key] = loadImage(fileName);
   }
+
+  for (const cat in FLOW_CARD_IMG_MAP) {
+  flowCardImgs[cat] = loadImage(FLOW_CARD_IMG_MAP[cat]);
+} for (const cat in ADVICE_CARD_IMG_MAP) {
+  adviceCardImgs[cat] = loadImage(ADVICE_CARD_IMG_MAP[cat]);
+}
 }
 
 function setup() {
@@ -1772,7 +1904,8 @@ function drawFlowCardScreen() {
 
   imageMode(CORNER);
 
-  image(flow_card, cardX, cardY, cardW, cardH);
+  const img = flowCardImgs[selectedCategory] || flow_card;
+  image(img, cardX, cardY, cardW, cardH);
 
   // 테두리 강조
   noFill();
@@ -1823,65 +1956,6 @@ function drawFlowCardScreen() {
         baseFontSize, 
         boldScaleFactor
     );
-
- //PDF 열기
-let pdfModalEl = null;
-
-function openPdfModal(pdfPath) {
-  closePdfModal();
-
-  pdfModalEl = createDiv("");
-  pdfModalEl.position(0, 0);
-  pdfModalEl.style("position", "fixed");
-  pdfModalEl.style("inset", "0");    
-  pdfModalEl.style("display", "flex");
-  pdfModalEl.style("align-items", "center");
-  pdfModalEl.style("justify-content", "center");
-  pdfModalEl.style("background", "rgba(0,0,0,0.75)");
-  pdfModalEl.style("z-index", "9999");
-  pdfModalEl.style("display", "flex");
-  pdfModalEl.style("align-items", "center");
-  pdfModalEl.style("justify-content", "center");
-
-  const box = createDiv("");
-  box.parent(pdfModalEl);
-  box.style("width", "min(1200px, 92vw)");
-  box.style("height", "min(760px, 88vh)");
-  box.style("background", "#111");
-  box.style("border-radius", "16px");
-  box.style("overflow", "hidden");
-  box.style("position", "relative");
-
-  const closeBtn = createButton("닫기 ✕");
-  closeBtn.parent(box);
-  closeBtn.style("position", "absolute");
-  closeBtn.style("right", "12px");
-  closeBtn.style("top", "12px");
-  closeBtn.style("z-index", "2");
-  closeBtn.style("padding", "10px 14px");
-  closeBtn.style("border", "0");
-  closeBtn.style("border-radius", "10px");
-  closeBtn.style("cursor", "pointer");
-  closeBtn.mousePressed(closePdfModal);
-
-  const iframe = createElement("iframe");
-  iframe.parent(box);
-  iframe.attribute("src", pdfPath);
-  iframe.attribute("width", "100%");
-  iframe.attribute("height", "100%");
-  iframe.style("border", "0");
-
-  pdfModalEl.mousePressed((e) => {
-    if (e.target === pdfModalEl.elt) closePdfModal();
-  });
-}
-
-function closePdfModal() {
-  if (pdfModalEl) {
-    pdfModalEl.remove();
-    pdfModalEl = null;
-  }
-}
 
   // =======================================================
   // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
@@ -2032,7 +2106,8 @@ function drawAdviceCardScreen() {
 
   imageMode(CORNER);
 
-  image(advice_card, cardX, cardY, cardW, cardH);
+  const img = adviceCardImgs[selectedCategory] || advice_card; 
+  image(img, cardX, cardY, cardW, cardH);
 
   // 테두리 강조
   noFill();
@@ -2110,17 +2185,20 @@ function drawAdviceCardScreen() {
   const advicelinkBtnX = cardX + cardW + 15; 
   const advicelinkBtnY = cardY + cardH - advicelinkH;
 
-  drawImageButtonScaled(
-    advicelink,
-    advicelinkHover,
-    advicelinkBtnX,
-    advicelinkBtnY,
-    advicelinkW,
-    advicelinkH,
-    () => {
-      if (policyCard?.link) window.open(policyCard.link, "_blank");
+drawImageButtonScaled(
+  advicelink,
+  advicelinkHover,
+  advicelinkBtnX,
+  advicelinkBtnY,
+  advicelinkW,
+  advicelinkH,
+  () => {
+    if (policyCard?.link) {
+      openUrlModal(policyCard.link);
     }
-  );
+  }
+);
+
 
   // 안내 문구
   const tooltipText = `
