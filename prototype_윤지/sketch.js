@@ -2782,10 +2782,16 @@ function goToPrev() {
   switch (state) {
     case "intro_1": state = "start"; break;
     case "intro_2": state = "intro_1"; break;
+    case "intro_3": state = "intro_2"; break;
+    case "tutorial_0": state = "intro_3"; break;
+    case "tutorial_1": state = "tutorial_0"; break;
+    case "tutorial_2": state = "tutorial_1"; break;
+    case "tutorial_3": state = "tutorial_2"; break;
+    case "tutorial_fin": state = "tutorial_3"; break;
 
     case "question": 
       selectedCategory = null;
-      state = "intro_2"; 
+      state = "tutorial_fin"; 
       break;
 
     case "topics":
@@ -2829,7 +2835,13 @@ function goToNext() {
 
     break;
     case "intro_1": state = "intro_2"; break;
-    case "intro_2": state = "question"; break;
+    case "intro_2": state = "intro_3"; break;
+    case "intro_3": state = "tutorial_0"; break;
+    case "tutorial_0": state = "tutorial_1"; break;
+    case "tutorial_1": state = "tutorial_2"; break;
+    case "tutorial_2": state = "tutorial_3"; break;
+    case "tutorial_3": state = "tutorial_fin"; break;
+    case "tutorial_fin": state = "question"; break;
     // question -> topics, topics -> keywords는 개별 선택 로직이므로 조건부 추가
     
     case "question":
