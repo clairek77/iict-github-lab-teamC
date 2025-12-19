@@ -120,6 +120,8 @@ let isCardFlipped = false;
 let selectionStartTime = 0; // 선택한 시점 저장용
 let selectedCardIndex = -1;
 
+let selectionDestination = "gemini"
+
 // 타로 결과 관련
 let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
 
@@ -1620,8 +1622,6 @@ function drawKeywordsScreen() {
 
        drawImageButton(createcard, createcardHover, btnX, btnY, () => {
            goToNext(); 
-           tarotAdvice = "";
-           callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
        });
     } else {
        btnW = 200; btnH = 60;
@@ -1629,9 +1629,7 @@ function drawKeywordsScreen() {
        drawButton(btnX, btnY, btnW, btnH, "카드 생성하기");
        
        if (mouseIsPressed && isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
-           state = "loading";
-           tarotAdvice = "";
-           callGeminiTarot(selectedCategory, selectedTopic, selectedKeyWord);
+           goToNext(); 
        }
     }
   }
@@ -1680,65 +1678,73 @@ function drawLoadingScreen() {
 
 // ========== CARD SELECTION SCREEN (3장 중 택1) ==========
 function drawCardSelectionScreen() {
-  drawResultBackground(); // 공통 배경
-  fill(0, 0, 0, 180);     // 약간 어둡게
+  drawResultBackground(); 
+  fill(0, 0, 0, 180);     
   rect(0, 0, width, height);
   
-  // 타이틀 (없으면 텍스트로)
-  if (title1) {
+  // 1. 상황에 따른 타이틀 설정
+  let titleText = "운명의 카드를 선택해 클릭하세요";
+  if (selectionDestination === "flowCard") titleText = "흐름의 카드를 선택해 클릭하세요";
+  if (selectionDestination === "adviceCard") titleText = "조언의 카드를 선택해 클릭하세요";
+
+  if (title1 && selectionDestination === "gemini") {
       drawStageTitle(title1);
+  } else if (title2 && selectionDestination === "flowCard") {
+      drawStageTitle(title2);
+  } else if (title3 && selectionDestination === "adviceCard") {
+      drawStageTitle(title3);
   } else {
       fill(255);
       textAlign(CENTER, CENTER);
       textSize(40);
-      text("운명의 카드를 선택해 클릭하세요", width/2, 150);
+      text(titleText, width/2, 150);
   }
 
   const cardW = 260;
   const cardH = 380;
-  const gap = 50; // 카드 사이 간격
+  const gap = 50; 
   
-  // 전체 카드 그룹의 너비 계산 (카드3개 + 간격2개)
   const totalW = (cardW * 3) + (gap * 2);
-  const startX = (width - totalW) / 2; // 중앙 정렬을 위한 시작점
+  const startX = (width - totalW) / 2; 
   const cardY = height / 2 - cardH / 2 + 50;
 
   imageMode(CORNER);
 
-  // 3장의 카드 그리기 Loop
   for (let i = 0; i < 3; i++) {
       let x = startX + (i * (cardW + gap));
       let y = cardY;
 
-      // 1) 아직 아무것도 선택하지 않은 상태 (-1)
       if (selectedCardIndex === -1) {
-          // 마우스 올렸을 때 살짝 위로 뜨는 효과 (Hover)
+          // 선택 전: 뒷면 표시
           if (isInside(mouseX, mouseY, x, y, cardW, cardH)) {
               y -= 20; 
-              // 커서 변경 힌트 (선택사항)
               cursor(HAND); 
           }
-          
-          // 카드 뒷면 그리기
           if (back_card) image(back_card, x, y, cardW, cardH);
           else { fill(50); rect(x,y,cardW,cardH); }
       
-      } 
-      // 2) 무언가 선택된 상태
-      else {
-          cursor(ARROW); // 커서 복구
+      } else {
+          cursor(ARROW); 
 
           if (i === selectedCardIndex) {
-              // 👉 선택된 카드: 뒤집힘 (앞면 보여주기 - 3단 합체)
               
-              // (배경)
-              if (cardImages[selectedCategory]) image(cardImages[selectedCategory], x, y, cardW, cardH);
-              // (캐릭터)
-              if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], x, y, cardW, cardH);
-              // (아이템)
-              if (cardImages[selectedTopic]) image(cardImages[selectedTopic], x, y, cardW, cardH);
+              if (selectionDestination === "gemini") {
+                  if (cardImages[selectedCategory]) image(cardImages[selectedCategory], x, y, cardW, cardH);
+                  if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], x, y, cardW, cardH);
+                  if (cardImages[selectedTopic]) image(cardImages[selectedTopic], x, y, cardW, cardH);
 
-              // 선택된 카드는 강조 테두리
+              } else if (selectionDestination === "flowCard") {
+                  // 2) 흐름 카드 이미지
+                  const img = flowCardImgs[selectedCategory] || flow_card;
+                  image(img, x, y, cardW, cardH);
+
+              } else if (selectionDestination === "adviceCard") {
+                  // 3) 조언 카드 이미지
+                  const img = adviceCardImgs[selectedCategory] || advice_card;
+                  image(img, x, y, cardW, cardH);
+              }
+
+              // 강조 테두리
               noFill();
               stroke(255, 215, 0);
               strokeWeight(4);
@@ -1746,33 +1752,32 @@ function drawCardSelectionScreen() {
               noStroke();
 
           } else {
-              // 선택되지 않은 나머지 카드: 어둡게 처리 (비활성화 느낌)
+              // 선택 안 된 카드: 어둡게
               if (back_card) image(back_card, x, y, cardW, cardH);
               else { fill(50); rect(x,y,cardW,cardH); }
-
-              // 반투명 검은막 덮기
               fill(0, 0, 0, 200);
               rect(x, y, cardW, cardH);
           }
-        }
+      }
   }
 
-  // ==========================================
-  // 안내 문구 및 다음 버튼
-  // ==========================================
+  // 안내 문구 및 자동 이동
   textAlign(CENTER, CENTER);
   fill(255);
   textSize(24);
+  noStroke(); 
 
   if (selectedCardIndex === -1) {
       text("가장 마음이 끌리는 카드 한 장을 선택해주세요.", width/2, height - 150);
   } else {
-      text("당신의 카드가 나왔습니다!", width/2, height - 180);
-      let elapsedTime = millis() - selectionStartTime; // 현재 시간 - 클릭한 시간
+      text("운명이 결정되었습니다.", width/2, height - 180);
       
-      if (elapsedTime > 3000) { // 3초(3000ms)가 지나면
-        state = "gemini";       // 타로 해석 화면으로 전환
-        isCardFlipped = true;  // 해석 화면의 카드 뒤집기 상태 초기화
+      let elapsedTime = millis() - selectionStartTime; 
+      
+      // 3초 뒤에 'selectionDestination'에 저장된 다음 화면으로 이동
+      if (elapsedTime > 3000) { 
+        state = selectionDestination;
+        isCardFlipped = true;  
       }
   }
 }
@@ -2812,8 +2817,17 @@ function goToNext() {
   if (pdfModalEl || urlModalEl || warningEl) return; 
   resetIdleTimer();
 
+  userStartAudio();
+
   switch (state) {
-    case "start": state = "intro_1"; break;
+    case "start": state = "intro_1"; 
+    
+    if (bgMusic && !bgMusic.isPlaying()) {
+        bgMusic.setVolume(0.5);
+        bgMusic.loop();
+      }
+
+    break;
     case "intro_1": state = "intro_2"; break;
     case "intro_2": state = "question"; break;
     // question -> topics, topics -> keywords는 개별 선택 로직이므로 조건부 추가
@@ -2845,9 +2859,21 @@ function goToNext() {
       if (isCardFlipped) state = "pre_flowCard"; 
       break;
 
-    case "pre_flowCard": state = "flowCard"; break;
-    case "flowCard": state = "pre_adviceCard"; break;
-    case "pre_adviceCard": state = "adviceCard"; break;
+    case "pre_flowCard": 
+      selectionDestination = "flowCard"; // 목적지는 흐름 카드 결과
+      selectedCardIndex = -1;            // 선택 초기화
+      state = "card_selection";          // 카드 선택 화면으로 이동
+      break;
+
+    case "flowCard": 
+       state = "pre_adviceCard"; 
+       break;
+
+    case "pre_adviceCard": 
+       selectionDestination = "adviceCard"; // 목적지는 조언 카드 결과
+       selectedCardIndex = -1;              // 선택 초기화
+       state = "card_selection";            // 카드 선택 화면으로 이동
+       break;
     case "adviceCard": state = "pre_summary"; break;
     
     case "pre_summary": 
@@ -2885,6 +2911,24 @@ function mousePressed() {
     }
   }
   if (state === "start") {
+    let btnX, btnY, btnW, btnH;
+    
+    if (enterNormal) {
+        btnW = enterNormal.width;
+        btnH = enterNormal.height;
+        btnX = width / 2 - btnW / 2;
+        btnY = height / 2 + 260;
+    } else {
+        btnW = btnWidth;
+        btnH = btnHeight;
+        btnX = width / 2 - btnW / 2;
+        btnY = height / 2 + 260;
+    }
+
+    // 영역 안이면 소리 재생!
+    if (isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
+        if (clickSound && clickSound.isLoaded()) clickSound.play();
+    }
     handleStartClick();
     return;
   }
@@ -3422,6 +3466,7 @@ function callGeminiTarot(category, topic, keyWord) {
       loadCardsByTopic(selectedTopic);
       
       geminiStatus = "success";
+      selectionDestination = "gemini";
       selectedCardIndex = -1; // 선택 상태 초기화
       state = "card_selection";
     })
