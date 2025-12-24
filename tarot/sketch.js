@@ -69,7 +69,6 @@ const TOPICS_MAP = {
 };
 
 // ==== 단어 목록 정의 수정 ====
-// 타로 카드 이미지 생성에 사용될 실제 키워드 (4개) - 캐릭터 이미지의 키로 사용됩니다.
 const ACTUAL_IMAGE_KEYWORDS = ["기회", "행운", "불안", "변화"]; 
 
 // 사용자가 화면에서 선택할 16개의 키워드 목록 (Gemini 프롬프트에 사용)
@@ -94,13 +93,12 @@ const KEYWORD_IMAGE_MAP = {
 
 let state = "start";
 
-let currentPrevState = null; // 현재 화면에서 왼쪽 키를 눌렀을 때 갈 곳
-let currentNextState = null; // 현재 화면에서 오른쪽 키를 눌렀을 때 갈 곳
+let currentPrevState = null; 
+let currentNextState = null;
 
-let selectedCategory = null;   // "건강" / "금전" / "연애" / "진로"
-let selectedTopic = null;      // TOPICS_MAP 중 사용자가 클릭한 단어 1개
-let selectedKeyWord = null;    // DUMMY_KEYWORDS_LIST 중 사용자가 클릭한 단어 1개 (Gemini 프롬프트용)
-let actualImageKeyWord = null; // CHARACTER_MAP에 사용될 4개 중 1개 (이미지용)
+let selectedCategory = null;  
+let selectedTopic = null;     
+let selectedKeyWord = null;    
 
 // bgm
 let bgMusic = null;
@@ -117,19 +115,27 @@ let isKeywordSelected = false;
 
 //카드 뒤집기
 let isCardFlipped = false;
-let selectionStartTime = 0; // 선택한 시점 저장용
+let selectionStartTime = 0; 
 let selectedCardIndex = -1;
 
 let selectionDestination = "gemini"
 
 // 타로 결과 관련
-let tarotAdvice = "";          // Gemini가 생성한 조언 텍스트
+let tarotAdvice = "";        
 
 // ===== API 관련 ====
-const API_KEY = "###";
+let API_KEY = ""; 
+let apiKeyModalEl = null;
+let apiKeyInputEl = null;
+let apiKeySaveBtnEl = null;
+let apiKeyCancelBtnEl = null;
+
+let pendingGeminiRequest = null; 
+
 let receiving = false; 
 let geminiStatus = "idle";
-// idle | loading | success | error
+
+let apiOverlayEl = null;
 
 // 시스템 프롬프트 (타로가게 버전)
 const SYSTEM_PROMPT = `
@@ -287,7 +293,7 @@ let urlModalEl = null;
 
 function openPdfModal(pdfPath) {
   closePdfModal();
-  lastInteractionTime = millis(); // 모달을 여는 순간 타이머 리셋
+  lastInteractionTime = millis(); 
 
   pdfModalEl = createDiv("");
   pdfModalEl.position(0, 0);
@@ -393,12 +399,12 @@ function openUrlModal(url) {
   box.style("-webkit-backdrop-filter", "blur(10px)");
 
   box.elt.addEventListener("mousedown", (e) => {
-    resetIdleTimer(); // 사용자가 모달을 조작 중임을 알림
+    resetIdleTimer(); 
     e.stopPropagation()
   });
 
   box.elt.addEventListener("click", (e) => {
-    resetIdleTimer(); // 사용자가 모달을 조작 중임을 알림
+    resetIdleTimer(); 
     e.stopPropagation()
   });
 
@@ -417,7 +423,7 @@ function openUrlModal(url) {
   closeBtn.style("background", "linear-gradient(135deg, rgba(255,140,200,0.95), rgba(120,70,255,0.95))");
 
   closeBtn.elt.addEventListener("click", (e) => {
-    resetIdleTimer(); // 사용자가 모달을 조작 중임을 알림
+    resetIdleTimer(); 
     e.stopPropagation()
   });
 
@@ -482,12 +488,12 @@ let generateCard3Hover = null;
 let TOPICS_IMAGE_MAP = {};
 
 // ===== JSON 카드 데이터 =====
-let cardsData = null;   // cards.json 전체
-let flowCard = null;    // 이번에 보여줄 '흐름' 카드
-let policyCard = null;  // 이번에 보여줄 '조언(정책)' 카드
+let cardsData = null;   
+let flowCard = null;  
+let policyCard = null;  
 
 // ==== 타로 카드 이미지 ====
-let cardImages = {}; // 타로 카드 이미지 저장할 객체
+let cardImages = {}; 
 let back_card = null;
 let flow_card = null;
 let advice_card = null;
@@ -692,12 +698,12 @@ function preload() {
 
   
   // 새로운 카드 뽑기 버튼
-  generateCard1 = loadImage("rebutton_generate_card1.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard1Hover = loadImage("rebutton_generate_card1_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard2 = loadImage("rebutton_generate_card2.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard2Hover = loadImage("rebutton_generate_card2_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard3 = loadImage("rebutton_generate_card3.png"); // 버튼 이미지 파일 이름은 확인 필요
-  generateCard3Hover = loadImage("rebutton_generate_card3_hover.png"); // 버튼 이미지 파일 이름은 확인 필요
+  generateCard1 = loadImage("rebutton_generate_card1.png"); 
+  generateCard1Hover = loadImage("rebutton_generate_card1_hover.png"); 
+  generateCard2 = loadImage("rebutton_generate_card2.png"); 
+  generateCard2Hover = loadImage("rebutton_generate_card2_hover.png"); 
+  generateCard3 = loadImage("rebutton_generate_card3.png"); 
+  generateCard3Hover = loadImage("rebutton_generate_card3_hover.png"); 
 
   // 결과 한번에 보기
   result = loadImage("button_result.png");
@@ -758,10 +764,8 @@ function setup() {
 }
 
 function draw() {
-  // [수정 사항 1] 매 프레임 버튼 배열 초기화 (중복 클릭 방지)
   clickableButtons = [];
 
-  // [수정 사항 2]
   if (state !== "start") {
     let elapsed = millis() - lastInteractionTime;
     let remaining = IDLE_TIMEOUT - elapsed;
@@ -777,11 +781,9 @@ function draw() {
       let seconds = ceil(remaining / 1000);
       showDomTimeoutWarning(seconds);
     } else {
-      // 30초보다 많이 남았다면 경고창 제거
       if (warningEl) removeDomTimeoutWarning();
     }
   } else {
-    // [중요] 시작 화면으로 돌아오면 무조건 경고창부터 제거
     if (warningEl) removeDomTimeoutWarning();
   }
 
@@ -898,7 +900,6 @@ function drawStartScreen() {
   text("아래 버튼을 클릭하거나 방향키(</>)를 이용해 시작하세요!", width / 2, height / 2 + 230);
 }
 
-
 // 공통: 시작/튜토리얼 단계 배경
 function drawStartTutorialBackground() {
   // start 화면과 동일한 배경 사용
@@ -908,7 +909,6 @@ function drawStartTutorialBackground() {
   fill(0, 0, 0, 120);
   rect(0, 0, width, height);
 }
-
 
 // ========== INTRO/TUTORIAL 공통 화면 ==========
 function drawIntroScreen(txtObj, prevState, nextState, showHorse) {
@@ -978,13 +978,12 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
     drawStartTutorialBackground();
 
     // 1. 카드 크기 설정 (원본 비율 유지)
-    const targetW = 250; // 원하는 카드 너비 (기준)
+    const targetW = 250; 
     
     let cardW = targetW;
-    let cardH = 260; // 기본값. 로딩이 안 됐을 경우 대비.
+    let cardH = 260; 
     
     if (back_card && back_card.width > 0) {
-        // back_card의 종횡비를 계산하여 높이를 설정
         const aspectRatio = back_card.width / back_card.height;
         cardH = targetW / aspectRatio; 
     }
@@ -995,14 +994,14 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
     const cardGap = 80;
     
     // 설명 박스 위치를 기준으로 카드 상단 위치 조정
-    const boxY_new = 680; // 설명 박스 위치
-    const cardY = boxY_new - cardH - 50; // 설명 박스 위에 카드 배치
+    const boxY_new = 680; 
+    const cardY = boxY_new - cardH - 50; 
 
     // 2. 카드 위치 정의 (왼쪽, 중앙, 오른쪽 순)
     const cardPositions = [
-        { x: width / 2 - cardW - cardGap - cardW / 2, y: cardY }, // [0] 왼쪽 (Gemini 카드)
-        { x: width / 2 - cardW / 2, y: cardY },                   // [1] 중앙 (흐름 카드)
-        { x: width / 2 + cardW / 2 + cardGap, y: cardY }          // [2] 오른쪽 (조언 카드)
+        { x: width / 2 - cardW - cardGap - cardW / 2, y: cardY }, 
+        { x: width / 2 - cardW / 2, y: cardY },                 
+        { x: width / 2 + cardW / 2 + cardGap, y: cardY }       
     ];
 
     imageMode(CORNER);
@@ -1011,17 +1010,14 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
     // 3. 카드 1 (왼쪽: Gemini 카드)
     // =======================================================
     if (flippedCount === 1) { 
-        // 뒤집힘: Gemini 조합 카드 표시
         const cX = cardPositions[0].x;
         const cY = cardPositions[0].y;
         
-        // **수정**: 이제 cardW와 cardH는 비율이 유지된 값입니다.
         image(cardImages['건강'], cX, cY, cardW, cardH); 
         image(cardImages['기회'], cX, cY, cardW, cardH); 
         image(cardImages['마음'], cX, cY, cardW, cardH); 
         
     } else {
-        // 뒷면: back_card 표시
         image(back_card, cardPositions[0].x, cardPositions[0].y, cardW, cardH);
     }
 
@@ -1076,7 +1072,6 @@ function drawTutorialCardScreen(txtObj, prevState, nextState, flippedCount) {
           boldScaleFactor   // 볼드 확대 비율
      );  
   } else {
-      // 폰트가 로드되지 않았으면 일반 텍스트로 대체
       textAlign(CENTER, CENTER);
       text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
   }
@@ -1166,7 +1161,6 @@ function drawTutorialFinScreen() {
   }
 }
 
-
 // ========== QUESTION SCREEN ==========
 function drawQuestionScreen() {
   drawResultBackground();
@@ -1175,7 +1169,7 @@ function drawQuestionScreen() {
   rect(0, 0, width, height);
 
   // ================================
-  // 🔶 1) 4개 카테고리 버튼 (상단 중앙)
+  // 1) 4개 카테고리 버튼 (상단 중앙)
   // ================================
   const categories = ["건강", "진로", "금전", "연애"];
   const normalImages = [health, career, money, love];
@@ -1210,7 +1204,7 @@ function drawQuestionScreen() {
   }
 
   // ================================
-  // 🔶 2) 말 + 설명 박스
+  // 2) 말 + 설명 박스
   // ================================
   const boxW = 800;
   const boxH = 230;
@@ -1277,13 +1271,12 @@ function drawQuestionScreen() {
         );
     }
   } else {
-      // 폰트가 로드되지 않았으면 일반 텍스트로 대체
       textAlign(CENTER, CENTER);
       text(txtObj.text, boxX + boxW / 2, boxY + boxH / 2);
   }
 
   // ================================
-  // 🔶 3) 이전/다음 버튼 (기존 그대로)
+  //  3) 이전/다음 버튼 (기존 그대로)
   // ================================
   const baseY = boxY + boxH / 2 - before.width / 2;
   drawPrevNextButtons("tutorial_fin", "topics", baseY);
@@ -1303,7 +1296,7 @@ function drawTopicsScreen() {
   imageMode(CORNER);
 
   // ================================
-  // 🔶 1) 4개 topic 버튼
+  //  1) 4개 topic 버튼
   // ================================
   const btnW = imageMap.normal[0].width * 0.9;
   const btnH = imageMap.normal[0].height * 0.9;
@@ -1335,7 +1328,7 @@ function drawTopicsScreen() {
   }
 
   // ================================
-  // 🔶 2) 말 + 설명 박스
+  // 2) 말 + 설명 박스
   // ================================
   const boxW = 800;
   const boxH = 230;
@@ -1392,7 +1385,7 @@ function drawTopicsScreen() {
   }
 
   // ================================
-  // 🔶 3) 이전/다음 버튼
+  // 3) 이전/다음 버튼
   // ================================
   const baseY = boxY + boxH / 2 - before.width / 2;
   drawPrevNextButtons("question", "keywords", baseY);
@@ -1411,7 +1404,7 @@ function drawKeywordsScreen() {
   if (typeof isKeywordSelected === 'undefined') isKeywordSelected = false;
 
   // ================================
-  // 🔶 말 + 설명 박스
+  //  말 + 설명 박스
   // ================================
   const boxW = 800;
   const boxH = 230;
@@ -1471,7 +1464,7 @@ function drawKeywordsScreen() {
   }
 
   // ================================
-  // 수정 구슬 (위치 계산 및 그리기)
+  // 수정 구슬
   // ================================
   const crystalballSize = 550;
   let drawW = crystalballSize; 
@@ -1543,7 +1536,6 @@ function drawKeywordsScreen() {
 
               textSize(24 + (i % 3) * 5); 
               
-              // 게이지가 찰수록 글씨가 점점 밝게 빛남 (시각적 피드백 유지)
               let alpha = map(rubProgress, 0, 100, 100, 255);
               fill(255, 255, 200, alpha); 
               text(DUMMY_KEYWORDS_LIST[i], wx, wy);
@@ -1552,7 +1544,6 @@ function drawKeywordsScreen() {
       }
 
     } else {
-      // 문지르지 않으면 게이지 감소
       rubProgress -= 1.0; 
       
       if (magicChargeSound && magicChargeSound.isPlaying()) {
@@ -1576,7 +1567,6 @@ function drawKeywordsScreen() {
     let currentBarW = map(rubProgress, 0, 100, 0, barW);
     rect(barX, barY, currentBarW, barH, 10);
 
-    // 100% 달성 시
     if (rubProgress >= 100) {
       if (magicChargeSound && magicChargeSound.isPlaying()) magicChargeSound.stop();
       if (magicRevealSound && magicRevealSound.isLoaded()) {
@@ -1682,7 +1672,6 @@ function drawCardSelectionScreen() {
   fill(0, 0, 0, 180);     
   rect(0, 0, width, height);
   
-  // 1. 상황에 따른 타이틀 설정
   let titleText = "운명의 카드를 선택해 클릭하세요";
   if (selectionDestination === "flowCard") titleText = "흐름의 카드를 선택해 클릭하세요";
   if (selectionDestination === "adviceCard") titleText = "조언의 카드를 선택해 클릭하세요";
@@ -1734,12 +1723,10 @@ function drawCardSelectionScreen() {
                   if (cardImages[selectedTopic]) image(cardImages[selectedTopic], x, y, cardW, cardH);
 
               } else if (selectionDestination === "flowCard") {
-                  // 2) 흐름 카드 이미지
                   const img = flowCardImgs[selectedCategory] || flow_card;
                   image(img, x, y, cardW, cardH);
 
               } else if (selectionDestination === "adviceCard") {
-                  // 3) 조언 카드 이미지
                   const img = adviceCardImgs[selectedCategory] || advice_card;
                   image(img, x, y, cardW, cardH);
               }
@@ -1752,7 +1739,6 @@ function drawCardSelectionScreen() {
               noStroke();
 
           } else {
-              // 선택 안 된 카드: 어둡게
               if (back_card) image(back_card, x, y, cardW, cardH);
               else { fill(50); rect(x,y,cardW,cardH); }
               fill(0, 0, 0, 200);
@@ -1774,7 +1760,6 @@ function drawCardSelectionScreen() {
       
       let elapsedTime = millis() - selectionStartTime; 
       
-      // 3초 뒤에 'selectionDestination'에 저장된 다음 화면으로 이동
       if (elapsedTime > 3000) { 
         state = selectionDestination;
         isCardFlipped = true;  
@@ -1791,9 +1776,6 @@ function drawGeminiScreen() {
     
     drawStageTitle(title1);
 
-    // =======================================================
-    // 1. 카드 (중앙 상단 위치 유지)
-    // =======================================================
     const cardW = 260;
     const cardH = 380;
     
@@ -1807,7 +1789,6 @@ function drawGeminiScreen() {
 
     imageMode(CORNER);
 
-    // 완성된 타로 카드 그리기 (3단 합체)
     if (cardImages[selectedCategory]) image(cardImages[selectedCategory], cardX, cardY, cardW, cardH);
     if (cardImages[actualImageKeyWord]) image(cardImages[actualImageKeyWord], cardX, cardY, cardW, cardH);
     if (cardImages[selectedTopic]) image(cardImages[selectedTopic], cardX, cardY, cardW, cardH);
@@ -1820,12 +1801,10 @@ function drawGeminiScreen() {
     noStroke();
 
     // =======================================================
-    // 2. 텍스트 박스 (카드 아래 중앙으로 이동)
+    // 텍스트 박스
     // =======================================================
     const boxW = 1000;
     const boxH = 400; 
-    
-    // ★ 변경: 텍스트 박스를 살짝 왼쪽에 배치
     const boxOffset = 50; 
     const boxX = width / 2 - boxW / 2 + boxOffset;
     const boxY = cardY + cardH + 30; 
@@ -1833,22 +1812,21 @@ function drawGeminiScreen() {
     image(textbox3, boxX-35, boxY);
 
     // -------------------------------------------------------
-    // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
+    // 텍스트 내용
     // -------------------------------------------------------
-    const textMargin = 50; // 중앙 배치를 위한 내부 여백
+    const textMargin = 50; 
     
     // 텍스트 영역의 시작점과 크기
     const textX = boxX + textMargin;
     const textY = boxY + boxH/2;
-    const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
-    const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
+    const textW = boxW - textMargin * 2; 
+    const textH = boxH - textMargin * 2; 
 
     fill(0);
-    const baseFontSize = 24;      // 기본 폰트 크기
-    const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
-    const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
+    const baseFontSize = 24;     
+    const lineHeight = 45;        
+    const boldScaleFactor = 1.3;  
     
-    // ★ 함수 호출해 텍스트 쓰기
     drawLeftStyledText(
         tarotAdvice, 
         textX+35, 
@@ -1861,31 +1839,24 @@ function drawGeminiScreen() {
         boldScaleFactor
     );
 
-
     // =======================================================
-    // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
+    // 말 이미지
     // =======================================================
     const horseW = 140;
     if (horse_re2) {
         const aspectRatio = horse_re2.width / horse_re2.height;
         const horseH = horseW / aspectRatio; 
         
-        // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
-        const horseMargin = 60; // 텍스트 박스와의 간격
+        const horseMargin = 60;
         const horseX = boxX - horseW - horseMargin;
         
-        // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
         const horseY = boxY + boxH - textMargin - horseH; 
         
         imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
     }
     
     // =======================================================
-    // 5. QR 버튼 삭제 완료 (QR 관련 코드 모두 제거됨)
-    // =======================================================
-    
-    // =======================================================
-    // 6. 다음 버튼 (위치 유지)
+    // 다음 버튼 
     // =======================================================
     const margin = 200;
     const nextW = after.width;
@@ -1906,13 +1877,13 @@ function drawPre_flowCardScreen() {
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  // 말 그림 (intro 단계와 동일한 위치)
+  // 말 그림
   if (horse_re1) {
     const horseSize = 500;
     const horseX = boxX + boxW / 2 - horseSize / 2;
     const horseY = boxY - horseSize + 100;
 
-  // 1. 비율 유지 계산
+  // 비율 유지 계산
     const aspectRatio = horse_re1.width / horse_re1.height;
     let drawH = horseSize;
     let drawW = horseSize * aspectRatio;
@@ -1947,7 +1918,6 @@ function drawPre_flowCardScreen() {
         boldScaleFactor   // 볼드 확대 비율
      );  
   
-  // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
   const margin = 200;
   const prevW = before.width;
@@ -1957,7 +1927,6 @@ function drawPre_flowCardScreen() {
     goToPrev(); // 이전 버튼은 gemini로
   });
 
-  // 2) generate_card2 버튼 (설명 박스 아래 중앙)
   if (generateCard2 && generateCard2Hover) {
     const btnW = generateCard2.width;
     const btnH = generateCard2.height;
@@ -1965,11 +1934,10 @@ function drawPre_flowCardScreen() {
     const btnY = boxY + boxH ; 
 
     drawImageButton(generateCard2, generateCard2Hover, btnX, btnY, () => {
-     goToNext(); // 다음 단계는 flowCard로
+     goToNext(); 
     });
   }
 }
-
 
 // ========== FLOW CARD SCREEN ==========
 function drawFlowCardScreen() {
@@ -1980,7 +1948,6 @@ function drawFlowCardScreen() {
     
   drawStageTitle(title2);
 
-// ====== 1. 중앙 상단 카드 ========
   const cardW = 260;
   const cardH = 380;
     
@@ -2004,37 +1971,31 @@ function drawFlowCardScreen() {
   rect(cardX, cardY, cardW, cardH);
   noStroke();
 
-  // 2. 텍스트 박스 (카드 아래 중앙으로 이동)
-  // =======================================================
     const boxW = 1000;
     const boxH = 400; 
-    
-    // ★ 변경: 텍스트 박스를 살짝 왼쪽에 배치
     const boxOffset = 50; 
     const boxX = width / 2 - boxW / 2 + boxOffset;
     const boxY = cardY + cardH + 30; 
 
     image(textbox3, boxX-35, boxY);
 
-      
     // -------------------------------------------------------
-    // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
+    // 텍스트 내용 
     // -------------------------------------------------------
-    const textMargin = 50; // 중앙 배치를 위한 내부 여백
+    const textMargin = 50; 
     
     // 텍스트 영역의 시작점과 크기
     const textX = boxX + textMargin;
     const textY = boxY + boxH/2;
-    const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
-    const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
+    const textW = boxW - textMargin * 2; 
+    const textH = boxH - textMargin * 2; 
 
     fill(0);
     
-    const baseFontSize = 24;      // 기본 폰트 크기
-    const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
-    const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
+    const baseFontSize = 24;     
+    const lineHeight = 45;       
+    const boldScaleFactor = 1.3;  
     
-    // ★ 함수 호출해 텍스트 쓰기
     drawLeftStyledText(
         flowCard.summary, 
         textX+35, 
@@ -2048,18 +2009,14 @@ function drawFlowCardScreen() {
     );
 
   // =======================================================
-  // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
+  // 말 이미지
   // =======================================================
   const horseW = 140;
   if (horse_re2) {
       const aspectRatio = horse_re2.width / horse_re2.height;
       const horseH = horseW / aspectRatio; 
-      
-      // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
-      const horseMargin = 60; // 텍스트 박스와의 간격
-      const horseX = boxX - horseW - horseMargin;
-       
-      // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
+      const horseMargin = 60;
+      const horseX = boxX - horseW - horseMargin;       
       const horseY = boxY + boxH - textMargin - horseH; 
       
       imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
@@ -2099,7 +2056,7 @@ function drawFlowCardScreen() {
   textAlign(CENTER, CENTER);
   text(tooltipText, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2);
 
-  // 🔹 이전/다음 버튼 추가  
+  // 이전/다음 버튼 추가  
   drawPrevNextButtons("pre_flowCard", "pre_adviceCard",  795 - before.width / 2);
 }
 
@@ -2112,13 +2069,13 @@ function drawPre_adviceCardScreen(){
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  // 말 그림 (intro 단계와 동일한 위치)
+  // 말 그림 
   if (horse_re1) {
     const horseSize = 500;
     const horseX = boxX + boxW / 2 - horseSize / 2;
     const horseY = boxY - horseSize + 100;
 
-  // 1. 비율 유지 계산
+  // 비율 유지 계산
     const aspectRatio = horse_re1.width / horse_re1.height;
     let drawH = horseSize;
     let drawW = horseSize * aspectRatio;
@@ -2127,7 +2084,7 @@ function drawPre_adviceCardScreen(){
     image(horse_re1, horseX + (horseSize - drawW)/2, horseY, drawW, drawH);
   }
 
-  // 설명 박스 (intro 단계와 동일한 위치)
+  // 설명 박스 
   image(textbox1, boxX, boxY);
 
   // 텍스트
@@ -2152,17 +2109,15 @@ function drawPre_adviceCardScreen(){
         boldScaleFactor   // 볼드 확대 비율
      );
   
-  // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
   const margin = 200;
   const prevW = before.width;
   const prevX = margin;
 
   drawImageButton(before, beforeHover, prevX, baseY, () => {
-    goToPrev(); // 이전 버튼은 flowCard로
+    goToPrev(); 
   });
 
-  // 2) generate_card3 버튼 (설명 박스 아래 중앙)
   if (generateCard3 && generateCard3Hover) {
     const btnW = generateCard3.width;
     const btnH = generateCard3.height;
@@ -2170,11 +2125,10 @@ function drawPre_adviceCardScreen(){
     const btnY = boxY + boxH ; 
 
     drawImageButton(generateCard3, generateCard3Hover, btnX, btnY, () => {
-    goToNext(); // 다음 단계는 adviceCard로
+    goToNext();
     });
   }
 }
-
 
 // ========== ADVICE CARD SCREEN ==========
 function drawAdviceCardScreen() {
@@ -2184,7 +2138,7 @@ function drawAdviceCardScreen() {
     
   drawStageTitle(title3);
 
-// ====== 1. 중앙 상단 카드 ========
+// ====== 중앙 상단 카드 ========
   const cardW = 260;
   const cardH = 380;
     
@@ -2208,12 +2162,10 @@ function drawAdviceCardScreen() {
   rect(cardX, cardY, cardW, cardH);
   noStroke();
 
-  // 2. 텍스트 박스 (카드 아래 중앙으로 이동)
+  // 텍스트 박스
   // =======================================================
     const boxW = 1000;
-    const boxH = 400; 
-    
-    // ★ 변경: 텍스트 박스를 살짝 왼쪽에 배치
+    const boxH = 400;     
     const boxOffset = 50; 
     const boxX = width / 2 - boxW / 2 + boxOffset;
     const boxY = cardY + cardH + 30; 
@@ -2222,23 +2174,22 @@ function drawAdviceCardScreen() {
 
       
     // -------------------------------------------------------
-    // 3. 텍스트 내용 (박스 내부 중앙에 LEFT 정렬 텍스트 배치)
+    // 텍스트 내용
     // -------------------------------------------------------
-    const textMargin = 50; // 중앙 배치를 위한 내부 여백
+    const textMargin = 50; 
     
     // 텍스트 영역의 시작점과 크기
     const textX = boxX + textMargin;
     const textY = boxY + boxH/2;;
-    const textW = boxW - textMargin * 2; // 좌우 여백 제외한 너비
-    const textH = boxH - textMargin * 2; // 상하 여백 제외한 높이
+    const textW = boxW - textMargin * 2; 
+    const textH = boxH - textMargin * 2; 
 
     fill(0);
     
-    const baseFontSize = 24;      // 기본 폰트 크기
-    const lineHeight = 45;        // 줄 간격 (20px 크기에 맞춰 적절히 설정)
-    const boldScaleFactor = 1.3;  // 볼드 폰트 확대 비율 (예: 10% 확대)
+    const baseFontSize = 24;     
+    const lineHeight = 45;      
+    const boldScaleFactor = 1.3; 
     
-    // ★ 함수 호출해 텍스트 쓰기
     drawLeftStyledText(
         policyCard.policy, 
         textX+35, 
@@ -2253,18 +2204,14 @@ function drawAdviceCardScreen() {
 
 
   // =======================================================
-  // 4. 말 이미지 (텍스트 박스 밖 왼쪽으로 분리)
+  //  말 이미지 
   // =======================================================
   const horseW = 140;
   if (horse_re2) {
       const aspectRatio = horse_re2.width / horse_re2.height;
       const horseH = horseW / aspectRatio; 
-      
-      // ★ 변경: 텍스트 박스 왼쪽, 상단 맞춤으로 배치
-      const horseMargin = 60; // 텍스트 박스와의 간격
-      const horseX = boxX - horseW - horseMargin;
-       
-      // 텍스트 박스의 상단 Y좌표와 맞춤 (혹은 중앙에 오도록 조정 가능)
+      const horseMargin = 60; 
+      const horseX = boxX - horseW - horseMargin;       
       const horseY = boxY + boxH - textMargin - horseH; 
       
       imageFlipX(horse_re2, horseX, horseY, horseW, horseH);
@@ -2308,7 +2255,7 @@ drawImageButtonScaled(
   textAlign(CENTER, CENTER);
   text(tooltipText, tooltipX + tooltipW / 2, tooltipY + tooltipH / 2);
 
-  // 🔹 이전/다음 버튼 추가
+  // 이전/다음 버튼 추가
   const btnY = boxY + boxH + 90;
   drawPrevNextButtons("pre_adviceCard", "pre_summary",  795 - before.width / 2);
 }
@@ -2323,13 +2270,13 @@ function drawPre_summaryScreen(){
   const boxX = width / 2 - boxW / 2;
   const boxY = 680;
 
-  // 말 그림 (intro 단계와 동일한 위치)
+  // 말 그림
   if (horse_re1) {
     const horseSize = 500;
     const horseX = boxX + boxW / 2 - horseSize / 2;
     const horseY = boxY - horseSize + 100;
 
-  // 1. 비율 유지 계산
+  // 비율 유지 계산
     const aspectRatio = horse_re1.width / horse_re1.height;
     let drawH = horseSize;
     let drawW = horseSize * aspectRatio;
@@ -2338,7 +2285,7 @@ function drawPre_summaryScreen(){
     image(horse_re1, horseX + (horseSize - drawW)/2, horseY, drawW, drawH);
   }
 
-  // 설명 박스 (intro 단계와 동일한 위치)
+  // 설명 박스
   image(textbox1, boxX, boxY);
 
 // 텍스트
@@ -2362,17 +2309,16 @@ function drawPre_summaryScreen(){
         boldScaleFactor   // 볼드 확대 비율
      );
 
-  // 1) 이전 버튼
   const baseY = boxY + boxH / 2 - before.width / 2;
   const margin = 200;
   const prevW = before.width;
   const prevX = margin;
 
   drawImageButton(before, beforeHover, prevX, baseY, () => {
-    goToPrev(); // 이전 버튼은 adviceCard로
+    goToPrev();
   });
 
-  // 2) 결과보기 버튼 (설명 박스 아래 중앙)
+  // 결과보기 버튼 (설명 박스 아래 중앙)
   if (result && resultHover) {
     const btnW = result.width;
     const btnH = result.height;
@@ -2380,29 +2326,27 @@ function drawPre_summaryScreen(){
     const btnY = boxY + boxH; 
 
 drawImageButton(result, resultHover, btnX, btnY, () => {
-  goToNext();               // 👉 바로 화면 전환
+  goToNext();     
 
-  // 👉 Supabase 저장은 기다리지 않고 실행
   saveResultToSupabase()
     .then((id) => {
-      qrKey = id;                  // 성공하면 QR용 key만 저장
+      qrKey = id;           
     })
     .catch((e) => {
       console.error("Supabase 저장 실패", e);
-      // 실패해도 아무것도 안 함 (UX 유지)
     });
   });
 }
 }
 
-// ========== SUMMARY SCREEN (COMPLETE FINAL VERSION) ==========
+// ========== SUMMARY SCREEN  ==========
 function drawSummaryScreen() {
   drawResultBackground();
   fill(0, 0, 0, 180);
   rect(0, 0, width, height);
 
   // =============================
-  // 🔶 1) 말 + 텍스트 박스
+  // 말 + 텍스트 박스
   // =============================
   const boxW = 800;
   const boxH = 230;
@@ -2424,7 +2368,7 @@ function drawSummaryScreen() {
   }
 
   // =============================
-  // 🔶 2) summary 텍스트 분기
+  // summary 텍스트 분기
   // =============================
   let summaryText;
 
@@ -2459,7 +2403,7 @@ function drawSummaryScreen() {
   );
 
   // =============================
-  // 🔶 3) QR 영역 (기존 그대로)
+  // QR 영역 
   // =============================
   if (geminiStatus !== "error") {
     const qrSize = 220;
@@ -2479,7 +2423,7 @@ function drawSummaryScreen() {
   }
 
   // =============================
-  // 🔶 4) 이전 / 다음 버튼
+  // 이전 / 다음 버튼
   // =============================
   const btnY = 720;  
 
@@ -2487,7 +2431,6 @@ function drawSummaryScreen() {
 
 }
 
-// ========== 작은 말풍선 텍스트 쓰기 함수 ===========
 function drawStyledText(
     textStr, x, y, maxWidth, lineHeight,
     regularFont, boldFont,
@@ -2507,12 +2450,10 @@ function drawStyledText(
         const parts = line.split('**');
         let totalLineWidth = 0;
 
-        // 기준 폰트 descent 계산
         textFont(regularFont);
         textSize(baseSize);
         const regularDescent = textDescent();
 
-        // 1단계: 줄 전체 너비 계산
         for (let i = 0; i < parts.length; i++) {
             const isBold = i % 2 !== 0;
             textFont(isBold ? boldFont : regularFont);
@@ -2522,7 +2463,6 @@ function drawStyledText(
 
         let currentX = x - totalLineWidth / 2;
 
-        // 2단계: 실제 출력
         for (let i = 0; i < parts.length; i++) {
             const part = parts[i];
             const isBold = i % 2 !== 0;
@@ -2530,10 +2470,8 @@ function drawStyledText(
             textFont(isBold ? boldFont : regularFont);
             textSize(isBold ? boldSize : baseSize);
 
-            // 현재 폰트 descent
             const currentDescent = textDescent();
 
-            // 하단 정렬을 위한 y 보정
             const yOffset = regularDescent - currentDescent;
 
             text(part, currentX, currentY + yOffset);
@@ -2541,12 +2479,10 @@ function drawStyledText(
         }
         currentY += lineHeight;
     }
-    // 원상 복구
     textFont(regularFont);
     textSize(baseSize);
 }
 
-// =========== 큰 말풍선 텍스트 쓰기 함수 =============
 function drawLeftStyledText(
     textStr, x, y, maxWidth, lineHeight,
     regularFont, boldFont,
@@ -2558,17 +2494,12 @@ function drawLeftStyledText(
     textAlign(LEFT, BASELINE);
     fill(0);
 
-    // 기준 descent 계산
     textFont(regularFont);
     textSize(baseSize);
     const regularDescent = textDescent();
 
-    // 개행 기준 분리
     const paragraphs = textStr.split(/\r?\n/);
 
-    // --------------------------------------------------------
-    // [1단계] 전체 높이 미리 계산하기
-    // --------------------------------------------------------
     let totalHeight = 0;
     let tempCursorX = 0;
     let lineCount = 0;
@@ -2576,7 +2507,7 @@ function drawLeftStyledText(
     for (let i = 0; i < paragraphs.length; i++) {
         const tokens = paragraphs[i].split(/(\*\*.*?\*\*|\s+)/);
         tempCursorX = 0;
-        lineCount++; // 새로운 문단 시작 시 줄 수 증가
+        lineCount++; 
 
         for (const token of tokens) {
             if (!token) continue;
@@ -2598,11 +2529,6 @@ function drawLeftStyledText(
     }
     totalHeight = lineCount * lineHeight;
 
-    // --------------------------------------------------------
-    // [2단계] 중앙 정렬된 시작 위치 계산 및 실제 출력
-    // --------------------------------------------------------
-    // y는 텍스트박스의 중앙 좌표라고 가정합니다.
-    // 박스 중앙(y)에서 전체 높이의 절반을 빼서 시작점 결정
     let cursorX = x;
     let cursorY = y - (totalHeight / 2) + baseSize; 
 
@@ -2612,7 +2538,6 @@ function drawLeftStyledText(
         for (const token of tokens) {
             if (!token) continue;
 
-            // 공백 토큰 처리
             if (/^\s+$/.test(token)) {
                 textFont(regularFont);
                 textSize(baseSize);
@@ -2627,7 +2552,6 @@ function drawLeftStyledText(
                 continue;
             }
 
-            // 볼드 여부 및 텍스트 설정
             const isBold = token.startsWith('**') && token.endsWith('**');
             const content = isBold ? token.slice(2, -2) : token;
 
@@ -2638,7 +2562,6 @@ function drawLeftStyledText(
             const currentDescent = textDescent();
             const yOffset = regularDescent - currentDescent;
 
-            // 자동 줄바꿈
             if (cursorX + w > x + maxWidth) {
                 cursorX = x;
                 cursorY += lineHeight;
@@ -2647,20 +2570,13 @@ function drawLeftStyledText(
             text(content, cursorX, cursorY + yOffset);
             cursorX += w;
         }
-
-        // 문단 종료 후 명시적 줄바꿈
         cursorX = x;
         cursorY += lineHeight;
     }
-
-    // 설정 복구
     textFont(regularFont);
     textSize(baseSize);
 }
 
-
-
-// ========== 예비 버튼 (이미지 버튼이 출력 안될시)==========
 function drawButton(x, y, w, h, label) {
   let isHover =
     mouseX > x && mouseX < x + w &&
@@ -2681,13 +2597,8 @@ function drawButton(x, y, w, h, label) {
   text(label, x + w / 2, y + h / 2);
 }
 
-
-// 🔹 클릭 가능한 이미지 버튼들을 모아두는 배열
 let clickableButtons = [];
 
-// =======================
-// 공통: 이미지 버튼 그리기
-// =======================
 function drawImageButton(img, imgHover, x, y, callback) {
   imageMode(CORNER);
   const w = img.width;
@@ -2699,18 +2610,12 @@ function drawImageButton(img, imgHover, x, y, callback) {
 
   // hover 이미지 / 일반 이미지
   image(isHover ? imgHover : img, x, y);
-
-  // 🔥 여기서는 "클릭"을 수행하지 않는다.
-  // 대신 나중에 mouseReleased에서 처리할 수 있도록 정보만 저장한다.
   clickableButtons.push({ x, y, w, h, callback });
 }
 
-// =======================
-// 공통: 크기를 조절한 이미지 버튼 그리기
-// =======================
 function drawImageButtonScaled(img, imgHover, x, y, w, h, callback) {
   imageMode(CORNER);
-  // hover 판정
+  // hover 체크
   let isHover =
     mouseX >= x && mouseX <= x + w &&
     mouseY >= y && mouseY <= y + h;
@@ -2721,10 +2626,6 @@ function drawImageButtonScaled(img, imgHover, x, y, w, h, callback) {
   // 클릭영역 등록
   clickableButtons.push({ x, y, w, h, callback });
 }
-
-// =======================
-// 공통: 이전/다음 버튼 그리기
-// =======================
 
 function drawPrevNextButtons(showPrev = true, showNext = true, baseY) {
   const margin = 200;
@@ -2743,7 +2644,6 @@ function drawPrevNextButtons(showPrev = true, showNext = true, baseY) {
 
   // 2) 다음 버튼
   if (showNext) {
-    // 특정 조건(예: 카테고리 미선택)에서 버튼을 비활성화하고 싶다면 여기에 조건 추가
     const canGoNext = (state === "question" && !selectedCategory) ? false : true;
 
     if (canGoNext) {
@@ -2751,7 +2651,6 @@ function drawPrevNextButtons(showPrev = true, showNext = true, baseY) {
         goToNext();
       });
     } else {
-      // 누를 수 없을 때 반투명 표시
       push();
       tint(255, 100);
       image(after, nextX, y);
@@ -2761,7 +2660,7 @@ function drawPrevNextButtons(showPrev = true, showNext = true, baseY) {
 }
 
 function keyPressed() {
-  if (pdfModalEl || urlModalEl || warningEl) return;
+  if (pdfModalEl || urlModalEl || warningEl || apiKeyModalEl) return;
 
   if (keyCode === LEFT_ARROW) {
     goToPrev();
@@ -2770,15 +2669,11 @@ function keyPressed() {
   }
 }
 
-
-
 // ========== 화면 넘김 처리 ==========
-// [통합] 이전 페이지로 이동
 function goToPrev() {
-  if (pdfModalEl || urlModalEl || warningEl) return; // 모달이 떠있으면 차단
+  if (pdfModalEl || urlModalEl || warningEl) return; 
   resetIdleTimer();
 
-  // 현재 상태(state)에 따른 이전 단계 정의
   switch (state) {
     case "intro_1": state = "start"; break;
     case "intro_2": state = "intro_1"; break;
@@ -2818,7 +2713,6 @@ function goToPrev() {
   }
 }
 
-// [통합] 다음 페이지로 이동
 function goToNext() {
   if (pdfModalEl || urlModalEl || warningEl) return; 
   resetIdleTimer();
@@ -2842,22 +2736,18 @@ function goToNext() {
     case "tutorial_2": state = "tutorial_3"; break;
     case "tutorial_3": state = "tutorial_fin"; break;
     case "tutorial_fin": state = "question"; break;
-    // question -> topics, topics -> keywords는 개별 선택 로직이므로 조건부 추가
     
     case "question":
-      // 카테고리가 선택되었을 때만 topics로 이동
       if (selectedCategory) state = "topics";
       else console.log("카테고리를 먼저 선택해주세요."); 
       break;
 
     case "topics":
-      // 주제가 선택되었을 때만 keywords로 이동
       if (selectedTopic) state = "keywords";
       else console.log("주제를 먼저 선택해주세요.");
       break;
 
     case "keywords":
-      // 키워드가 선택되었을 때만 타로 생성(Gemini 호출)
       if (selectedKeyWord) {
         state = "loading";
         tarotAdvice = "";
@@ -2872,9 +2762,9 @@ function goToNext() {
       break;
 
     case "pre_flowCard": 
-      selectionDestination = "flowCard"; // 목적지는 흐름 카드 결과
-      selectedCardIndex = -1;            // 선택 초기화
-      state = "card_selection";          // 카드 선택 화면으로 이동
+      selectionDestination = "flowCard"; 
+      selectedCardIndex = -1;      
+      state = "card_selection";    
       break;
 
     case "flowCard": 
@@ -2882,14 +2772,13 @@ function goToNext() {
        break;
 
     case "pre_adviceCard": 
-       selectionDestination = "adviceCard"; // 목적지는 조언 카드 결과
-       selectedCardIndex = -1;              // 선택 초기화
-       state = "card_selection";            // 카드 선택 화면으로 이동
+       selectionDestination = "adviceCard";
+       selectedCardIndex = -1;       
+       state = "card_selection";        
        break;
     case "adviceCard": state = "pre_summary"; break;
     
     case "pre_summary": 
-      // [특수] 요약 전 단계에서 다음을 누르면 저장하며 결과창으로
       state = "summary";
       saveResultToSupabase()
         .then(id => { qrKey = id; })
@@ -2897,7 +2786,6 @@ function goToNext() {
       break;
 
     case "summary": 
-      // [특수] 결과창에서 다음을 누르면 시스템 초기화 후 처음으로
       resetSystem(); 
       break;
       
@@ -2905,15 +2793,10 @@ function goToNext() {
   }
 }
 
-
-
-
 // ============= 클릭 처리 =============
 
-// 마우스를 누를 때: start/question 화면만 처리
-
 function mousePressed() {
-  lastInteractionTime = millis(); // 타이머 갱신
+  lastInteractionTime = millis(); 
   for (const btn of clickableButtons) {
     if (isInside(mouseX, mouseY, btn.x, btn.y, btn.w, btn.h)) {
       if (clickSound && clickSound.isLoaded()) {
@@ -2937,7 +2820,6 @@ function mousePressed() {
         btnY = height / 2 + 260;
     }
 
-    // 영역 안이면 소리 재생!
     if (isInside(mouseX, mouseY, btnX, btnY, btnW, btnH)) {
         if (clickSound && clickSound.isLoaded()) clickSound.play();
     }
@@ -2946,12 +2828,12 @@ function mousePressed() {
   }
 
   if (state === "question") {
-    handleQuestionClick();   // 선택만 하고 페이지는 안 넘김
+    handleQuestionClick();  
     return;
   }
 
   if (state === "topics") {
-    handleTopicsClick();     // 주제 선택 
+    handleTopicsClick();    
     return;
   }
 
@@ -2969,7 +2851,6 @@ function mousePressed() {
   }
 
   if (state === "card_selection") {
-      // 이미 선택했다면 클릭 무시 (혹은 다시 선택하게 할 수도 있음)
       if (selectedCardIndex !== -1) return; 
 
       const cardW = 260;
@@ -2979,17 +2860,15 @@ function mousePressed() {
       const startX = (width - totalW) / 2;
       const cardY = height / 2 - cardH / 2 + 50;
 
-      // 3장 중 어디를 눌렀나 확인
       for (let i = 0; i < 3; i++) {
           let x = startX + (i * (cardW + gap));
-          let y = cardY; // Hover시 y가 바뀌지만 클릭 판정은 원래 위치로 해도 무방
+          let y = cardY; 
 
           if (isInside(mouseX, mouseY, x, y, cardW, cardH)) {
-              selectedCardIndex = i; // i번째 카드 선택!
+              selectedCardIndex = i; 
 
-              selectionStartTime = millis(); // 클릭한 시점의 시간을 기록
+              selectionStartTime = millis(); 
               
-              // 효과음 재생
               if (magicRevealSound && magicRevealSound.isLoaded()) {
                    magicRevealSound.setVolume(1.0);
                    magicRevealSound.play();
@@ -3002,7 +2881,6 @@ function mousePressed() {
   }
 }
 
-// 마우스를 뗄 때: drawImageButton으로 등록된 버튼만 처리
 function mouseReleased() {
 
   for (const btn of clickableButtons) {
@@ -3047,13 +2925,11 @@ function handleQuestionClick() {
   const categories = ["건강", "진로", "금전", "연애"];
   const normalImages = [health, career, money, love];
 
-// 렌더링 코드와 동일하게 버튼 크기를 계산
   const btnW = normalImages[0].width * 0.9;
   const btnH = normalImages[0].height * 0.9;
 
-  // 렌더링 코드와 동일하게 위치를 계산
   const startX = width / 2 - (btnW * 1.2);
-  const startY = 240;  // drawQuestionScreen의 startY
+  const startY = 240; 
   const gapX = btnW + 80;
   const gapY = btnH + 40;
 
@@ -3087,7 +2963,6 @@ function handleTopicsClick() {
 
   const startX = width / 2 - (btnW * 1.2);
 
-// ★ drawTopicsScreen()과 동일하게 240으로 수정
   const startY = 240; 
 
   const gapX = btnW + 80;
@@ -3100,7 +2975,6 @@ function handleTopicsClick() {
     const x = startX + col * gapX;
     const y = startY + row * gapY;
 
-    // 클릭 영역도 btnW, btnH 사용
     if (isInside(mouseX, mouseY, x, y, btnW, btnH)) {
       selectedTopic = topics[i];
       return;
@@ -3160,8 +3034,8 @@ function drawStageTitle(img) {
   imageMode(CENTER);
   const w = img.width *0.8
   const h = img.height *0.8
-  const x = width/2;                // 화면 좌측 여백
-  const y = 130;                // 화면 상단 여백
+  const x = width/2;             
+  const y = 130;             
 
   image(img, x, y, w, h);
   pop();
@@ -3190,23 +3064,20 @@ function loadCardsByTopic(topic) {
   }
 }
 
-// 사용자 반응 있을 경우 초기화 X
 function mouseMoved() {
-  lastInteractionTime = millis(); // 마우스 움직임만으로도 타이머 갱신
+  lastInteractionTime = millis(); 
 }
 
-// [추가] 왼쪽 방향키/이전 버튼 공통 로직
 function handleBackNavigation() {
   if (currentPrevState) {
-    resetIdleTimer(); // 상호작용 타이머 리셋
+    resetIdleTimer(); 
     state = currentPrevState;
   }
 }
 
-// [추가] 오른쪽 방향키/다음 버튼 공통 로직
 function handleForwardNavigation() {
   if (currentNextState) {
-    resetIdleTimer(); // 상호작용 타이머 리셋
+    resetIdleTimer(); 
     if (state === "summary" && currentNextState === "start") {
       resetSystem();
     } else {
@@ -3216,40 +3087,32 @@ function handleForwardNavigation() {
 }
 
 
-
 //액자 그리기 함수//
 function drawFramedHorse(horseImg, x, y, w, h) {
   if (!horseImg || !horseFrame) return;
 
-  // 액자 비율 계산 (프레임 이미지는 말 이미지보다 약간 크게)
-  const framePadding = w * 0.1; // 프레임 두께 감각적으로 맞춘값
-  
-  // 2. 액자(horseFrame)를 그릴 최종 위치와 크기
+  const framePadding = w * 0.1;   
   const frameX = x; 
   const frameY = y;
   const frameW = w;
   const frameH = h;
   
-  // 3. 프레임 내부에 그려질 말 이미지의 크기 및 위치 계산
-  // 말 이미지 크기를 프레임 두께의 2배만큼 줄여서 프레임 내부에 배치
-  const innerPadding = framePadding; // 좌우상하 동일한 패딩 적용
+
+  const innerPadding = framePadding; 
   
-  const innerW = frameW - innerPadding * 2; // 전체 너비에서 좌/우 패딩 제거
-  const innerH = frameH - innerPadding * 2; // 전체 높이에서 상/하 패딩 제거
+  const innerW = frameW - innerPadding * 2; 
+  const innerH = frameH - innerPadding * 2; 
   
-  const innerX = frameX + innerPadding; // 프레임 X + 패딩
-  const innerY = frameY + innerPadding; // 프레임 Y + 패딩
+  const innerX = frameX + innerPadding;
+  const innerY = frameY + innerPadding;
 
 
-  // A. 액자 그리기 (먼저 그려서 뒤로 가게 함)
   imageMode(CORNER);
   image(horseFrame, frameX, frameY, frameW, frameH);
 
-  // B. 말 이미지 그리기 (프레임 내부에 작게)
   image(horseImg, innerX, innerY, innerW, innerH);
 }
 
-// ========= 말 이미지 뒤집기 ===========
 function imageFlipX(img, x, y, w = img.width, h = img.height) {
   push();
   translate(x + w, y);
@@ -3273,7 +3136,7 @@ function makeQRData() {
 
 function generateQRString() {
   const baseURL = "https://iamsaeun.github.io/tarot/qr_result.html";
-  if (!qrKey) return null; // 아직 저장 안 됐으면 QR 못 그림
+  if (!qrKey) return null; 
   return `${baseURL}?key=${encodeURIComponent(qrKey)}`;
 }
 function drawQRCode(x, y, size) {
@@ -3306,7 +3169,6 @@ function drawQRCode(x, y, size) {
   pop();
 }
 
-
 async function saveResultToSupabase() {
   const { data, error } = await supabaseClient
     .from("tarot_results")
@@ -3332,19 +3194,16 @@ async function saveResultToSupabase() {
   return data.id;
 }
 
-
-
 // ========== 초기화 함수==========
-// 모든 데이터를 태초의 상태로 되돌리는 함수
 function resetSystem() {
   isResetting = true;
 
   closePdfModal();
   closeUrlModal();
-  removeDomTimeoutWarning(); // 경고창 닫기
+  removeDomTimeoutWarning();
 
-  state = "start"; // 첫 화면으로
-  lastInteractionTime = millis(); // 타이머 리셋
+  state = "start"; 
+  lastInteractionTime = millis(); 
 
   // 1. 선택 데이터 초기화
   selectedCategory = null;
@@ -3401,7 +3260,6 @@ function showDomTimeoutWarning(seconds) {
   warningEl.style("background", "rgba(0,0,0,0.6)");
   warningEl.style("z-index", "10000");
   
-  // 경고창 자체를 클릭해도 타이머가 리셋되도록 설정
   warningEl.mousePressed(() => {
     resetIdleTimer();
     removeDomTimeoutWarning();
@@ -3410,8 +3268,8 @@ function showDomTimeoutWarning(seconds) {
 
 function removeDomTimeoutWarning() {
   if (warningEl) {
-    warningEl.remove(); // DOM에서 완전히 제거
-    warningEl = null;   // 변수 초기화 (매우 중요)
+    warningEl.remove(); 
+    warningEl = null; 
   }
 }
 
@@ -3419,14 +3277,126 @@ function resetIdleTimer() {
   lastInteractionTime = millis();
 }
 
+function openApiKeyModal() {
+  closeApiKeyModal();
+  resetIdleTimer();
+
+  apiKeyModalEl = createDiv("");
+  apiKeyModalEl.position(0, 0);
+  apiKeyModalEl.style("position", "fixed");
+  apiKeyModalEl.style("inset", "0");
+  apiKeyModalEl.style("display", "flex");
+  apiKeyModalEl.style("align-items", "center");
+  apiKeyModalEl.style("justify-content", "center");
+  apiKeyModalEl.style("background", "rgba(20,15,40,0.55)");
+  apiKeyModalEl.style("z-index", "9999");
+
+  const box = createDiv("");
+  box.parent(apiKeyModalEl);
+  box.style("width", "min(720px, 92vw)");
+  box.style("padding", "28px 24px");
+  box.style("border-radius", "16px");
+  box.style("border", "1px solid rgba(220, 180, 255, 0.35)");
+  box.style("background", "rgba(20, 15, 35, 0.92)");
+  box.style("box-shadow", "0 0 40px rgba(190,120,255,0.35)");
+  box.style("text-align", "center");
+
+  const title = createElement("h2", "Gemini API 키가 필요해요");
+  title.parent(box);
+  title.style("color", "#fff");
+  title.style("margin", "0 0 10px 0");
+  title.style("font-size", "22px");
+
+  const sub = createP("키를 입력하면 바로 카드 조언 생성이 이어집니다.");
+  sub.parent(box);
+  sub.style("color", "rgba(255,255,255,0.75)");
+  sub.style("margin", "0 0 18px 0");
+  sub.style("font-size", "14px");
+
+  const input = createInput("", "password");
+  input.parent(box);
+  input.attribute("placeholder", "Gemini API 키를 입력하세요");
+  input.style("width", "100%");
+  input.style("box-sizing", "border-box");
+  input.style("padding", "12px 14px");
+  input.style("border-radius", "12px");
+  input.style("border", "1px solid rgba(255,255,255,0.35)");
+  input.style("background", "rgba(0,0,0,0.25)");
+  input.style("color", "#fff");
+  input.style("outline", "none");
+  input.style("font-size", "16px");
+
+  const btnRow = createDiv("");
+  btnRow.parent(box);
+  btnRow.style("display", "flex");
+  btnRow.style("gap", "10px");
+  btnRow.style("justify-content", "center");
+  btnRow.style("margin-top", "16px");
+
+  const saveBtn = createButton("저장");
+  saveBtn.parent(btnRow);
+  saveBtn.style("padding", "12px 18px");
+  saveBtn.style("border-radius", "999px");
+  saveBtn.style("border", "1px solid rgba(255,255,255,0.35)");
+  saveBtn.style("background", "linear-gradient(135deg, rgba(190,120,255,0.95), rgba(90,40,160,0.95))");
+  saveBtn.style("color", "#fff");
+  saveBtn.style("font-weight", "800");
+  saveBtn.style("cursor", "pointer");
+
+  const cancelBtn = createButton("취소");
+  cancelBtn.parent(btnRow);
+  cancelBtn.style("padding", "12px 18px");
+  cancelBtn.style("border-radius", "999px");
+  cancelBtn.style("border", "1px solid rgba(255,255,255,0.35)");
+  cancelBtn.style("background", "rgba(0,0,0,0.35)");
+  cancelBtn.style("color", "#fff");
+  cancelBtn.style("font-weight", "700");
+  cancelBtn.style("cursor", "pointer");
+
+  const doSave = () => {
+    const v = input.value().trim();
+    if (v.length < 10) return;
+
+    API_KEY = v; // ✅ 세션 전용 (저장 X)
+    closeApiKeyModal();
+
+    if (pendingGeminiRequest) {
+      const { category, topic, keyWord } = pendingGeminiRequest;
+      pendingGeminiRequest = null;
+      callGeminiTarot(category, topic, keyWord);
+    }
+  };
+
+  saveBtn.mousePressed(doSave);
+  cancelBtn.mousePressed(() => {
+    closeApiKeyModal();
+    // 취소 시에는 에러 화면 or summary로 보내고 싶으면 여기서 state 바꿔도 됨
+  });
+
+  input.elt.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doSave();
+  });
+
+  // 바깥 클릭하면 닫기 (pdf/url 모달이랑 동일)
+  apiKeyModalEl.elt.addEventListener("mousedown", (e) => {
+    resetIdleTimer();
+    if (e.target === apiKeyModalEl.elt) closeApiKeyModal();
+  });
+}
+
+function closeApiKeyModal() {
+  if (apiKeyModalEl) {
+    apiKeyModalEl.remove();
+    apiKeyModalEl = null;
+  }
+}
 
 // ========== Gemini 호출 로직 ==========
 function callGeminiTarot(category, topic, keyWord) {
-  if (!API_KEY || API_KEY === "%%%%") {
-    console.error("API_KEY를 설정해주세요!");
-    tarotAdvice = "API 키가 설정되지 않았습니다. 스케치를 수정해 주세요.";
-    geminiStatus = "error";
-    state = "summary";
+  if (!API_KEY || API_KEY.trim().length === 0) {
+    pendingGeminiRequest = { category, topic, keyWord };
+    openApiKeyModal();
+    state = "loading";
     return;
   }
 
@@ -3479,7 +3449,7 @@ function callGeminiTarot(category, topic, keyWord) {
       
       geminiStatus = "success";
       selectionDestination = "gemini";
-      selectedCardIndex = -1; // 선택 상태 초기화
+      selectedCardIndex = -1;
       state = "card_selection";
     })
     .catch(err => {
