@@ -3224,7 +3224,7 @@ function resetSystem() {
   // 3. 인터랙션 요소 초기화
   rubProgress = 0;
   isKeywordSelected = false;
-  clickableButtons = []; // 버튼 배열 비우기
+  clickableButtons = []; 
 
   // 4. 사운드 제어
   if (bgMusic && bgMusic.isPlaying()) bgMusic.stop();
@@ -3243,7 +3243,6 @@ function showDomTimeoutWarning(seconds) {
     return;
   }
 
-  // 새로 생성
   warningEl = createDiv(`
     <div style="text-align:center; background:white; padding:40px; border-radius:20px; border:4px solid #333; pointer-events: auto;">
       <h1 style="color:black; margin:0; font-size:32px;">잠시 후 초기화됩니다</h1>
@@ -3307,7 +3306,7 @@ function openApiKeyModal() {
   title.style("margin", "0 0 10px 0");
   title.style("font-size", "22px");
 
-  const sub = createP("키를 입력하면 바로 카드 조언 생성이 이어집니다.");
+  const sub = createP("키를 입력하면 바로 카드 생성이 이어집니다");
   sub.parent(box);
   sub.style("color", "rgba(255,255,255,0.75)");
   sub.style("margin", "0 0 18px 0");
@@ -3333,7 +3332,7 @@ function openApiKeyModal() {
   btnRow.style("justify-content", "center");
   btnRow.style("margin-top", "16px");
 
-  const saveBtn = createButton("저장");
+  const saveBtn = createButton("입력");
   saveBtn.parent(btnRow);
   saveBtn.style("padding", "12px 18px");
   saveBtn.style("border-radius", "999px");
@@ -3357,7 +3356,7 @@ function openApiKeyModal() {
     const v = input.value().trim();
     if (v.length < 10) return;
 
-    API_KEY = v; // ✅ 세션 전용 (저장 X)
+    API_KEY = v; 
     closeApiKeyModal();
 
     if (pendingGeminiRequest) {
@@ -3370,14 +3369,12 @@ function openApiKeyModal() {
   saveBtn.mousePressed(doSave);
   cancelBtn.mousePressed(() => {
     closeApiKeyModal();
-    // 취소 시에는 에러 화면 or summary로 보내고 싶으면 여기서 state 바꿔도 됨
   });
 
   input.elt.addEventListener("keydown", (e) => {
     if (e.key === "Enter") doSave();
   });
 
-  // 바깥 클릭하면 닫기 (pdf/url 모달이랑 동일)
   apiKeyModalEl.elt.addEventListener("mousedown", (e) => {
     resetIdleTimer();
     if (e.target === apiKeyModalEl.elt) closeApiKeyModal();
